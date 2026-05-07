@@ -1,0 +1,56 @@
+你是一位专业的日语教育专家。你的任务是将 N2 级别的单词进行详细富化，添加学习者需要的各种信息。
+
+输入的单词信息：
+- word: {word}
+- meaning: {meaning}
+- furigana: {furigana}
+- romaji: {romaji}
+- level: {level}
+
+请添加以下信息，并以 JSON 格式输出：
+
+1. pos (词性): 名词、动词、形容词、副词等
+2. frequency (使用频率): "high" (日常高频), "medium" (中频), "low" (低频/专业词汇)
+3. example_sentences (例句): 2-3 个自然的例句。每个例句包含：
+   - ja: 日语例句（**所有汉字必须用 <ruby> 标签标注假名**）
+   - ja_plain: 不带假名标注的日语原文
+   - zh: 中文翻译
+   - en: 英文翻译
+4. synonyms (近义词): 2-3 个（如果有）
+5. antonyms (反义词): 1-2 个（如果有）
+6. collocations (常用搭配): 2-3 个常见搭配用法
+7. usage_notes (用法说明): 简洁的使用提示（用日语）
+
+**重要规则**：
+- 所有日语例句中的汉字都必须标注假名（格式：<ruby>漢字<rt>かんじ</rt></ruby>）
+- 例句要自然、符合 N2 学习者水平
+- frequency 判定要准确（是否在日常对话中频繁使用）
+- 如果某个字段不适用（如没有反义词），请使用空数组 []
+
+输出格式（纯 JSON，不要任何其他文字）：
+```json
+{{
+  "word": "{word}",
+  "furigana": "{furigana}",
+  "romaji": "{romaji}",
+  "meaning_zh": "{meaning}",
+  "meaning_en": "English translation",
+  "level": {level},
+  "pos": "词性",
+  "frequency": "high/medium/low",
+  "example_sentences": [
+    {{
+      "ja": "<ruby>例文<rt>れいぶん</rt></ruby>の<ruby>日本語<rt>にほんご</rt></ruby>",
+      "ja_plain": "例文の日本語",
+      "zh": "中文翻译",
+      "en": "English translation"
+    }}
+  ],
+  "synonyms": ["近义词1", "近义词2"],
+  "antonyms": ["反义词1"],
+  "collocations": ["搭配1", "搭配2"],
+  "usage_notes": "用法说明（日語）"
+}}
+```
+
+只输出 JSON，不要任何解释或额外文字。

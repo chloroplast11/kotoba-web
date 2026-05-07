@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Word {
+  id               Int    @id
+  word             String
+  furigana         String
+  romaji           String
+  meaningZh        String
+  meaningEn        String
+  level            Int
+  pos              String
+  frequency        String
+  usageNotes       String
+  exampleSentences String
+  synonyms         String
+  antonyms         String
+  collocations     String
+
+  questions  Question[]
+  wordStates UserWordState[]
+}
+
+model Question {
+  id               String  @id
+  wordId           Int
+  dimension        String
+  type             String
+  question         String
+  questionPlain    String
+  options          String
+  correctIndex     Int
+  explanation      String?
+  explanationPlain String?
+  explanationZh    String?
+
+  word Word @relation(fields: [wordId], references: [id])
+}
+
+model UserWordState {
+  id         Int       @id @default(autoincrement())
+  wordId     Int
+  dimension  String
+  stability  Float     @default(0)
+  difficulty Float     @default(0)
+  due        DateTime?
+  lastReview DateTime?
+  reps       Int       @default(0)
+  lapses     Int       @default(0)
+  fsrsState  Int       @default(0)
+  learnedAt  DateTime?
+
+  word Word @relation(fields: [wordId], references: [id])
+
+  @@unique([wordId, dimension])
+  @@index([due])
+}
+
+model DailySession {
+  id        Int      @id @default(autoincrement())
+  date      String   @unique
+  queue     String
+  cursor    Int      @default(0)
+  results   String   @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AppSettings {
+  id                   Int     @id @default(1)
+  dailyNewWords        Int     @default(4)
+  practiceLowFreqUsage Boolean @default(false)
+  activeLevels         String  @default("[2]")
+  totalReviews         Int     @default(0)
+  streak               Int     @default(0)
+  timeOffset           Int     @default(0)
+}

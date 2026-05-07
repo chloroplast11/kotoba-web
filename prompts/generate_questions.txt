@@ -1,0 +1,102 @@
+你是一位专业的日语测试题目设计专家。你的任务是为一个单词生成 4-6 道测试题，覆盖 R（认识）、P（产出）、U（运用）三个维度。
+
+输入的富化单词数据：
+{enriched_word_json}
+
+**三个维度的定义**：
+- R (Recognition 认识): 看到/听到词能理解意思。测试：给词选义、给义选词、同义词选择等
+- P (Production 产出): 能从意思中提取出正确的词。测试：看中文写日语、填空、词形变化等
+- U (Usage 运用): 能在句子中正确使用。测试：语境推断、用法正误判断、造句等
+
+**题目类型**：
+1. meaning_choice (选择题-选义): 给出单词，选择正确的意思
+2. word_choice (选择题-选词): 给出意思或语境，选择正确的单词
+3. synonym_choice (近义词选择): 选择意思最接近的词
+4. fill_blank (填空): 在句子中填入正确的词
+5. context_inference (语境推断): 根据上下文选择正确用法
+6. wrong_usage (用法判断): 判断句子中的用法是否正确
+
+**出题要求**：
+1. 每个单词生成 4-6 道题
+2. 必须覆盖 R、P、U 三个维度（R至少2题，P至少1题，U至少1题）
+3. 所有题干和选项中的汉字如何如果是N2左右水平，则必须标注假名，太简单的汉字不用加假名（ruby标签格式）
+4. 干扰项要合理：同义词、形近词、音近词、同级别词
+5. 每道题必须有唯一正确答案
+6. 难度符合 N2 水平
+7. 答案要随机，即correct_index所有问题不要是全是一样的
+
+输出格式（纯 JSON 数组）：
+```json
+[
+  {{
+    "id": "word_{{word}}_{{type}}_{{序号}}",
+    "word_id": {{word_id}},
+    "dimension": "R/P/U",
+    "type": "题目类型",
+    "question": "<ruby>題<rt>だい</rt></ruby><ruby>幹<rt>かん</rt></ruby>（带假名标注）",
+    "question_plain": "题干（不带标注）",
+    "options": [
+      {{
+        "text": "选项文本（带假名标注）",
+        "text_plain": "选项文本（不带标注）"
+      }}
+    ],
+    "correct_index": 0,
+    "explanation": "解析（日语，带假名标注）",
+    "explanation_plain": "解析（不带标注）",
+    "explanation_zh": "解析（中文）"
+  }}
+]
+```
+
+**示例题目**：
+
+R 维度题目示例：
+```json
+{{
+  "dimension": "R",
+  "type": "meaning_choice",
+  "question": "「<ruby>題名<rt>だいめい</rt></ruby>」の<ruby>意味<rt>いみ</rt></ruby>は？",
+  "options": [
+    {{"text": "<ruby>標題<rt>ひょうだい</rt></ruby>、タイトル"}},
+    {{"text": "<ruby>問題<rt>もんだい</rt></ruby>の<ruby>名前<rt>なまえ</rt></ruby>"}},
+    {{"text": "<ruby>有名<rt>ゆうめい</rt></ruby>な<ruby>題<rt>だい</rt></ruby>"}},
+    {{"text": "<ruby>名前<rt>なまえ</rt></ruby>を<ruby>付<rt>つ</rt></ruby>ける"}}
+  ],
+  "correct_index": 0
+}}
+```
+
+P 维度题目示例：
+```json
+{{
+  "dimension": "P",
+  "type": "fill_blank",
+  "question": "この<ruby>本<rt>ほん</rt></ruby>の（　　）は「<ruby>吾輩<rt>わがはい</rt></ruby>は<ruby>猫<rt>ねこ</rt></ruby>である」だ。",
+  "options": [
+    {{"text": "<ruby>題名<rt>だいめい</rt></ruby>"}},
+    {{"text": "<ruby>名前<rt>なまえ</rt></ruby>"}},
+    {{"text": "<ruby>表題<rt>ひょうだい</rt></ruby>"}},
+    {{"text": "<ruby>書名<rt>しょめい</rt></ruby>"}}
+  ],
+  "correct_index": 3
+}}
+```
+
+U 维度题目示例：
+```json
+{{
+  "dimension": "U",
+  "type": "context_inference",
+  "question": "<ruby>次<rt>つぎ</rt></ruby>の<ruby>文<rt>ぶん</rt></ruby>で「<ruby>題名<rt>だいめい</rt></ruby>」の<ruby>使<rt>つか</rt></ruby>い<ruby>方<rt>かた</rt></ruby>が<ruby>正<rt>ただ</rt></ruby>しいのは？",
+  "options": [
+    {{"text": "この<ruby>映画<rt>えいが</rt></ruby>の<ruby>題名<rt>だいめい</rt></ruby>は<ruby>有名<rt>ゆうめい</rt></ruby>だ。"}},
+    {{"text": "<ruby>彼<rt>かれ</rt></ruby>の<ruby>題名<rt>だいめい</rt></ruby>は<ruby>田中<rt>たなか</rt></ruby>さんです。"}},
+    {{"text": "<ruby>題名<rt>だいめい</rt></ruby>を<ruby>解<rt>と</rt></ruby>いてください。"}},
+    {{"text": "<ruby>題名<rt>だいめい</rt></ruby>な<ruby>人<rt>ひと</rt></ruby>に<ruby>会<rt>あ</rt></ruby>った。"}}
+  ],
+  "correct_index": 2
+}}
+```
+
+只输出 JSON 数组，不要任何解释或额外文字。

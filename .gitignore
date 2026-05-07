@@ -10,6 +10,12 @@
 !.yarn/releases
 !.yarn/versions
 
+#data
+n2_enriched.json
+n2_questions.json
+n2.json
+
+
 # testing
 /coverage
 
@@ -39,3 +45,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# local database
+dev.db
+
+# test outputs
+test_results_*.json

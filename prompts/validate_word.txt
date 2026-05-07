@@ -1,0 +1,46 @@
+你是一位日语教育质量控制专家。你的任务是验证富化后的单词数据的准确性和质量。
+
+请验证以下富化后的单词数据：
+
+{enriched_word_json}
+
+请检查以下项目并进行质量评估：
+
+1. **假名标注准确性**: 所有汉字是否都标注了正确的假名
+2. **例句自然度**: 例句是否自然、符合 N2 水平
+3. **翻译准确性**: 中文和英文翻译是否准确
+4. **词性准确性**: 词性分类是否正确
+5. **使用频率合理性**: frequency 判定是否合理（基于日常对话使用频率）
+6. **近反义词准确性**: 提供的近义词和反义词是否恰当
+7. **信息完整性**: 所有必填字段是否都已填写
+
+输出格式（纯 JSON，不要任何其他文字）：
+```json
+{{
+  "word": "单词",
+  "quality_score": 0-100,
+  "issues": [
+    {{
+      "severity": "critical/warning/info",
+      "field": "有问题的字段名",
+      "description": "问题描述"
+    }}
+  ],
+  "suggestions": [
+    {{
+      "field": "字段名",
+      "current": "当前值",
+      "suggested": "建议值",
+      "reason": "原因"
+    }}
+  ],
+  "validation_status": "approved/needs_review/rejected"
+}}
+```
+
+评分标准：
+- quality_score 90-100: approved（可直接使用）
+- quality_score 70-89: needs_review（需要人工复核）
+- quality_score <70: rejected（需要重新生成）
+
+只输出 JSON，不要任何解释或额外文字。

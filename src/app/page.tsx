@@ -1,65 +1,84 @@
-import Image from "next/image";
+import { prisma } from "@/lib/db";
+import { buildTodayQueue } from "@/lib/queue";
+import { todayDateString } from "@/lib/time";
+import { toSrsData } from "@/lib/srs";
+import type { AppSettingsData, DimKey } from "@/types/domain";
+import type { UserWordState } from "@/generated/prisma";
+import Masthead from "@/components/layout/Masthead";
+import HomeClient from "@/components/home/HomeClient";
 
-export default function Home() {
+function computeStats(allStates: UserWordState[]) {
+  const byWord = new Map<number, { R?: UserWordState; P?: UserWordState }>();
+  for (const s of allStates) {
+    if (!byWord.has(s.wordId)) byWord.set(s.wordId, {});
+    if (s.dimension === "R" || s.dimension === "P") {
+      byWord.get(s.wordId)![s.dimension as "R" | "P"] = s;
+    }
+  }
+  let totalLearned = 0, mastered = 0;
+  for (const dims of byWord.values()) {
+    if (dims.R?.learnedAt) totalLearned++;
+    if (dims.R && dims.R.stability >= 7 && dims.P && dims.P.stability >= 7) mastered++;
+  }
+  return { totalLearned, mastered };
+}
+
+export default async function HomePage() {
+  const today = todayDateString();
+  let sessionData = await prisma.dailySession.findUnique({ where: { date: today } });
+  const allStates = await prisma.userWordState.findMany();
+  let wordMap: Record<number, { word: string; furigana: string }> = {};
+
+  if (!sessionData) {
+    const [words, questions, settingsRow] = await Promise.all([
+      prisma.word.findMany(),
+      prisma.question.findMany(),
+      prisma.appSettings.findUnique({ where: { id: 1 } }),
+    ]);
+    const settings: AppSettingsData = settingsRow
+      ? {
+          dailyNewWords: settingsRow.dailyNewWords,
+          practiceLowFreqUsage: settingsRow.practiceLowFreqUsage,
+          activeLevels: JSON.parse(settingsRow.activeLevels) as number[],
+          totalReviews: settingsRow.totalReviews,
+          streak: settingsRow.streak,
+          timeOffset: settingsRow.timeOffset,
+        }
+      : { dailyNewWords: 4, practiceLowFreqUsage: false, activeLevels: [2], totalReviews: 0, streak: 0, timeOffset: 0 };
+
+    const wordStateMap = new Map<number, Record<DimKey, ReturnType<typeof toSrsData> | null>>();
+    for (const s of allStates) {
+      if (!wordStateMap.has(s.wordId)) wordStateMap.set(s.wordId, { R: null, P: null, U: null });
+      wordStateMap.get(s.wordId)![s.dimension as DimKey] = toSrsData(s);
+    }
+    const queue = buildTodayQueue(words, questions, wordStateMap, settings, new Date());
+    sessionData = await prisma.dailySession.create({
+      data: { date: today, queue: JSON.stringify(queue), cursor: 0, results: "[]" },
+    });
+    const allIds = new Set(queue.map((q) => q.wordId));
+    wordMap = Object.fromEntries(
+      words.filter((w) => allIds.has(w.id)).map((w) => [w.id, { word: w.word, furigana: w.furigana }])
+    );
+  } else {
+    const parsedQueue = JSON.parse(sessionData.queue) as { wordId: number }[];
+    const parsedResults = JSON.parse(sessionData.results) as { wordId: number }[];
+    const allIds = [...new Set([...parsedQueue, ...parsedResults].map((q) => q.wordId))];
+    const queueWords = await prisma.word.findMany({ where: { id: { in: allIds } } });
+    wordMap = Object.fromEntries(queueWords.map((w) => [w.id, { word: w.word, furigana: w.furigana }]));
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="app">
+      <Masthead />
+      <HomeClient
+        initialData={{
+          queue: JSON.parse(sessionData.queue),
+          cursor: sessionData.cursor,
+          results: JSON.parse(sessionData.results),
+          stats: computeStats(allStates),
+          wordMap,
+        }}
+      />
     </div>
   );
 }

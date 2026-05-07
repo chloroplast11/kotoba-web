@@ -1,0 +1,2389 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>言葉帖 — N2 vocabulary, deliberately</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,400&family=Noto+Serif+JP:wght@300;400;500;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --ink: #1d2935;
+  --ink-soft: #3a4654;
+  --ink-faint: #8a8578;
+  --paper: #f7f3ec;
+  --paper-warm: #efe9dd;
+  --paper-deep: #e6dfd0;
+  --accent: #c5535a;
+  --accent-soft: #d97a7e;
+  --celadon: #7a9b8a;       /* 青磁 - mastered */
+  --moss: #a8a878;          /* 苔色 - learning */
+  --clay: #b8a888;          /* unstarted */
+  --line: rgba(29, 41, 53, 0.12);
+  --line-strong: rgba(29, 41, 53, 0.25);
+  --shadow: 0 1px 0 rgba(29, 41, 53, 0.04), 0 4px 24px rgba(29, 41, 53, 0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Fraunces', 'Noto Serif JP', serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(197, 83, 90, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(122, 155, 138, 0.04) 0%, transparent 40%);
+  background-attachment: fixed;
+}
+
+/* ---------- Layout ---------- */
+.app {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 48px 32px 96px;
+  position: relative;
+}
+
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 24px;
+  margin-bottom: 48px;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.brand-jp {
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.brand-en {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-faint);
+  letter-spacing: 0.02em;
+}
+
+.nav {
+  display: flex;
+  gap: 28px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.nav button {
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  padding: 6px 0;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.nav button:hover { color: var(--ink); }
+
+.nav button.active {
+  color: var(--ink);
+}
+
+.nav button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--accent);
+}
+
+/* ---------- Home ---------- */
+.home-hero {
+  margin-bottom: 64px;
+}
+
+.date-line {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 24px;
+}
+
+.home-hero h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 16px;
+  max-width: 680px;
+}
+
+.home-hero h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.home-hero .lede {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  max-width: 560px;
+  font-weight: 300;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  margin: 48px 0;
+}
+
+.stat {
+  background: var(--paper);
+  padding: 28px 24px;
+}
+
+.stat-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 44px;
+  line-height: 1;
+  color: var(--ink);
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-num .unit {
+  font-size: 14px;
+  color: var(--ink-faint);
+  margin-left: 4px;
+}
+
+.stat-label {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink-faint);
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 56px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 16px 28px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn.btn-secondary:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* ---------- Section heads ---------- */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+  margin-bottom: 28px;
+  margin-top: 56px;
+}
+
+.section-head h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--ink);
+}
+
+.section-head .meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ---------- Word entry (Learn page) ---------- */
+.entry {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 56px;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.entry-head {
+  position: sticky;
+  top: 32px;
+  align-self: start;
+}
+
+.entry-furigana {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+}
+
+.entry-word {
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 500;
+  font-size: 64px;
+  line-height: 1;
+  color: var(--ink);
+  margin-bottom: 16px;
+  letter-spacing: 0.02em;
+}
+
+.entry-romaji {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-faint);
+  margin-bottom: 20px;
+}
+
+.tag-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.tag {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  padding: 4px 10px;
+  border: 1px solid var(--line-strong);
+  color: var(--ink-soft);
+}
+
+.tag.freq-high { border-color: var(--accent); color: var(--accent); }
+.tag.freq-mid { color: var(--moss); border-color: var(--moss); }
+.tag.freq-low { color: var(--ink-faint); }
+
+.entry-body { padding-top: 0; }
+
+.entry-meaning {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.4;
+  color: var(--ink);
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 28px;
+}
+
+.entry-meaning .en {
+  display: block;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-faint);
+  margin-top: 6px;
+}
+
+.subhead {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint);
+  margin-bottom: 14px;
+  margin-top: 28px;
+}
+
+.subhead:first-child { margin-top: 0; }
+
+.usage-note {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  padding: 16px 20px;
+  background: var(--paper-warm);
+  border-left: 2px solid var(--accent-soft);
+  font-weight: 300;
+}
+
+.example {
+  padding: 14px 0;
+  border-bottom: 1px dotted var(--line);
+}
+
+.example:last-child { border-bottom: none; }
+
+.example-jp {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink);
+  margin-bottom: 4px;
+  font-weight: 400;
+}
+
+.example-zh {
+  font-family: 'Fraunces', serif;
+  font-size: 13px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.colloc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.colloc {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px dotted var(--line);
+}
+
+.colloc:last-child { border-bottom: none; }
+
+.colloc-jp {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.colloc-zh {
+  font-family: 'Fraunces', serif;
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.synonym {
+  padding: 12px 16px;
+  background: var(--paper-warm);
+  margin-bottom: 8px;
+}
+
+.synonym-word {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.synonym-diff {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+/* Learn navigation */
+.learn-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.progress-pips {
+  display: flex;
+  gap: 6px;
+}
+
+.pip {
+  width: 24px;
+  height: 2px;
+  background: var(--line-strong);
+  transition: background 0.3s;
+}
+
+.pip.active { background: var(--ink); }
+.pip.done { background: var(--celadon); }
+
+/* ---------- Practice (quiz) ---------- */
+.quiz-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 0;
+}
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 48px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.quiz-progress {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+}
+
+.dimension-pill {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--paper-warm);
+  color: var(--ink-soft);
+  border: 1px solid var(--line-strong);
+}
+
+.dimension-pill.dim-R { color: var(--celadon); border-color: var(--celadon); }
+.dimension-pill.dim-P { color: var(--moss); border-color: var(--moss); }
+.dimension-pill.dim-U { color: var(--accent); border-color: var(--accent); }
+
+.round-tag {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: transparent;
+}
+.round-tag.round-1 { color: var(--ink-soft); }
+.round-tag.round-2 { 
+  color: var(--accent); 
+  background: rgba(197, 83, 90, 0.06);
+}
+.round-tag.round-new { color: var(--moss); }
+.round-tag.round-review { color: var(--ink-faint); }
+
+.quiz-stem {
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.7;
+  color: var(--ink);
+  margin-bottom: 40px;
+  padding: 24px 0;
+}
+
+.quiz-stem.short {
+  font-size: 26px;
+  line-height: 1.6;
+}
+
+.quiz-stem u {
+  text-decoration: none;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 1px;
+}
+
+.quiz-stem .blank {
+  display: inline-block;
+  min-width: 80px;
+  border-bottom: 2px solid var(--ink);
+  margin: 0 4px;
+  padding: 0 8px;
+}
+
+.quiz-options {
+  display: grid;
+  gap: 12px;
+}
+
+.quiz-option {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 17px;
+  line-height: 1.55;
+  text-align: left;
+  padding: 18px 24px;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  transition: all 0.15s;
+  color: var(--ink);
+}
+
+.quiz-option:hover:not(:disabled) {
+  border-color: var(--ink);
+  background: var(--paper-warm);
+}
+
+.quiz-option:disabled { cursor: default; }
+
+.quiz-option .marker {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  padding-top: 4px;
+  color: var(--ink-faint);
+  width: 18px;
+  letter-spacing: 0.1em;
+}
+
+.quiz-option.correct {
+  border-color: var(--celadon);
+  background: rgba(122, 155, 138, 0.08);
+  color: var(--celadon);
+}
+.quiz-option.correct .marker { color: var(--celadon); }
+
+.quiz-option.wrong {
+  border-color: var(--accent);
+  background: rgba(197, 83, 90, 0.06);
+  color: var(--accent);
+}
+.quiz-option.wrong .marker { color: var(--accent); }
+
+.quiz-feedback {
+  margin-top: 32px;
+  padding: 24px;
+  background: var(--paper-warm);
+  border-left: 2px solid var(--ink);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  font-weight: 300;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: rise 0.4s 0.1s forwards;
+}
+
+.quiz-feedback strong {
+  display: block;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.quiz-feedback.correct strong { color: var(--celadon); }
+.quiz-feedback.wrong strong { color: var(--accent); }
+
+.quiz-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 32px;
+  align-items: center;
+}
+
+@keyframes rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Library ---------- */
+.lib-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.lib-card {
+  background: var(--paper);
+  padding: 22px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 160px;
+}
+
+.lib-card:hover { background: var(--paper-warm); }
+
+.lib-card-furi {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.12em;
+}
+
+.lib-card-word {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.lib-card-meaning {
+  font-family: 'Fraunces', serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  flex-grow: 1;
+}
+
+.dim-bars {
+  display: flex;
+  gap: 4px;
+  margin-top: auto;
+}
+
+.dim-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+}
+
+.dim-bar-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+}
+
+.dim-bar-track {
+  width: 100%;
+  height: 3px;
+  background: var(--line);
+  position: relative;
+  overflow: hidden;
+}
+
+.dim-bar-fill {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  background: var(--celadon);
+  transition: width 0.4s;
+}
+
+.dim-bar-fill.locked {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--line-strong),
+    var(--line-strong) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  width: 100%;
+  opacity: 0.4;
+}
+
+.dim-bar-fill.learning { background: var(--moss); }
+.dim-bar-fill.mastered { background: var(--celadon); }
+
+/* ---------- Empty / Done states ---------- */
+.empty-state {
+  text-align: center;
+  padding: 96px 24px;
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 300;
+}
+
+.empty-state-jp {
+  font-size: 32px;
+  color: var(--ink);
+  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+}
+
+.empty-state-en {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink-faint);
+  max-width: 420px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+
+/* ---------- Misc ---------- */
+.hidden { display: none !important; }
+
+.kanji-mark {
+  position: absolute;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 320px;
+  color: var(--ink);
+  opacity: 0.025;
+  font-weight: 700;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+
+.kanji-mark.km1 { top: 80px; right: -30px; }
+
+.summary-card {
+  border: 1px solid var(--line);
+  padding: 32px;
+  margin: 24px 0;
+  background: var(--paper);
+}
+
+.summary-card h3 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.summary-list {
+  list-style: none;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.summary-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dotted var(--line);
+}
+
+.summary-list .word { font-weight: 500; }
+.summary-list .result { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-faint); }
+.summary-list .result.good { color: var(--celadon); }
+.summary-list .result.bad { color: var(--accent); }
+
+@media (max-width: 720px) {
+  .app { padding: 32px 20px 80px; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .entry { grid-template-columns: 1fr; gap: 24px; }
+  .entry-head { position: static; }
+  .entry-word { font-size: 48px; }
+  .quiz-stem { font-size: 20px; }
+  .nav { gap: 14px; font-size: 11px; }
+  .masthead { flex-direction: column; align-items: flex-start; gap: 16px; }
+}
+</style>
+</head>
+
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// 种子数据：8 个 N2 词的完整富化数据 + 预生成题目
+// 这些数据模拟"已经跑过 generator + validator 管线后入库"的最终形态
+// 真实产品中由 LLM 离线管线生成
+
+const SEED_WORDS = [
+  {
+    id: "w001",
+    word: "題名",
+    furigana: "だいめい",
+    romaji: "daimei",
+    meaning_zh: "题名；标题（多指作品的）",
+    meaning_en: "title (of a work)",
+    pos: "名詞",
+    level: 2,
+    frequency: "mid",
+    register: "書面寄り",
+    usage_note: "主に作品（本・映画・論文など）の正式なタイトル。日常会話では「タイトル」のほうが自然。",
+    examples: [
+      { jp: "この小説の題名はまだ決まっていない。", zh: "这部小说的题名还没定下来。" },
+      { jp: "論文の題名を見ただけで、内容の方向性が分かる。", zh: "光看论文题名就能知道内容的方向。" },
+      { jp: "映画の題名は覚えているが、ストーリーは忘れてしまった。", zh: "电影的题名还记得，但剧情已经忘了。" }
+    ],
+    collocations: [
+      { phrase: "題名をつける", zh: "起题名" },
+      { phrase: "題名を決める", zh: "决定题名" },
+      { phrase: "題名のない〜", zh: "无题的〜" }
+    ],
+    synonyms: [
+      { word: "タイトル", diff: "最も口語的・一般的。日常会話ではこちら。" },
+      { word: "表題", diff: "より硬い書面語。文書冒頭の題に。" }
+    ]
+  },
+  {
+    id: "w002",
+    word: "占める",
+    furigana: "しめる",
+    romaji: "shimeru",
+    meaning_zh: "占据；占有（位置、比例等）",
+    meaning_en: "to occupy; to account for",
+    pos: "動詞（他下一）",
+    level: 2,
+    frequency: "high",
+    register: "通用",
+    usage_note: "物理的な位置にも、比率・割合などの抽象的な意味にも使う。",
+    examples: [
+      { jp: "女性社員が全体の四割を占めている。", zh: "女员工占总数的四成。" },
+      { jp: "この問題は会議の大半を占めた。", zh: "这个问题占了会议的大半时间。" },
+      { jp: "本棚が部屋の半分を占めている。", zh: "书架占了房间的一半。" }
+    ],
+    collocations: [
+      { phrase: "〜割を占める", zh: "占〜成" },
+      { phrase: "大半を占める", zh: "占大半" },
+      { phrase: "席を占める", zh: "占座位" }
+    ],
+    synonyms: [
+      { word: "占有する", diff: "より硬く、法的・専門的な文脈で。" }
+    ]
+  },
+  {
+    id: "w003",
+    word: "曖昧",
+    furigana: "あいまい",
+    romaji: "aimai",
+    meaning_zh: "暧昧；模糊；含糊",
+    meaning_en: "vague; ambiguous",
+    pos: "形容動詞",
+    level: 2,
+    frequency: "high",
+    register: "通用",
+    usage_note: "「はっきりしない」のフォーマル寄りな言い方。日本人が断言を避ける時の婉曲表現にも。",
+    examples: [
+      { jp: "彼の返事は曖昧で、結局YESかNOか分からなかった。", zh: "他的回答很暧昧，最后也搞不清是Yes还是No。" },
+      { jp: "曖昧な記憶を頼りに昔の場所を探した。", zh: "凭着模糊的记忆寻找以前的地方。" },
+      { jp: "責任の所在が曖昧なままになっている。", zh: "责任归属一直含糊不清。" }
+    ],
+    collocations: [
+      { phrase: "曖昧な返事", zh: "暧昧的回答" },
+      { phrase: "曖昧な態度", zh: "暧昧的态度" },
+      { phrase: "曖昧にする", zh: "搞模糊；不明说" }
+    ],
+    synonyms: [
+      { word: "はっきりしない", diff: "より口語的。" },
+      { word: "ぼんやり", diff: "輪郭・記憶などが「ぼやけている」。" }
+    ]
+  },
+  {
+    id: "w004",
+    word: "工夫",
+    furigana: "くふう",
+    romaji: "kufuu",
+    meaning_zh: "下功夫；想办法；巧思",
+    meaning_en: "ingenuity; clever device; effort",
+    pos: "名詞・スル動詞",
+    level: 2,
+    frequency: "high",
+    register: "通用",
+    usage_note: "ただ努力するのではなく「考えて工夫する」というニュアンス。創意工夫。",
+    examples: [
+      { jp: "狭い部屋を広く見せる工夫をした。", zh: "下了功夫让狭窄的房间看起来宽敞。" },
+      { jp: "もう少し工夫すれば、もっと良くなる。", zh: "再下点功夫想想，会更好。" },
+      { jp: "毎日の食事に工夫を凝らしている。", zh: "每天的饭菜都费心思琢磨。" }
+    ],
+    collocations: [
+      { phrase: "工夫する", zh: "下功夫；琢磨" },
+      { phrase: "工夫を凝らす", zh: "费心思" },
+      { phrase: "創意工夫", zh: "创意巧思" }
+    ],
+    synonyms: [
+      { word: "アイデア", diff: "結果としての「思いつき」。「工夫」はプロセス重視。" }
+    ]
+  },
+  {
+    id: "w005",
+    word: "頑固",
+    furigana: "がんこ",
+    romaji: "ganko",
+    meaning_zh: "顽固；固执",
+    meaning_en: "stubborn; obstinate",
+    pos: "形容動詞",
+    level: 2,
+    frequency: "mid",
+    register: "通用",
+    usage_note: "性格を表す。汚れなどの「落ちにくさ」にも使える（頑固な汚れ）。",
+    examples: [
+      { jp: "父は頑固で、一度決めたら絶対に変えない。", zh: "父亲很顽固，一旦决定就绝不改变。" },
+      { jp: "頑固な汚れにはこの洗剤がよく効く。", zh: "这种洗涤剂对顽固污渍很有效。" }
+    ],
+    collocations: [
+      { phrase: "頑固な性格", zh: "固执的性格" },
+      { phrase: "頑固に〜する", zh: "顽固地〜" }
+    ],
+    synonyms: [
+      { word: "強情", diff: "より否定的なニュアンス。" }
+    ]
+  },
+  {
+    id: "w006",
+    word: "渋滞",
+    furigana: "じゅうたい",
+    romaji: "juutai",
+    meaning_zh: "堵车；交通堵塞",
+    meaning_en: "traffic jam; congestion",
+    pos: "名詞・スル動詞",
+    level: 2,
+    frequency: "high",
+    register: "通用",
+    usage_note: "交通の文脈で頻出。連休・帰省シーズンのニュースでよく出る。",
+    examples: [
+      { jp: "高速道路が渋滞していて、約束に遅れそうだ。", zh: "高速堵车，约会要迟到了。" },
+      { jp: "30キロの渋滞が発生している。", zh: "发生了30公里的拥堵。" }
+    ],
+    collocations: [
+      { phrase: "渋滞に巻き込まれる", zh: "被卷入堵车" },
+      { phrase: "渋滞を避ける", zh: "避开堵车" }
+    ],
+    synonyms: []
+  },
+  {
+    id: "w007",
+    word: "腰掛ける",
+    furigana: "こしかける",
+    romaji: "koshikakeru",
+    meaning_zh: "坐下（在椅子、台阶等上）",
+    meaning_en: "to sit down (on a chair, step, etc.)",
+    pos: "動詞（自下一）",
+    level: 2,
+    frequency: "low",
+    register: "通用",
+    usage_note: "「座る」より具体的に「（高さのあるものに）腰を下ろす」。やや書き言葉的。",
+    examples: [
+      { jp: "公園のベンチに腰掛けて休んだ。", zh: "在公园长椅上坐下休息了。" },
+      { jp: "彼は階段に腰掛けて本を読んでいる。", zh: "他坐在台阶上读书。" }
+    ],
+    collocations: [
+      { phrase: "ベンチに腰掛ける", zh: "坐在长椅上" },
+      { phrase: "椅子に腰掛ける", zh: "坐在椅子上" }
+    ],
+    synonyms: [
+      { word: "座る", diff: "より一般的・口語的。床にも使える。" }
+    ]
+  },
+  {
+    id: "w008",
+    word: "羨ましい",
+    furigana: "うらやましい",
+    romaji: "urayamashii",
+    meaning_zh: "羡慕；令人羡慕的",
+    meaning_en: "enviable; jealous (of someone)",
+    pos: "形容詞",
+    level: 2,
+    frequency: "high",
+    register: "口語寄り",
+    usage_note: "肯定的・親しみのある「羨ましい」。日常会話で頻出。",
+    examples: [
+      { jp: "海外旅行に行けるなんて、羨ましいなあ。", zh: "能去国外旅行，真羡慕啊。" },
+      { jp: "彼女の語学力が羨ましい。", zh: "羡慕她的语言能力。" }
+    ],
+    collocations: [
+      { phrase: "〜が羨ましい", zh: "羡慕〜" }
+    ],
+    synonyms: [
+      { word: "妬ましい", diff: "ネガティブで「嫉妬」のニュアンス。" }
+    ]
+  }
+];
+
+// 预生成题库：每个词 4-6 道题，覆盖 R/P/U 三个维度
+// quality 字段标记验证结果，"high" 表示通过 cross-model 验证
+const SEED_QUESTIONS = [
+  // ===== 題名 (w001) =====
+  {
+    id: "q001-1", word_id: "w001", dimension: "R", type: "kanji_to_meaning",
+    stem: "「題名」の意味として最も適切なものは？",
+    options: ["题名；标题（作品的）", "目录；索引", "主题；主旨", "标志；标识"],
+    correct: 0,
+    explanation: "「題名」は作品の正式なタイトル。",
+    quality: "high"
+  },
+    {
+    id: "q001-1b", word_id: "w001", dimension: "R", type: "context_inference",
+    stem: "「ようやく書き終えた小説。あとはこれを何と呼ぶかだけ。本屋に並んだとき、読者の目に最初に飛び込んでくる、あの数文字。」— 描かれているものは？",
+    options: ["題名", "結末", "目次", "見出し"],
+    correct: 0,
+    explanation: "「読者の目に最初に飛び込む数文字」「本屋に並んだとき」から、作品のタイトル＝「題名」。",
+    quality: "high"
+  },
+  {
+    id: "q001-2", word_id: "w001", dimension: "P", type: "meaning_to_kanji",
+    stem: "「（作品的）题名、标题」を表す日本語は？",
+    options: ["題名", "件名", "見出し", "課題"],
+    correct: 0,
+    explanation: "件名（メールの題）、見出し（記事の見出し）、課題（課題・問題）と区別。",
+    quality: "high"
+  },
+  {
+    id: "q001-3", word_id: "w001", dimension: "U", type: "cloze",
+    stem: "応募する小説の____がなかなか決まらず、締め切りが近づいて焦っている。",
+    options: ["題名", "見出し", "名目", "標題"],
+    correct: 0,
+    explanation: "小説など作品全体には「題名」が最も自然。",
+    quality: "high"
+  },
+  {
+    id: "q001-4", word_id: "w001", dimension: "U", type: "synonym_replacement",
+    stem: "「あの映画の<u>題名</u>、何だっけ？」 — 最も自然に置き換えられる語は？",
+    options: ["タイトル", "表題", "見出し", "件名"],
+    correct: 0,
+    explanation: "日常会話では「タイトル」が自然。「題名」はやや書き言葉寄り。",
+    quality: "high"
+  },
+
+  {
+    id: "q001-5", word_id: "w001", dimension: "U", type: "wrong_usage",
+    stem: "「題名」の使い方が<u>不自然</u>なものを選びなさい。",
+    options: [
+      "この映画の題名がどうしても思い出せない。",
+      "応募作品の題名は10文字以内とする。",
+      "彼の題名は山田太郎だ。",
+      "題名のない絵が美術館に飾られていた。"
+    ],
+    correct: 2,
+    explanation: "「題名」は作品（本・映画など）のタイトルに使う。人の名前は「題名」ではなく「名前」。",
+    quality: "high"
+  },
+  // ===== 占める (w002) =====
+  {
+    id: "q002-1", word_id: "w002", dimension: "R", type: "kanji_to_meaning",
+    stem: "「占める」の意味は？",
+    options: ["占据；占有（比例、位置）", "关闭；闭合", "湿润；潮湿", "勒紧；紧绷"],
+    correct: 0,
+    explanation: "「閉める」「湿る」「締める」と同音異義語に注意。",
+    quality: "high"
+  },
+    {
+    id: "q002-1b", word_id: "w002", dimension: "R", type: "context_inference",
+    stem: "「会議は予定通り始まったが、ある一つの議題だけで2時間が過ぎた。他の案件はほとんど話せなかった。」— この状況を一語で表すと、その議題は会議の大半を ____。",
+    options: ["占めた", "失った", "離れた", "終えた"],
+    correct: 0,
+    explanation: "「ある議題だけで2時間が過ぎ、他の案件が話せなかった」＝大半を「占めた」。",
+    quality: "high"
+  },
+  {
+    id: "q002-2", word_id: "w002", dimension: "P", type: "meaning_to_kanji",
+    stem: "「占据全体的四成」を日本語で表すと？",
+    options: ["全体の四割を占める", "全体の四割を閉める", "全体の四割を締める", "全体の四割を絞める"],
+    correct: 0,
+    explanation: "比率には「占める」を使う。",
+    quality: "high"
+  },
+  {
+    id: "q002-3", word_id: "w002", dimension: "U", type: "cloze",
+    stem: "若年層が顧客の大半を____企業にとって、SNS戦略は最重要課題だ。",
+    options: ["占める", "占めている", "占めた", "占めて"],
+    correct: 1,
+    explanation: "現在の状態を表すので「占めている」+ 名詞修飾。",
+    quality: "high"
+  },
+  {
+    id: "q002-4", word_id: "w002", dimension: "U", type: "cloze",
+    stem: "本棚が部屋の____を占めていて、もう家具を置く場所がない。",
+    options: ["半分", "半数", "半額", "半身"],
+    correct: 0,
+    explanation: "物理的な空間の比率は「半分」。半数は人や物の数、半額は値段。",
+    quality: "high"
+  },
+
+  {
+    id: "q002-5", word_id: "w002", dimension: "U", type: "wrong_usage",
+    stem: "「占める」の使い方が<u>不自然</u>なものを選びなさい。",
+    options: [
+      "女性社員が全体の四割を占めている。",
+      "本棚が部屋の半分を占めている。",
+      "彼は会議で大事な役を占めている。",
+      "外食費が家計の三割を占めている。"
+    ],
+    correct: 2,
+    explanation: "役職には「占める」より「務める」「担う」が自然。「占める」は割合・空間に使う。",
+    quality: "high"
+  },
+  // ===== 曖昧 (w003) =====
+  {
+    id: "q003-1", word_id: "w003", dimension: "R", type: "kanji_to_meaning",
+    stem: "「曖昧」の意味は？",
+    options: ["模糊；含糊", "明朗；爽快", "亲切；和气", "黑暗；阴沉"],
+    correct: 0,
+    quality: "high"
+  },
+    {
+    id: "q003-1b", word_id: "w003", dimension: "R", type: "context_inference",
+    stem: "「『たぶん行けると思う』『そうかもしれない』『場合によっては…』— 彼の話には、いつもこういう言い方が混じる。聞いた後、結局どうなのか分からない。」— 彼の話し方は？",
+    options: ["曖昧", "正直", "丁寧", "正確"],
+    correct: 0,
+    explanation: "「結局どうなのか分からない」「たぶん」「場合によっては」など、はっきりしない＝「曖昧」。",
+    quality: "high"
+  },
+  {
+    id: "q003-2", word_id: "w003", dimension: "P", type: "meaning_to_kanji",
+    stem: "「他的回答很模糊」の「模糊」に当たる語は？",
+    options: ["曖昧", "微妙", "繊細", "薄情"],
+    correct: 0,
+    explanation: "「微妙」は「subtle/delicate」、ニュアンスが異なる。",
+    quality: "high"
+  },
+  {
+    id: "q003-3", word_id: "w003", dimension: "U", type: "cloze",
+    stem: "彼の返事は____で、結局承諾なのか拒否なのか分からなかった。",
+    options: ["曖昧", "華麗", "厳密", "貴重"],
+    correct: 0,
+    quality: "high"
+  },
+  {
+    id: "q003-4", word_id: "w003", dimension: "U", type: "synonym_replacement",
+    stem: "「責任の所在が<u>曖昧</u>なままだ。」最も近い意味の語は？",
+    options: ["はっきりしない", "重大ではない", "決まっている", "公平でない"],
+    correct: 0,
+    quality: "high"
+  },
+
+  {
+    id: "q003-5", word_id: "w003", dimension: "U", type: "wrong_usage",
+    stem: "「曖昧」の使い方が<u>不自然</u>なものを選びなさい。",
+    options: [
+      "彼の返事は曖昧で要点が分からない。",
+      "責任の所在が曖昧なままだ。",
+      "数式の計算結果は曖昧であるべきだ。",
+      "曖昧な記憶を頼りに昔の家を探した。"
+    ],
+    correct: 2,
+    explanation: "数式・計算は精確であるべきもので、「曖昧であるべき」とは言えない。「曖昧」は本質的にネガティブな評価語。",
+    quality: "high"
+  },
+  // ===== 工夫 (w004) =====
+  {
+    id: "q004-1", word_id: "w004", dimension: "R", type: "kanji_to_meaning",
+    stem: "「工夫」の意味は？",
+    options: ["下功夫；琢磨；巧思", "工厂；制造", "丈夫；男性", "工程；过程"],
+    correct: 0,
+    quality: "high"
+  },
+    {
+    id: "q004-1b", word_id: "w004", dimension: "R", type: "context_inference",
+    stem: "「狭いキッチンだったが、彼女は棚の高さを変え、調味料の置き場を見直し、引き出しに仕切りを入れた。同じ広さなのに、ずっと使いやすくなった。」— 彼女がしたことは？",
+    options: ["工夫", "我慢", "節約", "練習"],
+    correct: 0,
+    explanation: "「同じ条件のまま、考えて改善する」のが「工夫」。我慢・節約・練習とは異なる。",
+    quality: "high"
+  },
+  {
+    id: "q004-2", word_id: "w004", dimension: "P", type: "meaning_to_kanji",
+    stem: "「下功夫琢磨怎么让狭窄的房间看起来宽敞」の「下功夫琢磨」に当たる語は？",
+    options: ["工夫する", "努力する", "苦労する", "勉強する"],
+    correct: 0,
+    explanation: "「努力」は労力、「工夫」は知恵を絞ること。",
+    quality: "high"
+  },
+  {
+    id: "q004-3", word_id: "w004", dimension: "U", type: "cloze",
+    stem: "限られた予算でも、____次第でかなり良いプレゼン資料が作れる。",
+    options: ["工夫", "努力", "苦労", "勉強"],
+    correct: 0,
+    quality: "high"
+  },
+  {
+    id: "q004-4", word_id: "w004", dimension: "U", type: "cloze",
+    stem: "毎日の食事に工夫を____、家族みんなが楽しんでいる。",
+    options: ["凝らして", "重ねて", "込めて", "尽くして"],
+    correct: 0,
+    explanation: "「工夫を凝らす」が定型表現。",
+    quality: "high"
+  },
+
+  {
+    id: "q004-5", word_id: "w004", dimension: "U", type: "wrong_usage",
+    stem: "「工夫」の使い方が<u>不自然</u>なものを選びなさい。",
+    options: [
+      "限られた予算でも工夫すれば良いものが作れる。",
+      "毎日の食事に工夫を凝らしている。",
+      "今日は工夫が三度もあった。",
+      "狭い部屋を広く見せる工夫を考えた。"
+    ],
+    correct: 2,
+    explanation: "「工夫」は「考えて改善するプロセス・知恵」。回数を数える「三度あった」は不自然。",
+    quality: "high"
+  },
+  // ===== 頑固 (w005) =====
+  {
+    id: "q005-1", word_id: "w005", dimension: "R", type: "kanji_to_meaning",
+    stem: "「頑固」の意味は？",
+    options: ["顽固；固执", "坚固；牢固", "顽强；坚韧", "完固；完整"],
+    correct: 0,
+    explanation: "「強固」（堅固）と意味が近いが、「頑固」は人の性格に使う。",
+    quality: "high"
+  },
+    {
+    id: "q005-1b", word_id: "w005", dimension: "R", type: "context_inference",
+    stem: "「父は一度『これだ』と決めると、家族や周りが何を言っても変えない。30年前と同じやり方を、今も貫いている。」— 父の性格は？",
+    options: ["頑固", "優しい", "賢い", "几帳面"],
+    correct: 0,
+    explanation: "「決めたら変えない」「同じやり方を貫く」＝「頑固」。",
+    quality: "high"
+  },
+  {
+    id: "q005-2", word_id: "w005", dimension: "P", type: "meaning_to_kanji",
+    stem: "「父亲很顽固，一旦决定就绝不改变」の「顽固」は？",
+    options: ["頑固", "強固", "堅固", "確固"],
+    correct: 0,
+    quality: "high"
+  },
+  {
+    id: "q005-3", word_id: "w005", dimension: "U", type: "cloze",
+    stem: "この____汚れには、専用の洗剤を使う必要がある。",
+    options: ["頑固な", "頑張る", "頑丈な", "頑健な"],
+    correct: 0,
+    explanation: "「頑固な汚れ」は決まった言い方。",
+    quality: "high"
+  },
+
+  {
+    id: "q005-5", word_id: "w005", dimension: "U", type: "wrong_usage",
+    stem: "「頑固」の使い方が<u>不自然</u>なものを選びなさい。",
+    options: [
+      "父は頑固で意見を変えない。",
+      "頑固な汚れには専用の洗剤が必要だ。",
+      "この椅子は頑固な作りで長持ちする。",
+      "彼は頑固に自分のやり方を守り続けた。"
+    ],
+    correct: 2,
+    explanation: "物の「丈夫さ・しっかりした作り」には「頑丈」を使う。「頑固」は人の性格や落ちにくい汚れに。",
+    quality: "high"
+  },
+  // ===== 渋滞 (w006) =====
+  {
+    id: "q006-1", word_id: "w006", dimension: "R", type: "kanji_to_meaning",
+    stem: "「渋滞」の意味は？",
+    options: ["堵车；交通拥堵", "停滞；停止", "迟到；延误", "渋つ；苦涩"],
+    correct: 0,
+    quality: "high"
+  },
+    {
+    id: "q006-1b", word_id: "w006", dimension: "R", type: "context_inference",
+    stem: "「ニュースでお盆の高速道路が映っていた。30キロ先まで車のテールランプが続き、ほとんど動いていない。」— この状況は？",
+    options: ["渋滞", "故障", "工事", "事故"],
+    correct: 0,
+    explanation: "「30キロ車が続いてほとんど動かない」＝交通の「渋滞」。",
+    quality: "high"
+  },
+  {
+    id: "q006-2", word_id: "w006", dimension: "P", type: "meaning_to_kanji",
+    stem: "「高速堵车，约会要迟到了」の「堵车」は？",
+    options: ["渋滞", "停滞", "停車", "故障"],
+    correct: 0,
+    quality: "high"
+  },
+  {
+    id: "q006-3", word_id: "w006", dimension: "U", type: "cloze",
+    stem: "事故で30キロの____が発生し、上りも下りも動かない。",
+    options: ["渋滞", "混雑", "混乱", "故障"],
+    correct: 0,
+    explanation: "「混雑」は人混み、「渋滞」は交通。",
+    quality: "high"
+  },
+  {
+    id: "q006-4", word_id: "w006", dimension: "U", type: "cloze",
+    stem: "GW初日は渋滞に____可能性が高いので、早めに出発したほうがいい。",
+    options: ["巻き込まれる", "落ちる", "陥る", "つかまる"],
+    correct: 0,
+    explanation: "「渋滞に巻き込まれる」が定型。",
+    quality: "high"
+  },
+
+  {
+    id: "q006-5", word_id: "w006", dimension: "U", type: "wrong_usage",
+    stem: "「渋滞」の使い方が<u>不自然</u>なものを選びなさい。",
+    options: [
+      "事故で高速道路が渋滞している。",
+      "駅前のエレベーターが渋滞して待ち時間が長い。",
+      "GW初日は渋滞に巻き込まれた。",
+      "渋滞を避けて早めに出発した。"
+    ],
+    correct: 1,
+    explanation: "「渋滞」は基本的に車・道路の文脈。エレベーター・人混みには「混雑」「混む」を使う。",
+    quality: "high"
+  },
+  // ===== 腰掛ける (w007) - 低频词，只到 P 维度 =====
+  {
+    id: "q007-1", word_id: "w007", dimension: "R", type: "kanji_to_meaning",
+    stem: "「腰掛ける」の意味は？",
+    options: ["（在椅子等上）坐下", "倚靠；靠着", "蹲下；蹲坐", "弯腰；屈身"],
+    correct: 0,
+    quality: "high"
+  },
+    {
+    id: "q007-1b", word_id: "w007", dimension: "R", type: "context_inference",
+    stem: "「公園を歩き疲れて、近くのベンチに腰を下ろした。木陰が涼しく、しばらく動きたくなかった。」— 彼の動作を一語で言うと？",
+    options: ["腰掛けた", "寝転んだ", "立ち止まった", "うずくまった"],
+    correct: 0,
+    explanation: "「ベンチに腰を下ろす」＝「腰掛ける」。寝転ぶは横になること、立ち止まるは立ったまま。",
+    quality: "high"
+  },
+  {
+    id: "q007-2", word_id: "w007", dimension: "P", type: "meaning_to_kanji",
+    stem: "「在公园长椅上坐下」を最も自然に表すのは？",
+    options: ["公園のベンチに腰掛ける", "公園のベンチに座り込む", "公園のベンチに腰を曲げる", "公園のベンチに腰を抜かす"],
+    correct: 0,
+    quality: "high"
+  },
+
+  {
+    id: "q007-5", word_id: "w007", dimension: "U", type: "wrong_usage",
+    stem: "「腰掛ける」の使い方が<u>不自然</u>なものを選びなさい。",
+    options: [
+      "公園のベンチに腰掛けて休んだ。",
+      "階段に腰掛けて電話していた。",
+      "畳の上に腰掛けて茶を飲んだ。",
+      "彼は塀に腰掛けて空を見ていた。"
+    ],
+    correct: 2,
+    explanation: "「腰掛ける」は高さのあるもの（ベンチ・椅子・階段・塀）に「腰を下ろす」こと。畳など床に座る場合は「座る」。",
+    quality: "high"
+  },
+  // ===== 羨ましい (w008) =====
+  {
+    id: "q008-1", word_id: "w008", dimension: "R", type: "kanji_to_meaning",
+    stem: "「羨ましい」の意味は？",
+    options: ["羡慕的", "可怜的", "可疑的", "可惜的"],
+    correct: 0,
+    quality: "high"
+  },
+    {
+    id: "q008-1b", word_id: "w008", dimension: "R", type: "context_inference",
+    stem: "「同僚が来月から3週間のヨーロッパ旅行に出ると聞いた。自分は今年も休みが取れそうにない。話を聞きながら、つい『いいなあ』とつぶやいてしまった。」— このとき感じている気持ちは？",
+    options: ["羨ましい", "恥ずかしい", "悔しい", "情けない"],
+    correct: 0,
+    explanation: "「いいなあ」＝相手の状況を肯定的にうらやむ＝「羨ましい」。「悔しい」は自分が負けた感覚。",
+    quality: "high"
+  },
+  {
+    id: "q008-2", word_id: "w008", dimension: "P", type: "meaning_to_kanji",
+    stem: "「真羡慕能去国外旅行」の「羡慕」は？",
+    options: ["羨ましい", "悔しい", "妬ましい", "恥ずかしい"],
+    correct: 0,
+    explanation: "「妬ましい」はネガティブな嫉妬。日常の親しみある「羨ましい」とは違う。",
+    quality: "high"
+  },
+  {
+    id: "q008-3", word_id: "w008", dimension: "U", type: "cloze",
+    stem: "毎日定時で帰れる仕事なんて____なあ。",
+    options: ["羨ましい", "羨ましく", "羨ましさ", "羨ましがる"],
+    correct: 0,
+    explanation: "「〜なあ」の前は終止形。",
+    quality: "high"
+  },
+  {
+    id: "q008-4", word_id: "w008", dimension: "U", type: "synonym_replacement",
+    stem: "「彼女の語学力が<u>羨ましい</u>。」最も近い意味は？",
+    options: ["うらやむ気持ちだ", "尊敬している", "嫌いだ", "怖い"],
+    correct: 0,
+    quality: "high"
+  },
+  {
+    id: "q008-5", word_id: "w008", dimension: "U", type: "wrong_usage",
+    stem: "「羨ましい」の使い方が<u>不自然</u>なものを選びなさい。",
+    options: [
+      "毎日定時で帰れるなんて羨ましい。",
+      "彼女の語学力が羨ましい。",
+      "羨ましくて事故にあってしまった。",
+      "海外で働けるなんて、本当に羨ましいよ。"
+    ],
+    correct: 2,
+    explanation: "「羨ましい」は他者の状況をうらやむ感情で、それ自体が事故などの原因になることはない。論理的に不自然。",
+    quality: "high"
+  }
+];
+
+</script>
+<script>
+// ============================================================
+// State Management
+// ============================================================
+
+const STORAGE_KEY = 'kotoba-cho-v1';
+
+const DEFAULT_STATE = {
+  // Per-word, per-dimension SRS state
+  // shape: { wordId: { R: {...srs}, P: {...srs}, U: {...srs}, learned_at } }
+  wordState: {},
+  // Today's session
+  todayQueue: [],          // [{wordId, dim, questionId}]
+  todayCursor: 0,
+  todayStarted: null,      // ISO date string
+  todayResults: [],        // [{wordId, dim, correct}]
+  // Settings
+  settings: {
+    practiceLowFreqUsage: false,  // default: low-freq words U dim locked
+    dailyNewWords: 4,
+  },
+  // Total stats
+  totalReviews: 0,
+  streak: 0,
+};
+
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return structuredClone(DEFAULT_STATE);
+    return { ...structuredClone(DEFAULT_STATE), ...JSON.parse(raw) };
+  } catch (e) {
+    return structuredClone(DEFAULT_STATE);
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function resetState() {
+  state = structuredClone(DEFAULT_STATE);
+  saveState();
+}
+
+// ============================================================
+// SRS - Simplified FSRS-like model
+// ============================================================
+// Each (word, dimension) has: stability (days), difficulty (1-10), 
+// last_review (timestamp), reps, lapses
+
+function newSrs() {
+  return {
+    stability: 0,
+    difficulty: 5,
+    last_review: null,
+    next_due: null,    // timestamp; null means "new, ready now"
+    reps: 0,
+    lapses: 0,
+  };
+}
+
+function getOrInitWord(wordId) {
+  if (!state.wordState[wordId]) {
+    state.wordState[wordId] = {
+      R: newSrs(),
+      P: newSrs(),
+      U: newSrs(),
+      learned_at: null,
+    };
+  }
+  return state.wordState[wordId];
+}
+
+// Update SRS after answer. correct: bool. quality (0-3): 0=again, 1=hard, 2=good, 3=easy
+function updateSrs(srs, correct, quality = 2) {
+  const now = Date.now();
+  srs.last_review = now;
+  srs.reps += 1;
+  
+  if (!correct) {
+    srs.lapses += 1;
+    srs.stability = Math.max(0.5, srs.stability * 0.4);
+    srs.difficulty = Math.min(10, srs.difficulty + 1.2);
+    srs.next_due = now + 1000 * 60 * 10; // 10min cooldown for again
+    return;
+  }
+  
+  // Correct
+  const factor = [1.2, 1.5, 2.5, 4.0][quality] || 2.5;
+  if (srs.stability === 0) {
+    srs.stability = quality === 0 ? 0.5 : (quality === 3 ? 4 : 1.5);
+  } else {
+    srs.stability = srs.stability * factor;
+  }
+  srs.difficulty = Math.max(1, srs.difficulty - 0.15);
+  srs.next_due = now + srs.stability * 24 * 60 * 60 * 1000;
+}
+
+// Mastery level: 0=locked/new, 1=learning, 2=mastered
+function masteryLevel(srs) {
+  if (srs.reps === 0) return 0;
+  if (srs.stability < 7) return 1;
+  return 2;
+}
+
+// Whether dimension is unlocked
+function isDimensionUnlocked(wordId, dim) {
+  const word = SEED_WORDS.find(w => w.id === wordId);
+  if (!word) return false;
+  
+  // R always unlocked
+  if (dim === 'R') return true;
+  
+  const ws = state.wordState[wordId];
+  if (!ws) return false;
+  
+  // P unlocks when R stability >= 3 days
+  if (dim === 'P') return ws.R.stability >= 3;
+  
+  // U unlocks when P stability >= 3 days, AND
+  // for low-freq words, only if user opted in
+  if (dim === 'U') {
+    if (word.frequency === 'low' && !state.settings.practiceLowFreqUsage) return false;
+    return ws.P.stability >= 3;
+  }
+  
+  return false;
+}
+
+// ============================================================
+// Today's session builder
+// ============================================================
+
+function isSameDay(a, b) {
+  if (!a || !b) return false;
+  const da = new Date(a), db = new Date(b);
+  return da.toDateString() === db.toDateString();
+}
+
+function todayDateString() {
+  return new Date().toDateString();
+}
+
+function buildTodayQueue() {
+  const now = Date.now();
+  
+  // ---------- Part A: Reviews (already-learned words) ----------
+  const reviewItems = [];
+  for (const wordId of Object.keys(state.wordState)) {
+    const ws = state.wordState[wordId];
+    for (const dim of ['R', 'P', 'U']) {
+      if (!isDimensionUnlocked(wordId, dim)) continue;
+      const srs = ws[dim];
+      
+      if (srs.reps > 0 && srs.next_due && srs.next_due <= now) {
+        reviewItems.push({ wordId, dim, urgency: now - srs.next_due });
+      } else if (srs.reps === 0 && dim !== 'R') {
+        reviewItems.push({ wordId, dim, urgency: 0, isNewDim: true });
+      }
+    }
+  }
+  reviewItems.sort((a, b) => b.urgency - a.urgency);
+  
+  // ---------- Part B: New words for today ----------
+  const learnedIds = new Set(
+    Object.entries(state.wordState)
+      .filter(([_, ws]) => ws.learned_at !== null)
+      .map(([id]) => id)
+  );
+  
+  const freqOrder = { high: 0, mid: 1, low: 2 };
+  const newCandidates = SEED_WORDS
+    .filter(w => !learnedIds.has(w.id))
+    .sort((a, b) => freqOrder[a.frequency] - freqOrder[b.frequency])
+    .slice(0, state.settings.dailyNewWords);
+  
+  // ---------- Question picker (avoid duplicates within today) ----------
+  const usedQuestionIds = new Set();
+  function pickQuestion(wordId, dim) {
+    const candidates = SEED_QUESTIONS.filter(
+      q => q.word_id === wordId && q.dimension === dim && q.quality === 'high'
+    );
+    if (candidates.length === 0) return null;
+    
+    // Prefer questions not yet used today; if all used, fall back (rare)
+    const fresh = candidates.filter(q => !usedQuestionIds.has(q.id));
+    const pool = fresh.length > 0 ? fresh : candidates;
+    const q = pool[Math.floor(Math.random() * pool.length)];
+    usedQuestionIds.add(q.id);
+    return q;
+  }
+  
+  // ---------- Build the queue ----------
+  // Structure:
+  //   ROUND 1: For each new word: [Learn page] -> [Q1 right after]
+  //   ROUND 2: After all new words learned, all new words tested AGAIN with DIFFERENT questions
+  //            (Round 2 only for words where we have 2+ R questions available)
+  //   PART C: Reviews of previously-learned words, dimension-interleaved
+  
+  const finalQueue = [];
+  const round2Items = [];
+  
+  // Round 1: learn-and-test pairs
+  for (const word of newCandidates) {
+    const q1 = pickQuestion(word.id, 'R');
+    if (!q1) continue;
+    finalQueue.push({
+      wordId: word.id, dim: 'R', isNew: true, round: 1, questionId: q1.id
+    });
+    
+    // Stage a Round-2 item if there's another question available AND
+    // it's not a low-frequency word (low-freq stays at 1 question first day)
+    const remainingQs = SEED_QUESTIONS.filter(
+      q => q.word_id === word.id && q.dimension === 'R' 
+        && q.quality === 'high' && !usedQuestionIds.has(q.id)
+    );
+    if (word.frequency !== 'low' && remainingQs.length > 0) {
+      round2Items.push({ wordId: word.id, dim: 'R', isNew: true, round: 2 });
+    }
+  }
+  
+  // Round 2: assign questions (different ones) and shuffle order
+  // so the same word doesn't appear in the same position
+  for (let i = round2Items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [round2Items[i], round2Items[j]] = [round2Items[j], round2Items[i]];
+  }
+  for (const item of round2Items) {
+    const q = pickQuestion(item.wordId, item.dim);
+    if (q) finalQueue.push({ ...item, questionId: q.id });
+  }
+  
+  // Part C: Reviews — pick questions, interleave dimensions
+  const reviewWithQs = [];
+  for (const item of reviewItems) {
+    const q = pickQuestion(item.wordId, item.dim);
+    if (q) reviewWithQs.push({ ...item, questionId: q.id });
+  }
+  
+  const byDim = { R: [], P: [], U: [] };
+  reviewWithQs.forEach(x => byDim[x.dim].push(x));
+  for (const d of ['R','P','U']) {
+    for (let i = byDim[d].length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i+1));
+      [byDim[d][i], byDim[d][j]] = [byDim[d][j], byDim[d][i]];
+    }
+  }
+  const interleavedReviews = [];
+  while (byDim.R.length || byDim.P.length || byDim.U.length) {
+    if (byDim.R.length) interleavedReviews.push(byDim.R.shift());
+    if (byDim.P.length) interleavedReviews.push(byDim.P.shift());
+    if (byDim.U.length) interleavedReviews.push(byDim.U.shift());
+  }
+  
+  return [...finalQueue, ...interleavedReviews];
+}
+
+function getNewWordsForToday() {
+  if (!isSameDay(state.todayStarted, Date.now())) return [];
+  const learnedToday = state.todayResults
+    .filter(r => isSameDay(r.timestamp, Date.now()))
+    .map(r => r.wordId);
+  
+  // Find words that were "new" in today's queue
+  const newInQueue = state.todayQueue
+    .filter(item => item.isNew)
+    .map(item => item.wordId);
+  
+  return [...new Set(newInQueue)];
+}
+
+// ============================================================
+// Routing & Views
+// ============================================================
+
+let currentView = 'home';
+
+function navigate(view, params = {}) {
+  currentView = view;
+  render(params);
+  window.scrollTo(0, 0);
+}
+
+function render(params = {}) {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  
+  app.appendChild(renderMasthead());
+  
+  const main = document.createElement('div');
+  
+  switch (currentView) {
+    case 'home': main.appendChild(renderHome()); break;
+    case 'learn': main.appendChild(renderLearn(params)); break;
+    case 'practice': main.appendChild(renderPractice(params)); break;
+    case 'round2_intro': main.appendChild(renderRound2Intro()); break;
+    case 'library': main.appendChild(renderLibrary()); break;
+    case 'summary': main.appendChild(renderSummary()); break;
+    default: main.appendChild(renderHome());
+  }
+  
+  app.appendChild(main);
+}
+
+function renderMasthead() {
+  const el = document.createElement('header');
+  el.className = 'masthead';
+  el.innerHTML = `
+    <div class="brand">
+      <span class="brand-jp">言葉帖</span>
+      <span class="brand-en">— a slow-reading approach to N2</span>
+    </div>
+    <nav class="nav">
+      <button data-view="home" class="${currentView === 'home' ? 'active' : ''}">Today</button>
+      <button data-view="library" class="${currentView === 'library' ? 'active' : ''}">Library</button>
+      <button data-view="reset">Reset</button>
+    </nav>
+  `;
+  
+  el.querySelectorAll('[data-view]').forEach(btn => {
+    btn.onclick = () => {
+      const v = btn.dataset.view;
+      if (v === 'reset') {
+        if (confirm('清空所有学习进度？')) {
+          resetState();
+          navigate('home');
+        }
+      } else {
+        navigate(v);
+      }
+    };
+  });
+  
+  return el;
+}
+
+// ---------- Home ----------
+function renderHome() {
+  const wrap = document.createElement('div');
+  
+  // Build today's queue if not started or new day
+  if (!isSameDay(state.todayStarted, Date.now()) || state.todayQueue.length === 0) {
+    state.todayQueue = buildTodayQueue();
+    state.todayCursor = 0;
+    state.todayStarted = new Date().toISOString();
+    state.todayResults = [];
+    saveState();
+  }
+  
+  const totalLearned = Object.values(state.wordState).filter(ws => ws.learned_at !== null).length;
+  const mastered = Object.values(state.wordState).filter(ws => 
+    masteryLevel(ws.R) === 2 && masteryLevel(ws.P) === 2
+  ).length;
+  
+  const newWordsToday = state.todayQueue.filter(q => q.isNew).length;
+  const reviewsToday = state.todayQueue.length - newWordsToday;
+  const remaining = state.todayQueue.length - state.todayCursor;
+  
+  const dateStr = new Date().toLocaleDateString('ja-JP', {
+    year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+  });
+  
+  wrap.innerHTML = `
+    <div style="position: relative;">
+      <div class="kanji-mark km1">言</div>
+      <section class="home-hero">
+        <div class="date-line">${dateStr} · ${currentSeasonLabel()}</div>
+        <h1>Today, you'll meet <em>${newWordsToday}</em> new words<br>and revisit <em>${reviewsToday}</em>.</h1>
+        <p class="lede">Vocabulary is not a deck of flashcards. Each word arrives with its register, its closest neighbors, the company it keeps. Read first. Practice second.</p>
+      </section>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-num">${remaining}<span class="unit">items</span></div>
+        <div class="stat-label">Today's queue</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">${totalLearned}</div>
+        <div class="stat-label">Words encountered</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">${mastered}</div>
+        <div class="stat-label">Mastered</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">${state.totalReviews}</div>
+        <div class="stat-label">Total reviews</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="btn-start">${remaining > 0 ? '今日の学習を始める →' : '本日完了 — Library を見る'}</button>
+      <button class="btn btn-secondary" id="btn-library">単語帖を開く</button>
+    </div>
+  `;
+  
+  wrap.querySelector('#btn-start').onclick = () => {
+    if (remaining === 0) navigate('library');
+    else startNextItem();
+  };
+  wrap.querySelector('#btn-library').onclick = () => navigate('library');
+  
+  // If user has done some today, show progress
+  if (state.todayResults.length > 0) {
+    const sec = document.createElement('div');
+    sec.innerHTML = `
+      <div class="section-head">
+        <h2>本日の歩み</h2>
+        <span class="meta">${state.todayResults.length} responses</span>
+      </div>
+    `;
+    wrap.appendChild(sec);
+    
+    const summary = document.createElement('div');
+    summary.className = 'summary-card';
+    
+    // Group by word
+    const byWord = {};
+    state.todayResults.forEach(r => {
+      if (!byWord[r.wordId]) byWord[r.wordId] = { right: 0, wrong: 0 };
+      if (r.correct) byWord[r.wordId].right++;
+      else byWord[r.wordId].wrong++;
+    });
+    
+    const list = Object.entries(byWord).map(([wid, stats]) => {
+      const w = SEED_WORDS.find(x => x.id === wid);
+      const total = stats.right + stats.wrong;
+      const rate = total > 0 ? Math.round(stats.right * 100 / total) : 0;
+      const cls = rate >= 75 ? 'good' : (rate < 50 ? 'bad' : '');
+      return `<li>
+        <span class="word">${w.word} <span style="color:var(--ink-faint);font-size:13px">${w.furigana}</span></span>
+        <span class="result ${cls}">${stats.right}/${total} · ${rate}%</span>
+      </li>`;
+    }).join('');
+    
+    summary.innerHTML = `<h3>Today so far</h3><ul class="summary-list">${list}</ul>`;
+    wrap.appendChild(summary);
+  }
+  
+  return wrap;
+}
+
+function currentSeasonLabel() {
+  const m = new Date().getMonth() + 1;
+  if (m >= 3 && m <= 5) return '春';
+  if (m >= 6 && m <= 8) return '夏';
+  if (m >= 9 && m <= 11) return '秋';
+  return '冬';
+}
+
+// Find next queue item: if next is a NEW word and we haven't shown the learn page yet, go to learn
+function startNextItem() {
+  if (state.todayCursor >= state.todayQueue.length) {
+    navigate('home');
+    return;
+  }
+  
+  const item = state.todayQueue[state.todayCursor];
+  const ws = getOrInitWord(item.wordId);
+  
+  // If new word, show learn page first
+  if (item.isNew && ws.learned_at === null) {
+    navigate('learn', { wordId: item.wordId });
+    return;
+  }
+  
+  // Otherwise jump to practice
+  navigate('practice');
+}
+
+// ---------- Learn (word entry view) ----------
+function renderLearn({ wordId }) {
+  const word = SEED_WORDS.find(w => w.id === wordId);
+  if (!word) {
+    const e = document.createElement('div');
+    e.innerHTML = '<p>Word not found.</p>';
+    return e;
+  }
+  
+  const wrap = document.createElement('div');
+  
+  const examples = word.examples.map(ex => `
+    <div class="example">
+      <div class="example-jp">${ex.jp}</div>
+      <div class="example-zh">${ex.zh}</div>
+    </div>
+  `).join('');
+  
+  const collocations = word.collocations.map(c => `
+    <div class="colloc">
+      <span class="colloc-jp">${c.phrase}</span>
+      <span class="colloc-zh">${c.zh}</span>
+    </div>
+  `).join('');
+  
+  const synonyms = word.synonyms.length > 0 ? word.synonyms.map(s => `
+    <div class="synonym">
+      <div class="synonym-word">${s.word}</div>
+      <div class="synonym-diff">${s.diff}</div>
+    </div>
+  `).join('') : '<div style="font-family:Noto Serif JP;color:var(--ink-faint);font-size:14px;font-style:italic">— this word stands largely on its own —</div>';
+  
+  const freqLabel = { high: '頻出', mid: '中頻', low: '低頻' }[word.frequency];
+  
+  wrap.innerHTML = `
+    <article class="entry" style="border-bottom:none">
+      <div class="entry-head">
+        <div class="entry-furigana">${word.furigana}</div>
+        <div class="entry-word">${word.word}</div>
+        <div class="entry-romaji">${word.romaji}</div>
+        <div class="tag-row">
+          <span class="tag">${word.pos}</span>
+          <span class="tag freq-${word.frequency}">${freqLabel}</span>
+          <span class="tag">${word.register}</span>
+          <span class="tag">N${word.level}</span>
+        </div>
+      </div>
+      <div class="entry-body">
+        <div class="entry-meaning">
+          ${word.meaning_zh}
+          <span class="en">${word.meaning_en}</span>
+        </div>
+        
+        <div class="subhead">Usage note · 使い方</div>
+        <div class="usage-note">${word.usage_note}</div>
+        
+        <div class="subhead">Examples · 例文</div>
+        ${examples}
+        
+        <div class="subhead">Common phrases · 慣用表現</div>
+        <div class="colloc-list">${collocations}</div>
+        
+        <div class="subhead">Distinctions · 似ている語との違い</div>
+        ${synonyms}
+      </div>
+    </article>
+    
+    <div class="learn-nav">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-faint)">
+        Read carefully — this is the only time today this word appears in full.
+      </span>
+      <button class="btn" id="btn-got-it">理解した — practice →</button>
+    </div>
+  `;
+  
+  wrap.querySelector('#btn-got-it').onclick = () => {
+    const ws = getOrInitWord(wordId);
+    ws.learned_at = Date.now();
+    saveState();
+    navigate('practice');
+  };
+  
+  return wrap;
+}
+
+// ---------- Practice ----------
+function renderPractice() {
+  const wrap = document.createElement('div');
+  wrap.className = 'quiz-wrap';
+  
+  if (state.todayCursor >= state.todayQueue.length) {
+    return renderDoneState();
+  }
+  
+  const item = state.todayQueue[state.todayCursor];
+  const word = SEED_WORDS.find(w => w.id === item.wordId);
+  const question = SEED_QUESTIONS.find(q => q.id === item.questionId);
+  
+  if (!question) {
+    // Skip - shouldn't happen with good data
+    state.todayCursor++;
+    saveState();
+    return renderPractice();
+  }
+  
+  const dimNames = { R: 'Recognition', P: 'Production', U: 'Usage' };
+  
+  // Round indicator: round 1 (just learned), round 2 (final pass), or review
+  let roundLabel = '';
+  if (item.round === 1) roundLabel = '<span class="round-tag round-1">初回 · just learned</span>';
+  else if (item.round === 2) roundLabel = '<span class="round-tag round-2">第二回 · final pass</span>';
+  else if (item.isNewDim) roundLabel = '<span class="round-tag round-new">新次元 · newly unlocked</span>';
+  else roundLabel = '<span class="round-tag round-review">復習 · review</span>';
+  
+  wrap.innerHTML = `
+    <div class="quiz-header">
+      <div class="quiz-progress">
+        ${String(state.todayCursor + 1).padStart(2, '0')} / ${String(state.todayQueue.length).padStart(2, '0')}
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        ${roundLabel}
+        <div class="dimension-pill dim-${item.dim}">${dimNames[item.dim]}</div>
+      </div>
+    </div>
+    
+    <div class="quiz-stem ${question.stem.length < 60 ? 'short' : ''}">${question.stem.replace('____', '<span class="blank"></span>')}</div>
+    
+    <div class="quiz-options" id="options"></div>
+    
+    <div id="feedback-slot"></div>
+    
+    <div class="quiz-actions">
+      <span style="font-family:'Noto Serif JP',serif;font-size:12px;color:var(--ink-faint)">
+        ${word.word} · ${word.furigana}
+      </span>
+      <button class="btn hidden" id="btn-next">次へ →</button>
+    </div>
+  `;
+  
+  const optionsEl = wrap.querySelector('#options');
+  const labels = ['A', 'B', 'C', 'D'];
+  
+  question.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.innerHTML = `<span class="marker">${labels[idx]}</span><span>${opt}</span>`;
+    btn.onclick = () => handleAnswer(idx, question, item, wrap);
+    optionsEl.appendChild(btn);
+  });
+  
+  return wrap;
+}
+
+function handleAnswer(chosenIdx, question, item, wrap) {
+  const correct = chosenIdx === question.correct;
+  const optionEls = wrap.querySelectorAll('.quiz-option');
+  
+  optionEls.forEach((el, idx) => {
+    el.disabled = true;
+    if (idx === question.correct) el.classList.add('correct');
+    else if (idx === chosenIdx && !correct) el.classList.add('wrong');
+  });
+  
+  // Update SRS
+  const ws = getOrInitWord(item.wordId);
+  updateSrs(ws[item.dim], correct);
+  
+  // Light cross-dimension reward when correct (penalty if wrong but mild)
+  if (correct && item.dim === 'U') {
+    if (ws.R.reps > 0) ws.R.stability *= 1.05;
+    if (ws.P.reps > 0) ws.P.stability *= 1.05;
+  } else if (!correct && item.dim === 'U') {
+    if (ws.R.reps > 0) ws.R.stability *= 0.95;
+    if (ws.P.reps > 0) ws.P.stability *= 0.95;
+  }
+  
+  state.totalReviews += 1;
+  state.todayResults.push({ 
+    wordId: item.wordId, dim: item.dim, correct, timestamp: Date.now() 
+  });
+  saveState();
+  
+  // Show feedback
+  const fbSlot = wrap.querySelector('#feedback-slot');
+  const fb = document.createElement('div');
+  fb.className = `quiz-feedback ${correct ? 'correct' : 'wrong'}`;
+  
+  let body = '';
+  if (question.explanation) {
+    body = question.explanation;
+  } else {
+    body = correct ? 'Correct.' : `正解は <strong style="display:inline">${question.options[question.correct]}</strong>。`;
+  }
+  
+  fb.innerHTML = `
+    <strong>${correct ? '正解 — Correct' : '不正解 — Try to recall'}</strong>
+    ${body}
+  `;
+  fbSlot.appendChild(fb);
+  
+  const nextBtn = wrap.querySelector('#btn-next');
+  nextBtn.classList.remove('hidden');
+  nextBtn.onclick = () => {
+    state.todayCursor += 1;
+    saveState();
+    
+    if (state.todayCursor < state.todayQueue.length) {
+      const next = state.todayQueue[state.todayCursor];
+      const nextWs = getOrInitWord(next.wordId);
+      
+      // If we just finished a Round-1 item and the next is Round-2,
+      // show an interstitial transition page.
+      if (item.round === 1 && next.round === 2) {
+        navigate('round2_intro');
+        return;
+      }
+      
+      // If next item is a brand new word (never learned), show Learn page first
+      if (next.isNew && nextWs.learned_at === null) {
+        navigate('learn', { wordId: next.wordId });
+        return;
+      }
+      navigate('practice');
+    } else {
+      navigate('summary');
+    }
+  };
+}
+
+function renderRound2Intro() {
+  const wrap = document.createElement('div');
+  
+  // Count Round 1 results today
+  const round1Results = state.todayResults.filter(r => 
+    isSameDay(r.timestamp, Date.now())
+  );
+  const right = round1Results.filter(r => r.correct).length;
+  const total = round1Results.length;
+  
+  // Find Round 2 word count
+  const round2Count = state.todayQueue.filter(x => x.round === 2).length;
+  
+  wrap.innerHTML = `
+    <div class="empty-state" style="padding-top: 64px">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 24px">
+        Round 1 of 2 complete
+      </div>
+      <div class="empty-state-jp" style="font-size: 40px; line-height: 1.3; margin-bottom: 24px">
+        第二回 — final pass
+      </div>
+      <div class="empty-state-en" style="max-width: 520px; margin-bottom: 8px">
+        You've now seen each new word once, with one question right after learning it.
+      </div>
+      <div class="empty-state-en" style="max-width: 520px">
+        In this second pass, the same ${round2Count} words return — but with <em style="color: var(--accent); font-style: italic">different questions</em>. The gap between encounters is what makes a word stick.
+      </div>
+      
+      <div style="margin: 48px 0 32px; display: inline-flex; gap: 32px; padding: 20px 32px; border: 1px solid var(--line); background: var(--paper)">
+        <div style="text-align: center">
+          <div style="font-family: 'Fraunces', serif; font-size: 28px; color: var(--ink); font-weight: 300">${right}<span style="color: var(--ink-faint); font-size: 18px"> / ${total}</span></div>
+          <div style="font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-faint); margin-top: 4px">Round 1 score</div>
+        </div>
+      </div>
+      
+      <div>
+        <button class="btn" id="btn-r2-go">第二回を始める →</button>
+      </div>
+    </div>
+  `;
+  
+  wrap.querySelector('#btn-r2-go').onclick = () => navigate('practice');
+  return wrap;
+}
+
+function renderDoneState() {
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `
+    <div class="empty-state">
+      <div class="empty-state-jp">本日の練習は完了しました</div>
+      <div class="empty-state-en">Today's queue is empty. Come back tomorrow — your future self has appointments to keep with these words.</div>
+      <button class="btn" onclick="navigate('library')">単語帖を見る</button>
+    </div>
+  `;
+  return wrap;
+}
+
+// ---------- Summary ----------
+function renderSummary() {
+  const wrap = document.createElement('div');
+  
+  const total = state.todayResults.length;
+  const right = state.todayResults.filter(r => r.correct).length;
+  const acc = total > 0 ? Math.round(right * 100 / total) : 0;
+  
+  // Group by word
+  const byWord = {};
+  state.todayResults.forEach(r => {
+    if (!byWord[r.wordId]) byWord[r.wordId] = { right: 0, wrong: 0 };
+    if (r.correct) byWord[r.wordId].right++; else byWord[r.wordId].wrong++;
+  });
+  
+  // Find newly unlocked dimensions today
+  const unlockedToday = [];
+  for (const [wid, ws] of Object.entries(state.wordState)) {
+    if (ws.R.stability >= 3 && ws.P.reps === 0) {
+      unlockedToday.push({ wordId: wid, dim: 'P' });
+    }
+    if (ws.P.stability >= 3 && ws.U.reps === 0) {
+      unlockedToday.push({ wordId: wid, dim: 'U' });
+    }
+  }
+  
+  wrap.innerHTML = `
+    <section class="home-hero" style="margin-bottom:32px">
+      <div class="date-line">Session complete · ${new Date().toLocaleDateString('ja-JP')}</div>
+      <h1>Today: <em>${right}</em> / ${total} · <em>${acc}%</em></h1>
+      <p class="lede">${
+        acc >= 90 ? "Strong session. Tomorrow's queue will stretch further between revisits." :
+        acc >= 70 ? "Solid. The words you missed today will return sooner." :
+        "A challenging session. Difficult words will come back tomorrow — that is exactly the point."
+      }</p>
+    </section>
+    
+    <div class="section-head">
+      <h2>Words touched today</h2>
+      <span class="meta">${Object.keys(byWord).length} words</span>
+    </div>
+    
+    <div class="summary-card">
+      <ul class="summary-list">
+        ${Object.entries(byWord).map(([wid, s]) => {
+          const w = SEED_WORDS.find(x => x.id === wid);
+          const total = s.right + s.wrong;
+          const rate = Math.round(s.right * 100 / total);
+          const cls = rate >= 75 ? 'good' : (rate < 50 ? 'bad' : '');
+          return `<li>
+            <span class="word">${w.word} <span style="color:var(--ink-faint);font-size:12px;font-style:italic">— ${w.meaning_zh.split(';')[0]}</span></span>
+            <span class="result ${cls}">${s.right}/${total}</span>
+          </li>`;
+        }).join('')}
+      </ul>
+    </div>
+    
+    ${unlockedToday.length > 0 ? `
+      <div class="section-head">
+        <h2>New unlocks</h2>
+        <span class="meta">${unlockedToday.length} dimensions</span>
+      </div>
+      <div class="summary-card">
+        <p style="font-family:'Noto Serif JP',serif;font-size:14px;color:var(--ink-soft);line-height:1.7;font-weight:300">
+          These words have stabilized in recognition and will start appearing in production / usage practice in upcoming sessions.
+        </p>
+      </div>
+    ` : ''}
+    
+    <div class="actions" style="margin-top:32px">
+      <button class="btn" onclick="navigate('library')">単語帖を開く</button>
+      <button class="btn btn-secondary" onclick="navigate('home')">Home →</button>
+    </div>
+  `;
+  return wrap;
+}
+
+// ---------- Library ----------
+function renderLibrary() {
+  const wrap = document.createElement('div');
+  
+  wrap.innerHTML = `
+    <section class="home-hero" style="margin-bottom:32px">
+      <div class="date-line">Vocabulary index · 索引</div>
+      <h1>The <em>${SEED_WORDS.length}</em> words you're holding.</h1>
+      <p class="lede">Each word has three dimensions — recognition, production, usage. Lower frequency words may keep usage locked unless you opt in.</p>
+    </section>
+    
+    <div style="margin-bottom:24px;display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:10px;font-family:'Noto Serif JP',serif;font-size:14px;color:var(--ink-soft);cursor:pointer">
+        <input type="checkbox" id="low-freq-u" ${state.settings.practiceLowFreqUsage ? 'checked' : ''}>
+        <span>低頻度語の Usage 練習も解禁する</span>
+      </label>
+      <span style="font-family:'Fraunces',serif;font-style:italic;font-size:12px;color:var(--ink-faint)">— Default off; recommended off for most learners.</span>
+    </div>
+    
+    <div class="section-head">
+      <h2>All words</h2>
+      <span class="meta">sorted by frequency</span>
+    </div>
+    
+    <div class="lib-grid"></div>
+  `;
+  
+  const grid = wrap.querySelector('.lib-grid');
+  const freqOrder = { high: 0, mid: 1, low: 2 };
+  const sorted = [...SEED_WORDS].sort((a, b) => freqOrder[a.frequency] - freqOrder[b.frequency]);
+  
+  for (const word of sorted) {
+    const card = document.createElement('div');
+    card.className = 'lib-card';
+    
+    const ws = state.wordState[word.id];
+    const dimsHtml = ['R', 'P', 'U'].map(dim => {
+      const unlocked = isDimensionUnlocked(word.id, dim);
+      const srs = ws ? ws[dim] : null;
+      const level = srs ? masteryLevel(srs) : 0;
+      
+      let fillClass = 'locked';
+      let fillWidth = '0%';
+      if (unlocked) {
+        if (level === 0) { fillClass = ''; fillWidth = '0%'; }
+        else if (level === 1) { fillClass = 'learning'; fillWidth = `${Math.min(100, srs.stability * 14)}%`; }
+        else { fillClass = 'mastered'; fillWidth = '100%'; }
+      }
+      
+      return `
+        <div class="dim-bar">
+          <div class="dim-bar-name">${dim}</div>
+          <div class="dim-bar-track">
+            ${unlocked ? `<div class="dim-bar-fill ${fillClass}" style="width:${fillWidth}"></div>` : `<div class="dim-bar-fill locked"></div>`}
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    card.innerHTML = `
+      <div class="lib-card-furi">${word.furigana}</div>
+      <div class="lib-card-word">${word.word}</div>
+      <div class="lib-card-meaning">${word.meaning_zh}</div>
+      <div class="dim-bars">${dimsHtml}</div>
+    `;
+    
+    card.onclick = () => navigate('learn', { wordId: word.id });
+    grid.appendChild(card);
+  }
+  
+  wrap.querySelector('#low-freq-u').onchange = (e) => {
+    state.settings.practiceLowFreqUsage = e.target.checked;
+    saveState();
+    render();
+  };
+  
+  return wrap;
+}
+
+// ============================================================
+// Init
+// ============================================================
+window.navigate = navigate;
+render();
+</script>
+</body>
+</html>
