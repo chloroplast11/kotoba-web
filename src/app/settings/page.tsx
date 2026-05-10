@@ -18,6 +18,7 @@ export default async function SettingsPage() {
         totalReviews: row.totalReviews,
         streak: row.streak,
         timeOffset: row.timeOffset,
+        cramSize: row.cramSize ?? 50,
       }
     : {
         dailyNewWords: 4,
@@ -26,6 +27,7 @@ export default async function SettingsPage() {
         totalReviews: 0,
         streak: 0,
         timeOffset: 0,
+        cramSize: 50,
       };
 
   return (

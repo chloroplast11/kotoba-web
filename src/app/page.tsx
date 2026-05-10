@@ -36,8 +36,9 @@ export default async function HomePage() {
         totalReviews: settingsRow.totalReviews,
         streak: settingsRow.streak,
         timeOffset: settingsRow.timeOffset,
+        cramSize: settingsRow.cramSize ?? 50,
       }
-    : { dailyNewWords: 4, practiceLowFreqUsage: false, activeLevels: [2], totalReviews: 0, streak: 0, timeOffset: 0 };
+    : { dailyNewWords: 4, practiceLowFreqUsage: false, activeLevels: [2], totalReviews: 0, streak: 0, timeOffset: 0, cramSize: 50 };
 
   const { session, queue, results, allStates, wordMap } = await loadOrReconcileTodaySession(settings);
 

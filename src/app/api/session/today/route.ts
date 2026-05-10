@@ -12,6 +12,7 @@ const DEFAULT_SETTINGS: AppSettingsData = {
   totalReviews: 0,
   streak: 0,
   timeOffset: 0,
+  cramSize: 50,
 };
 
 function computeStats(allStates: UserWordState[]) {
@@ -44,6 +45,7 @@ export async function GET() {
         totalReviews: settingsRow.totalReviews,
         streak: settingsRow.streak,
         timeOffset: settingsRow.timeOffset,
+        cramSize: settingsRow.cramSize ?? 50,
       }
     : DEFAULT_SETTINGS;
 
