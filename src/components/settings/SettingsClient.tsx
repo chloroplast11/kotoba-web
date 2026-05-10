@@ -137,7 +137,7 @@ export default function SettingsClient({ initial }: Props) {
       </div>
 
       <div className="settings-section">
-        <h2 className="settings-section-title">学習指引</h2>
+        <h2 className="settings-section-title">学习指引</h2>
         <p className="settings-row-desc" style={{ marginBottom: "12px" }}>
           首次进入主页时显示的「言葉帖の学び方」说明，可以再看一次。
         </p>
