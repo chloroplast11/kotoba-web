@@ -19,6 +19,7 @@ export default function SettingsClient({ initial }: Props) {
   const dev = useDevStore();
 
   const [dailyNewWords, setDailyNewWords] = useState(initial.dailyNewWords);
+  const [cramSize, setCramSize] = useState(initial.cramSize);
   const [savedHint, setSavedHint] = useState<string | null>(null);
 
   useEffect(() => {
@@ -47,6 +48,11 @@ export default function SettingsClient({ initial }: Props) {
     setSavedHint(hint);
     router.refresh();
     setTimeout(() => setSavedHint(null), 5000);
+  }
+
+  async function commitCramSize(n: number) {
+    setCramSize(n);
+    await settings.update({ cramSize: n });
   }
 
   async function shiftTime(deltaDays: number) {
@@ -101,6 +107,27 @@ export default function SettingsClient({ initial }: Props) {
           <a href="/library" style={{ color: "var(--ink)", borderBottom: "1px solid var(--ink-faint)" }}>单词帖</a>
           中点击单词，从 3 个档位（未学／学习中／精通）里手动选择。
         </p>
+      </div>
+
+      <div className="settings-section">
+        <h2 className="settings-section-title">特訓モード</h2>
+        <div className="settings-row">
+          <div className="settings-row-text">
+            <label htmlFor="cramSize">每次特訓題数</label>
+            <p className="settings-row-desc">
+              一次特訓拉多少题（10 ～ 200）。建议 30 ～ 80，过多容易疲劳。
+            </p>
+          </div>
+          <div className="settings-row-input">
+            <Stepper
+              value={cramSize}
+              min={10}
+              max={200}
+              step={5}
+              onChange={commitCramSize}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="settings-section settings-dev">
