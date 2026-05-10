@@ -7,6 +7,8 @@ import { useSessionStore } from "@/store/sessionStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { getCurrentDate } from "@/lib/time";
 import type { ReviewResult } from "@/types/domain";
+import OnboardingModal from "@/components/onboarding/OnboardingModal";
+import { useOnboardingStore } from "@/store/onboardingStore";
 
 interface SessionData {
   queue: { isNew?: boolean; wordId: number }[];
@@ -49,6 +51,12 @@ export default function HomeClient({ initialData }: Props) {
     });
     if (!settings.isLoaded) settings.loadSettings();
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!useOnboardingStore.getState().hasSeen()) {
+      useOnboardingStore.getState().open();
+    }
   }, []);
 
   const queue = session.isLoaded ? session.queue : initialData.queue;
@@ -100,6 +108,14 @@ export default function HomeClient({ initialData }: Props) {
             それぞれの言葉は、用法・近縁語・文脈とともに届きます。
             まず読み、次に練習しましょう。
           </p>
+          <button
+            type="button"
+            className="hero-sub-rpu"
+            onClick={() => useOnboardingStore.getState().open()}
+            aria-label="言葉帖の学び方をもう一度見る"
+          >
+            認識・産出・運用 ── 三つの次元で言葉を学ぶ
+          </button>
         </section>
       </div>
 
@@ -155,6 +171,7 @@ export default function HomeClient({ initialData }: Props) {
           </div>
         </>
       )}
+      <OnboardingModal />
     </div>
   );
 }

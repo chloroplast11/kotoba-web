@@ -116,6 +116,24 @@ body {
   font-family: 'Noto Serif JP', serif; font-size: 17px;
   line-height: 1.7; color: var(--ink-soft); max-width: 560px; font-weight: 300;
 }
+.hero-sub-rpu {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px dotted var(--ink-faint);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.hero-sub-rpu:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
 
 .stats-row {
   display: grid; grid-template-columns: repeat(4, 1fr);
