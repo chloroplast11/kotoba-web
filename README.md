@@ -114,9 +114,9 @@ UI 文案分两区：
 
 ### Phase 3：核心差异化补强 ⭐⭐⭐（当前阶段）
 
-- [ ] R/P/U onboarding：首次启动说明卡 + 首页常驻副标题
-- [ ] R/P/U tooltip：Practice 页 pill / Library 进度条 hover
-- [ ] 快速复习模式：跳过 Learn 页 / 考前突击模式
+- [x] R/P/U onboarding：首次启动说明卡 + 首页常驻副标题
+- [x] R/P/U tooltip：Practice 页 pill / Library 进度条 hover
+- [x] 快速复习模式：跳过 Learn 页 / 考前突击模式
 - [ ] TTS 朗读单词 / 例句（Web Speech API）
 - [ ] 听力题型：听音选汉字 / 听音选意思
 - [x] 每天学习量用户可设置
@@ -138,7 +138,6 @@ UI 文案分两区：
 
 - [ ] 错题本
 - [ ] 学习日历
-- [ ] 自由练习模式
 - [ ] 例句配音
 
 ### Phase 6：部署与多设备 ⭐
