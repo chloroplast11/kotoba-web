@@ -530,6 +530,83 @@ body {
   font-family: inherit;
 }
 
+/* ── Onboarding modal ────────────────────────────────── */
+.onboarding-root { position: fixed; inset: 0; z-index: 100; }
+.onboarding-overlay {
+  position: absolute; inset: 0;
+  background: rgba(29, 41, 53, 0.42);
+  backdrop-filter: blur(3px);
+}
+.onboarding-panel {
+  position: relative;
+  max-width: 520px;
+  margin: 8vh auto 0;
+  padding: 48px 40px 40px;
+  background: var(--paper);
+  box-shadow: 0 16px 48px rgba(29, 41, 53, 0.24);
+}
+.onboarding-title {
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: 0.02em;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+.onboarding-lede {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 14px; line-height: 1.8;
+  color: var(--ink-soft); font-weight: 300;
+  margin-bottom: 28px;
+}
+.onboarding-dims {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 14px;
+  margin-bottom: 28px;
+}
+.onboarding-dims li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 14px; row-gap: 2px;
+  padding: 14px 16px;
+  background: var(--paper-warm);
+  border-left: 2px solid var(--ink);
+}
+.onboarding-dim-letter {
+  grid-row: 1 / 3;
+  grid-column: 1;
+  align-self: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 22px; font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  width: 28px; text-align: center;
+}
+.onboarding-dim-letter.dim-R { color: var(--celadon); }
+.onboarding-dim-letter.dim-P { color: var(--moss); }
+.onboarding-dim-letter.dim-U { color: var(--accent); }
+.onboarding-dim-name {
+  grid-row: 1; grid-column: 2;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 15px; font-weight: 500; color: var(--ink);
+}
+.onboarding-dim-desc {
+  grid-row: 2; grid-column: 2;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 12px; color: var(--ink-soft);
+  font-weight: 300; line-height: 1.6;
+}
+.onboarding-foot {
+  font-family: 'Noto Serif JP', serif; font-size: 13px;
+  color: var(--ink-faint); line-height: 1.7;
+  margin-bottom: 28px; font-weight: 300;
+}
+@media (max-width: 720px) {
+  .onboarding-panel { margin: 4vh 16px 0; padding: 36px 24px 28px; }
+  .onboarding-title { font-size: 22px; }
+}
+
 /* ── Word detail drawer ─────────────────────────────── */
 .drawer-root {
   position: fixed; inset: 0; z-index: 50;
