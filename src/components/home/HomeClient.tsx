@@ -145,6 +145,14 @@ export default function HomeClient({ initialData }: Props) {
         <button className="btn btn-secondary" onClick={() => router.push("/library")}>
           単語帖を開く
         </button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => router.push("/cram")}
+          disabled={totalLearned === 0}
+          title={totalLearned === 0 ? "学習を始めてから利用できます" : undefined}
+        >
+          特訓モード
+        </button>
       </div>
 
       {results.length > 0 && (
