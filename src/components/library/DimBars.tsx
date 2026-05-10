@@ -1,5 +1,5 @@
 import { getMasteryTier } from "@/lib/srs";
-import { DIM_NAMES, DIM_DESCRIPTIONS } from "@/lib/constants";
+import DimTooltip, { type DimTooltipState } from "@/components/ui/DimTooltip";
 import type { DimKey, SrsData } from "@/types/domain";
 
 interface Props {
@@ -7,6 +7,14 @@ interface Props {
 }
 
 const TIER_WIDTHS = ["0%", "50%", "100%"] as const;
+
+function deriveState(srs: SrsData | null, locked: boolean): DimTooltipState {
+  if (locked) return "locked";
+  const tier = getMasteryTier(srs);
+  if (tier === 0) return "new";
+  if (tier === 1) return "learning";
+  return "mastered";
+}
 
 export default function DimBars({ dimStates }: Props) {
   return (
@@ -25,19 +33,17 @@ export default function DimBars({ dimStates }: Props) {
         const fillWidth = locked ? "100%" : TIER_WIDTHS[tier];
 
         return (
-          <div
-            key={dim}
-            className="dim-bar"
-            title={`${dim}・${DIM_NAMES[dim]}：${DIM_DESCRIPTIONS[dim]}`}
-          >
-            <span className="dim-bar-name">{dim}</span>
-            <div className="dim-bar-track">
-              <div
-                className={`dim-bar-fill ${fillClass}`}
-                style={!locked ? { width: fillWidth } : undefined}
-              />
-            </div>
-          </div>
+          <DimTooltip key={dim} dim={dim} state={deriveState(s, locked)}>
+            <span className="dim-bar">
+              <span className="dim-bar-name">{dim}</span>
+              <span className="dim-bar-track">
+                <span
+                  className={`dim-bar-fill ${fillClass}`}
+                  style={!locked ? { width: fillWidth } : undefined}
+                />
+              </span>
+            </span>
+          </DimTooltip>
         );
       })}
     </div>
