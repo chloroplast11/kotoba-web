@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useSessionStore } from "@/store/sessionStore";
 import { useDevStore } from "@/store/devStore";
+import { useOnboardingStore } from "@/store/onboardingStore";
 import type { AppSettingsData } from "@/types/domain";
 import Stepper from "@/components/ui/Stepper";
 
@@ -53,6 +54,11 @@ export default function SettingsClient({ initial }: Props) {
   async function commitCramSize(n: number) {
     setCramSize(n);
     await settings.update({ cramSize: n });
+  }
+
+  function showOnboarding() {
+    useOnboardingStore.getState().resetAndShow();
+    router.push("/");
   }
 
   async function shiftTime(deltaDays: number) {
@@ -127,6 +133,18 @@ export default function SettingsClient({ initial }: Props) {
               onChange={commitCramSize}
             />
           </div>
+        </div>
+      </div>
+
+      <div className="settings-section">
+        <h2 className="settings-section-title">学習指引</h2>
+        <p className="settings-row-desc" style={{ marginBottom: "12px" }}>
+          首次进入主页时显示的「言葉帖の学び方」说明，可以再看一次。
+        </p>
+        <div className="settings-actions">
+          <button className="btn btn-secondary" onClick={showOnboarding}>
+            再次查看说明
+          </button>
         </div>
       </div>
 
