@@ -140,8 +140,7 @@ UI 文案分两区：
 - [ ] 学习日历
 - [ ] 例句配音
 
-### Phase 6：部署与多设备 ⭐
-
+### Phase 6：部署
 - [ ] Auth.js 接入
 - [ ] 多用户数据隔离
 - [ ] 部署到 Vercel + Neon/Supabase
