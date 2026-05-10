@@ -32,9 +32,8 @@ export default function CramClient({ queue, questionMap, wordMap }: Props) {
   const [answered, setAnswered] = useState(false);
 
   useEffect(() => {
-    if (!cram.initialized) cram.init(queue);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    cram.init(queue);
+  }, [queue]);
 
   const liveQueue = cram.initialized ? cram.queue : queue;
   const cursor = cram.cursor;

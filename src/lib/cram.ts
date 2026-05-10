@@ -53,8 +53,10 @@ export function buildCramQueue(
   const activeLevels = new Set(settings.activeLevels);
   const candidates: Candidate[] = [];
 
+  const wordById = new Map(words.map((w) => [w.id, w]));
+
   for (const [wordId, dimStates] of wordStates.entries()) {
-    const word = words.find((w) => w.id === wordId);
+    const word = wordById.get(wordId);
     if (!word) continue;
     if (!activeLevels.has(word.level)) continue;
     if (!dimStates.R?.learnedAt) continue;
