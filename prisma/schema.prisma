@@ -81,4 +81,6 @@ model AppSettings {
   streak               Int     @default(0)
   timeOffset           Int     @default(0)
   cramSize             Int     @default(50)
+  audioAutoplay        Boolean @default(true)
+  listeningRatio       Int     @default(30)
 }

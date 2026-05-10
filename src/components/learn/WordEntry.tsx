@@ -2,7 +2,9 @@
 import { useRouter } from "next/navigation";
 import type { ExampleSentence, QuestionOption } from "@/types/domain";
 import RubyText from "@/components/ui/RubyText";
+import PlayButton from "@/components/ui/PlayButton";
 import { getCurrentTime } from "@/lib/time";
+import { getWordAudioUrl, getSentenceAudioUrl } from "@/lib/audio";
 
 interface WordData {
   id: number;
@@ -57,7 +59,17 @@ export default function WordEntry({
       <article className="entry" style={{ borderBottom: "none" }}>
         <div className="entry-head">
           <div className="entry-furigana">{word.furigana}</div>
-          <div className="entry-word">{word.word}</div>
+          <div className="entry-word" style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "center" }}>
+            <span>{word.word}</span>
+            <PlayButton
+              src={getWordAudioUrl(word.id)}
+              fallbackText={word.word}
+              autoPlay
+              size="lg"
+              label="再生"
+              ariaLabel={`「${word.word}」を再生`}
+            />
+          </div>
           <div className="entry-romaji">{word.romaji}</div>
           <div className="tag-row">
             <span className="tag">{word.pos}</span>
@@ -84,7 +96,16 @@ export default function WordEntry({
               <div className="subhead">例文</div>
               {word.exampleSentences.map((ex, i) => (
                 <div className="example" key={i}>
-                  <div className="example-jp"><RubyText html={ex.ja} /></div>
+                  <div className="example-jp" style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                    <span style={{ flex: 1 }}><RubyText html={ex.ja} /></span>
+                    <PlayButton
+                      src={() => getSentenceAudioUrl(ex.ja_plain)}
+                      fallbackText={ex.ja_plain}
+                      size="sm"
+                      label="再生"
+                      ariaLabel="例文を再生"
+                    />
+                  </div>
                   <div className="example-zh">{ex.zh}</div>
                 </div>
               ))}

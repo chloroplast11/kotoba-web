@@ -19,6 +19,8 @@ export default async function SettingsPage() {
         streak: row.streak,
         timeOffset: row.timeOffset,
         cramSize: row.cramSize ?? 50,
+        audioAutoplay: row.audioAutoplay ?? true,
+        listeningRatio: row.listeningRatio ?? 30,
       }
     : {
         dailyNewWords: 4,
@@ -28,6 +30,8 @@ export default async function SettingsPage() {
         streak: 0,
         timeOffset: 0,
         cramSize: 50,
+        audioAutoplay: true,
+        listeningRatio: 30,
       };
 
   return (

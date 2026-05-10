@@ -13,6 +13,8 @@ const DEFAULT_SETTINGS: AppSettingsData = {
   streak: 0,
   timeOffset: 0,
   cramSize: 50,
+  audioAutoplay: true,
+  listeningRatio: 30,
 };
 
 function computeStats(allStates: UserWordState[]) {
@@ -46,6 +48,8 @@ export async function GET() {
         streak: settingsRow.streak,
         timeOffset: settingsRow.timeOffset,
         cramSize: settingsRow.cramSize ?? 50,
+        audioAutoplay: settingsRow.audioAutoplay ?? true,
+        listeningRatio: settingsRow.listeningRatio ?? 30,
       }
     : DEFAULT_SETTINGS;
 

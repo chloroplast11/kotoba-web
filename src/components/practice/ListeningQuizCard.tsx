@@ -1,0 +1,185 @@
+"use client";
+import { useMemo, useState } from "react";
+import RubyText from "@/components/ui/RubyText";
+import DimPill from "@/components/layout/DimPill";
+import MasteryPopover from "@/components/practice/MasteryPopover";
+import PlayButton from "@/components/ui/PlayButton";
+import { getWordAudioUrl } from "@/lib/audio";
+import type { DimKey, QueueItem, QuestionOption } from "@/types/domain";
+
+export type ListenMode = "listen_kanji" | "listen_meaning";
+
+interface QuestionData {
+  id: string;
+  wordId: number;
+  dimension: DimKey;
+  type: string;
+  question: string;
+  questionPlain: string;
+  options: QuestionOption[];
+  correctIndex: number;
+  explanation: string | null;
+  explanationZh: string | null;
+  word: string;
+  furigana: string;
+}
+
+interface Props {
+  item: QueueItem;
+  question: QuestionData;
+  audioMode: ListenMode;
+  wordPool: Array<{ id: number; word: string }>;
+  index: number;
+  total: number;
+  onAnswer: (correct: boolean) => void;
+  onSkipListening: () => void;
+}
+
+const OPTION_LABELS = ["A", "B", "C", "D"];
+
+function deriveOptions(
+  audioMode: ListenMode,
+  question: QuestionData,
+  wordPool: Array<{ id: number; word: string }>
+): { options: QuestionOption[]; correctIndex: number } {
+  if (audioMode === "listen_meaning") {
+    return { options: question.options, correctIndex: question.correctIndex };
+  }
+  const correctText = question.word;
+  const candidates = wordPool.filter((w) => w.id !== question.wordId && w.word !== correctText);
+  const shuffled = [...candidates].sort(() => Math.random() - 0.5).slice(0, 3);
+  const distractors: QuestionOption[] = shuffled.map((w) => ({ text: w.word, text_plain: w.word }));
+  const correct: QuestionOption = { text: correctText, text_plain: correctText };
+  const finalOpts = [correct, ...distractors].sort(() => Math.random() - 0.5);
+  const correctIndex = finalOpts.findIndex((o) => o.text_plain === correctText);
+  return { options: finalOpts, correctIndex };
+}
+
+export default function ListeningQuizCard({
+  item,
+  question,
+  audioMode,
+  wordPool,
+  index,
+  total,
+  onAnswer,
+  onSkipListening,
+}: Props) {
+  const [chosen, setChosen] = useState<number | null>(null);
+  const answered = chosen !== null;
+
+  const { options, correctIndex } = useMemo(
+    () => deriveOptions(audioMode, question, wordPool),
+    [audioMode, question, wordPool]
+  );
+  const correct = chosen === correctIndex;
+  const audioSrc = getWordAudioUrl(item.wordId);
+
+  function handleChoice(idx: number) {
+    if (answered) return;
+    setChosen(idx);
+    onAnswer(idx === correctIndex);
+  }
+
+  return (
+    <div className="quiz-wrap">
+      <div className="quiz-header">
+        <div className="quiz-progress">
+          {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+        </div>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <span className="round-tag round-review">復習 · 聴解</span>
+          <DimPill dim={item.dim} />
+          <MasteryPopover wordId={item.wordId} />
+        </div>
+      </div>
+
+      <div className="quiz-stem listening" style={{ textAlign: "center", padding: "40px 0 24px" }}>
+        <PlayButton
+          src={audioSrc}
+          fallbackText={question.word}
+          autoPlay
+          size="lg"
+          label="再生"
+          ariaLabel="音声を再生"
+        />
+        <div style={{ marginTop: "12px", fontSize: "13px", color: "var(--ink-faint)", letterSpacing: "0.18em" }}>
+          聴いて下さい
+        </div>
+        {!answered && (
+          <div style={{ marginTop: "20px" }}>
+            <button
+              type="button"
+              onClick={onSkipListening}
+              style={{
+                background: "none",
+                border: "1px dotted var(--ink-faint)",
+                color: "var(--ink-faint)",
+                fontSize: "11px",
+                padding: "4px 10px",
+                cursor: "pointer",
+                letterSpacing: "0.05em",
+              }}
+              title="この問題を文字版に切り替える"
+            >
+              飛ばす（文字で見る）
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="quiz-options">
+        {options.map((opt, idx) => (
+          <button
+            key={idx}
+            className={[
+              "quiz-option",
+              answered && idx === correctIndex ? "correct" : "",
+              answered && idx === chosen && chosen !== correctIndex ? "wrong" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            disabled={answered}
+            onClick={() => handleChoice(idx)}
+          >
+            <span className="marker">{OPTION_LABELS[idx]}</span>
+            <span>
+              <RubyText html={opt.text} />
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {answered && (
+        <div className={`quiz-feedback ${correct ? "correct" : "wrong"}`}>
+          <strong>{correct ? "正解 — Correct" : "不正解 — Try to recall"}</strong>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px" }}>
+            <ruby style={{ fontSize: "22px", fontFamily: "'Noto Serif JP', serif" }}>
+              {question.word}
+              <rt style={{ fontSize: "11px", color: "var(--ink-faint)" }}>{question.furigana}</rt>
+            </ruby>
+            <PlayButton src={audioSrc} fallbackText={question.word} size="sm" label="もう一度" />
+          </div>
+          {question.explanation && (
+            <div style={{ marginTop: "8px" }}>
+              <RubyText html={question.explanation} />
+            </div>
+          )}
+          {question.explanationZh && (
+            <div style={{ marginTop: "8px", fontSize: "12px", color: "var(--ink-faint)" }}>
+              {question.explanationZh}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="quiz-actions">
+        {answered && (
+          <span style={{ fontFamily: "'Noto Serif JP', serif", fontSize: "12px", color: "var(--ink-faint)" }}>
+            {question.word} · {question.furigana}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}

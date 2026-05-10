@@ -51,5 +51,10 @@ next-env.d.ts
 # local database
 dev.db
 
+# generated TTS audio (run `npm run gen:audio` to regenerate)
+/public/audio/words/
+/public/audio/sentences/
+/public/audio/manifest.json
+
 # test outputs
 test_results_*.json

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { buildWordPracticeQueue } from "@/lib/wordPractice";
+import Masthead from "@/components/layout/Masthead";
 import WordPracticeClient from "@/components/practice/WordPracticeClient";
 import type { DimKey } from "@/types/domain";
 
@@ -26,12 +27,15 @@ export default async function WordPracticePage({
 
   if (queue.length === 0) {
     return (
-      <div className="empty-state">
-        <div className="empty-state-jp">この言葉には問題がありません</div>
-        <div className="empty-state-en">
-          No questions found for this word yet.
+      <div className="app">
+        <Masthead />
+        <div className="empty-state">
+          <div className="empty-state-jp">この言葉には問題がありません</div>
+          <div className="empty-state-en">
+            No questions found for this word yet.
+          </div>
+          <Link className="btn" href="/library">単語帳に戻る</Link>
         </div>
-        <Link className="btn" href="/library">単語帳に戻る</Link>
       </div>
     );
   }
@@ -64,10 +68,13 @@ export default async function WordPracticePage({
   }
 
   return (
-    <WordPracticeClient
-      queue={queue}
-      questionMap={questionMap}
-      word={{ id: word.id, word: word.word, furigana: word.furigana }}
-    />
+    <div className="app">
+      <Masthead />
+      <WordPracticeClient
+        queue={queue}
+        questionMap={questionMap}
+        word={{ id: word.id, word: word.word, furigana: word.furigana }}
+      />
+    </div>
   );
 }

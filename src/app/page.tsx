@@ -37,8 +37,10 @@ export default async function HomePage() {
         streak: settingsRow.streak,
         timeOffset: settingsRow.timeOffset,
         cramSize: settingsRow.cramSize ?? 50,
+        audioAutoplay: settingsRow.audioAutoplay ?? true,
+        listeningRatio: settingsRow.listeningRatio ?? 30,
       }
-    : { dailyNewWords: 4, practiceLowFreqUsage: false, activeLevels: [2], totalReviews: 0, streak: 0, timeOffset: 0, cramSize: 50 };
+    : { dailyNewWords: 4, practiceLowFreqUsage: false, activeLevels: [2], totalReviews: 0, streak: 0, timeOffset: 0, cramSize: 50, audioAutoplay: true, listeningRatio: 30 };
 
   const { session, queue, results, allStates, wordMap } = await loadOrReconcileTodaySession(settings);
 

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSessionStore } from "@/store/sessionStore";
 import QuizCard from "./QuizCard";
+import ListeningQuizCard from "./ListeningQuizCard";
 import type { QueueItem, QuestionOption } from "@/types/domain";
 import type { DimKey } from "@/types/domain";
 
@@ -24,15 +25,22 @@ interface QuestionData {
 interface Props {
   questions: Map<string, QuestionData>;
   words: Map<number, { word: string; furigana: string }>;
+  wordPool: Array<{ id: number; word: string }>;
 }
 
-export default function PracticeClient({ questions, words }: Props) {
+export default function PracticeClient({ questions, words, wordPool }: Props) {
   const router = useRouter();
   const session = useSessionStore();
   const [answered, setAnswered] = useState(false);
+  const [skipListeningSession, setSkipListeningSession] = useState(false);
+  const [skippedAudioByCursor, setSkippedAudioByCursor] = useState<Set<number>>(new Set());
 
   const item = session.queue[session.cursor] as QueueItem | undefined;
   const question = item ? questions.get(item.questionId) : undefined;
+  const audioModeActive =
+    !!item?.audioMode &&
+    !skipListeningSession &&
+    !skippedAudioByCursor.has(session.cursor);
 
   useEffect(() => {
     if (!session.isLoaded) session.loadSession();
@@ -116,16 +124,66 @@ export default function PracticeClient({ questions, words }: Props) {
     return session.results.some((r) => r.wordId === wordId);
   }
 
+  function handleSkipThisAudio() {
+    setSkippedAudioByCursor((prev) => {
+      const next = new Set(prev);
+      next.add(session.cursor);
+      return next;
+    });
+  }
+
   return (
     <div>
-      <QuizCard
-        key={session.cursor}
-        item={item}
-        question={questionWithMeta}
-        index={session.cursor}
-        total={session.queue.length}
-        onAnswer={handleAnswer}
-      />
+      <div
+        style={{
+          maxWidth: "720px",
+          margin: "0 auto",
+          padding: "0 0 8px",
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setSkipListeningSession((v) => !v)}
+          title={skipListeningSession ? "音声問題を再開" : "音声問題をスキップ"}
+          aria-label={skipListeningSession ? "音声問題を再開" : "音声問題をスキップ"}
+          style={{
+            background: "none",
+            border: "1px dotted var(--ink-faint)",
+            color: skipListeningSession ? "var(--ink)" : "var(--ink-faint)",
+            fontSize: "11px",
+            padding: "4px 10px",
+            cursor: "pointer",
+            letterSpacing: "0.05em",
+          }}
+        >
+          {skipListeningSession ? "🎧 音声 OFF" : "🎧 音声 ON"}
+        </button>
+      </div>
+
+      {audioModeActive && item.audioMode ? (
+        <ListeningQuizCard
+          key={session.cursor}
+          item={item}
+          question={questionWithMeta}
+          audioMode={item.audioMode}
+          wordPool={wordPool}
+          index={session.cursor}
+          total={session.queue.length}
+          onAnswer={handleAnswer}
+          onSkipListening={handleSkipThisAudio}
+        />
+      ) : (
+        <QuizCard
+          key={session.cursor}
+          item={item}
+          question={questionWithMeta}
+          index={session.cursor}
+          total={session.queue.length}
+          onAnswer={handleAnswer}
+        />
+      )}
       {answered && (
         <div className="quiz-actions" style={{ maxWidth: "720px", margin: "0 auto", padding: "0 0 32px" }}>
           <span />

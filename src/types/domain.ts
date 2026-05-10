@@ -2,6 +2,8 @@ export type DimKey = "R" | "P" | "U";
 export type MasteryLevel = 0 | 1 | 2;
 export type FrequencyLevel = "high" | "mid" | "low";
 
+export type ListenMode = "listen_kanji" | "listen_meaning";
+
 export interface QueueItem {
   wordId: number;
   dim: DimKey;
@@ -10,6 +12,7 @@ export interface QueueItem {
   isNew?: boolean;
   isNewDim?: boolean;
   urgency?: number;
+  audioMode?: ListenMode;
 }
 
 export interface ReviewResult {
@@ -58,4 +61,6 @@ export interface AppSettingsData {
   streak: number;
   timeOffset: number;
   cramSize: number;
+  audioAutoplay: boolean;
+  listeningRatio: number;
 }

@@ -17,6 +17,8 @@ const defaults: AppSettingsData = {
   streak: 0,
   timeOffset: 0,
   cramSize: 50,
+  audioAutoplay: true,
+  listeningRatio: 30,
 };
 
 export const useSettingsStore = create<SettingsState>((set) => ({

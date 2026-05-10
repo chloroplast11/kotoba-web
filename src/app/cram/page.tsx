@@ -37,6 +37,8 @@ export default async function CramPage() {
     streak: settingsRow.streak,
     timeOffset: settingsRow.timeOffset,
     cramSize: settingsRow.cramSize,
+    audioAutoplay: settingsRow.audioAutoplay ?? true,
+    listeningRatio: settingsRow.listeningRatio ?? 30,
   };
 
   const wordStates = new Map<number, Record<DimKey, SrsData | null>>();

@@ -30,6 +30,8 @@ function serialize(row: Awaited<ReturnType<typeof getOrCreate>>): AppSettingsDat
     streak: row.streak,
     timeOffset: row.timeOffset,
     cramSize: row.cramSize,
+    audioAutoplay: row.audioAutoplay,
+    listeningRatio: row.listeningRatio,
   };
 }
 
@@ -56,6 +58,8 @@ export async function PATCH(req: Request) {
       ...(body.streak !== undefined && { streak: body.streak }),
       ...(body.timeOffset !== undefined && { timeOffset: body.timeOffset }),
       ...(body.cramSize !== undefined && { cramSize: body.cramSize }),
+      ...(body.audioAutoplay !== undefined && { audioAutoplay: body.audioAutoplay }),
+      ...(body.listeningRatio !== undefined && { listeningRatio: body.listeningRatio }),
     },
   });
 

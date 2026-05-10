@@ -148,7 +148,18 @@ export function buildTodayQueue(
     if (u) interleaved.push(u);
   }
 
-  return [...finalQueue, ...interleaved];
+  const result = [...finalQueue, ...interleaved];
+
+  const ratio = Math.max(0, Math.min(100, settings.listeningRatio ?? 30));
+  if (ratio > 0) {
+    for (const it of result) {
+      if (it.dim === "R" && !it.isNew && Math.random() * 100 < ratio) {
+        it.audioMode = Math.random() < 0.5 ? "listen_kanji" : "listen_meaning";
+      }
+    }
+  }
+
+  return result;
 }
 
 export function reconcileNewWordsInQueue(

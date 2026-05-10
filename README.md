@@ -117,8 +117,8 @@ UI 文案分两区：
 - [x] R/P/U onboarding：首次启动说明卡 + 首页常驻副标题
 - [x] R/P/U tooltip：Practice 页 pill / Library 进度条 hover
 - [x] 快速复习模式：跳过 Learn 页 / 考前突击模式
-- [ ] TTS 朗读单词 / 例句（Web Speech API）
-- [ ] 听力题型：听音选汉字 / 听音选意思
+- [x] TTS 朗读单词 / 例句（Web Speech API）
+- [x] 听力题型：听音选汉字 / 听音选意思
 - [x] 每天学习量用户可设置
 - [x] 用户可手动标记 R/P/U 掌握状态（3 档：未学 / 学习中 / 精通）
 - [x] R/P/U popover 快速标记：Practice 题目页 header 直接弹出三维度三档掌握度编辑
@@ -148,7 +148,6 @@ UI 文案分两区：
 
 ### Phase 7：题型扩展与 AI 批改 ⭐
 
-- [ ] 例句配音
 - [ ] 假名 → 写汉字（IME 输入产出题）
 - [ ] 句子重组（JLPT 文法常考）
 - [ ] 造句题 + Claude 批改

@@ -3,6 +3,8 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getMasteryTier, type MasteryTier } from "@/lib/srs";
 import { DIM_NAMES, DIM_DESCRIPTIONS } from "@/lib/constants";
+import { getWordAudioUrl } from "@/lib/audio";
+import PlayButton from "@/components/ui/PlayButton";
 import type { DimKey, SrsData } from "@/types/domain";
 
 interface WordDetail {
@@ -67,7 +69,16 @@ export default function WordDetailDrawer({ word, onClose, onChanged }: Props) {
 
         <div className="drawer-head">
           <div className="lib-card-furi">{word.furigana}</div>
-          <div className="entry-word">{word.word}</div>
+          <div className="entry-word" style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}>
+            <span>{word.word}</span>
+            <PlayButton
+              src={getWordAudioUrl(word.id)}
+              fallbackText={word.word}
+              size="md"
+              label="再生"
+              ariaLabel={`「${word.word}」を再生`}
+            />
+          </div>
           <div className="lib-card-meaning">{word.meaningZh}</div>
           <div className="tag-row" style={{ marginTop: "8px" }}>
             <span className={`tag freq-${word.frequency}`}>
