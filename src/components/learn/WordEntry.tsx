@@ -26,7 +26,13 @@ const FREQ_LABELS: Record<string, string> = {
   low: "低頻",
 };
 
-export default function WordEntry({ word }: { word: WordData }) {
+export default function WordEntry({
+  word,
+  fromLibrary = false,
+}: {
+  word: WordData;
+  fromLibrary?: boolean;
+}) {
   const router = useRouter();
 
   async function handleGotIt() {
@@ -112,12 +118,20 @@ export default function WordEntry({ word }: { word: WordData }) {
       </article>
 
       <div className="learn-nav">
-        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "11px", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--ink-faint)" }}>
-          よく読んでください — この単語は今日ここにしか全文で現れません。
-        </span>
-        <button className="btn" onClick={handleGotIt}>
-          理解した — 練習へ →
-        </button>
+        {fromLibrary ? (
+          <button className="btn" onClick={() => router.push(`/practice/word/${word.id}`)}>
+            練習する →
+          </button>
+        ) : (
+          <>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "11px", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--ink-faint)" }}>
+              よく読んでください — この単語は今日ここにしか全文で現れません。
+            </span>
+            <button className="btn" onClick={handleGotIt}>
+              理解した — 練習へ →
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

@@ -6,10 +6,13 @@ import type { ExampleSentence } from "@/types/domain";
 
 export default async function LearnPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ wordId: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
   const { wordId } = await params;
+  const { from } = await searchParams;
   const id = parseInt(wordId, 10);
   if (isNaN(id)) notFound();
 
@@ -35,7 +38,7 @@ export default async function LearnPage({
   return (
     <div className="app">
       <Masthead />
-      <WordEntry word={wordData} />
+      <WordEntry word={wordData} fromLibrary={from === "library"} />
     </div>
   );
 }

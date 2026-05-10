@@ -111,7 +111,7 @@ export default function WordDetailDrawer({ word, onClose, onChanged }: Props) {
         </div>
 
         <div className="drawer-actions zh-zone">
-          <button className="btn" onClick={() => router.push(`/learn/${word.id}`)}>
+          <button className="btn" onClick={() => router.push(`/learn/${word.id}?from=library`)}>
             打开学习页 →
           </button>
         </div>
