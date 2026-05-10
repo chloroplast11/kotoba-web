@@ -1,6 +1,7 @@
 "use client";
 import { create } from "zustand";
 import type { AppSettingsData } from "@/types/domain";
+import { setTimeOffset } from "@/lib/time";
 
 interface SettingsState extends AppSettingsData {
   isLoaded: boolean;
@@ -15,6 +16,7 @@ const defaults: AppSettingsData = {
   totalReviews: 0,
   streak: 0,
   timeOffset: 0,
+  cramSize: 50,
 };
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -25,11 +27,13 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     const res = await fetch("/api/settings");
     if (!res.ok) return;
     const data = (await res.json()) as AppSettingsData;
+    setTimeOffset(data.timeOffset ?? 0);
     set({ ...data, isLoaded: true });
   },
 
   update: async (patch) => {
     set(patch); // Optimistic update
+    if (patch.timeOffset !== undefined) setTimeOffset(patch.timeOffset);
     await fetch("/api/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

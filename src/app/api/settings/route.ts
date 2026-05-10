@@ -10,6 +10,7 @@ const DEFAULT_SETTINGS = {
   totalReviews: 0,
   streak: 0,
   timeOffset: 0,
+  cramSize: 50,
 };
 
 async function getOrCreate() {
@@ -28,6 +29,7 @@ function serialize(row: Awaited<ReturnType<typeof getOrCreate>>): AppSettingsDat
     totalReviews: row.totalReviews,
     streak: row.streak,
     timeOffset: row.timeOffset,
+    cramSize: row.cramSize,
   };
 }
 
@@ -53,6 +55,7 @@ export async function PATCH(req: Request) {
       ...(body.totalReviews !== undefined && { totalReviews: body.totalReviews }),
       ...(body.streak !== undefined && { streak: body.streak }),
       ...(body.timeOffset !== undefined && { timeOffset: body.timeOffset }),
+      ...(body.cramSize !== undefined && { cramSize: body.cramSize }),
     },
   });
 

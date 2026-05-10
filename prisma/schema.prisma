@@ -80,4 +80,5 @@ model AppSettings {
   totalReviews         Int     @default(0)
   streak               Int     @default(0)
   timeOffset           Int     @default(0)
+  cramSize             Int     @default(50)
 }

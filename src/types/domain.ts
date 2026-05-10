@@ -57,4 +57,5 @@ export interface AppSettingsData {
   totalReviews: number;
   streak: number;
   timeOffset: number;
+  cramSize: number;
 }
