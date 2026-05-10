@@ -1,19 +1,17 @@
-import { DIM_NAMES, DIM_DESCRIPTIONS } from "@/lib/constants";
+import DimTooltip from "@/components/ui/DimTooltip";
+import { DIM_NAMES } from "@/lib/constants";
 import type { DimKey } from "@/types/domain";
 
 interface Props {
   dim: DimKey;
-  showTooltip?: boolean;
 }
 
-export default function DimPill({ dim, showTooltip = true }: Props) {
-  const title = showTooltip ? `${DIM_NAMES[dim]}：${DIM_DESCRIPTIONS[dim]}` : undefined;
+export default function DimPill({ dim }: Props) {
   return (
-    <span
-      className={`dimension-pill dim-${dim}`}
-      title={title}
-    >
-      {dim}・{DIM_NAMES[dim]}
-    </span>
+    <DimTooltip dim={dim}>
+      <span className={`dimension-pill dim-${dim}`}>
+        {dim}・{DIM_NAMES[dim]}
+      </span>
+    </DimTooltip>
   );
 }
