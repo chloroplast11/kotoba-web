@@ -5,10 +5,11 @@ import { useSessionStore } from "@/store/sessionStore";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // (useSessionStore imported for setState access below)
 import { useSettingsStore } from "@/store/settingsStore";
+import { getCurrentDate } from "@/lib/time";
 import type { ReviewResult } from "@/types/domain";
 
 interface SessionData {
-  queue: { isNew?: boolean }[];
+  queue: { isNew?: boolean; wordId: number }[];
   cursor: number;
   results: ReviewResult[];
   stats: { totalLearned: number; mastered: number };
@@ -16,7 +17,7 @@ interface SessionData {
 }
 
 function currentSeasonLabel() {
-  const m = new Date().getMonth() + 1;
+  const m = getCurrentDate().getMonth() + 1;
   if (m >= 3 && m <= 5) return "春";
   if (m >= 6 && m <= 8) return "夏";
   if (m >= 9 && m <= 11) return "秋";
@@ -24,7 +25,7 @@ function currentSeasonLabel() {
 }
 
 function formatDate() {
-  return new Date().toLocaleDateString("ja-JP", {
+  return getCurrentDate().toLocaleDateString("ja-JP", {
     year: "numeric", month: "long", day: "numeric", weekday: "long",
   });
 }
@@ -39,16 +40,13 @@ export default function HomeClient({ initialData }: Props) {
   const settings = useSettingsStore();
 
   useEffect(() => {
-    if (!session.isLoaded) {
-      // Prime the store with server-rendered data to avoid a loading flash
-      useSessionStore.setState({
-        queue: initialData.queue as typeof session.queue,
-        cursor: initialData.cursor,
-        results: initialData.results,
-        wordMap: initialData.wordMap,
-        isLoaded: true,
-      });
-    }
+    useSessionStore.setState({
+      queue: initialData.queue as typeof session.queue,
+      cursor: initialData.cursor,
+      results: initialData.results,
+      wordMap: initialData.wordMap,
+      isLoaded: true,
+    });
     if (!settings.isLoaded) settings.loadSettings();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -60,8 +58,9 @@ export default function HomeClient({ initialData }: Props) {
   const { totalLearned, mastered } = initialData.stats;
   const totalReviews = settings.totalReviews;
 
-  const newWordsToday = queue.filter((q) => q.isNew).length;
-  const reviewsToday = queue.length - newWordsToday;
+  const newWordIds = new Set(queue.filter((q) => q.isNew).map((q) => q.wordId));
+  const newWordsToday = newWordIds.size;
+  const reviewsToday = queue.filter((q) => !q.isNew).length;
   const remaining = queue.length - cursor;
 
   function handleStart() {

@@ -375,6 +375,176 @@ body {
 }
 .kanji-mark.km1 { top: 80px; right: -30px; }
 
+/* ── Settings page ──────────────────────────────────── */
+.settings-section {
+  margin-top: 40px;
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+}
+.settings-section-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+.settings-row {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 24px; padding: 12px 0;
+}
+.settings-row-text { flex: 1; }
+.settings-row-text label {
+  font-family: 'Noto Serif JP', serif; font-size: 16px;
+  color: var(--ink); display: block; margin-bottom: 4px;
+}
+.settings-row-desc {
+  font-family: 'Noto Serif JP', serif; font-size: 13px;
+  color: var(--ink-soft); line-height: 1.7;
+}
+.stepper {
+  display: inline-flex; align-items: stretch; gap: 0;
+  border: 1px solid var(--line-strong); background: var(--paper-warm);
+}
+.stepper-btn {
+  width: 36px; height: 36px;
+  background: transparent; border: 0;
+  font-family: 'Fraunces', serif; font-size: 20px; color: var(--ink);
+  cursor: pointer; line-height: 1; padding: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.stepper-btn:hover:not(:disabled) {
+  background: var(--paper);
+}
+.stepper-btn:disabled {
+  color: var(--ink-faint); cursor: not-allowed;
+}
+.stepper-btn:first-child {
+  border-right: 1px solid var(--line);
+}
+.stepper-btn:last-child {
+  border-left: 1px solid var(--line);
+}
+.stepper-value {
+  min-width: 56px; padding: 0 12px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace; font-size: 18px;
+  color: var(--ink);
+}
+.settings-hint {
+  margin-top: 8px; font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--celadon);
+}
+.settings-actions {
+  display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px;
+}
+.settings-dev .settings-section-title { color: var(--accent); }
+
+/* ── 中文区字体作用域 ────────────────────────────────────
+   全局根字体含 Noto Serif JP，中文汉字会以日式字形渲染（每/直/骨 等）。
+   中文区（设置页 / Library 中文 drawer 等）用 .zh-zone 包裹切到中文字体栈。 */
+.zh-zone {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC',
+               'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+}
+.zh-zone h1,
+.zh-zone h2,
+.zh-zone h3,
+.zh-zone .lede,
+.zh-zone .settings-section-title,
+.zh-zone .settings-row-text label,
+.zh-zone .settings-row-desc,
+.zh-zone .settings-hint,
+.zh-zone .drawer-section-title,
+.zh-zone .drawer-section-desc,
+.zh-zone .mastery-segment,
+.zh-zone .btn {
+  font-family: inherit;
+}
+
+/* ── Word detail drawer ─────────────────────────────── */
+.drawer-root {
+  position: fixed; inset: 0; z-index: 50;
+}
+.drawer-overlay {
+  position: absolute; inset: 0;
+  background: rgba(29, 41, 53, 0.32);
+  backdrop-filter: blur(2px);
+}
+.drawer-panel {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: min(440px, 100%);
+  background: var(--paper);
+  box-shadow: -4px 0 32px rgba(29, 41, 53, 0.16);
+  padding: 32px 28px; overflow-y: auto;
+}
+.drawer-close {
+  position: absolute; top: 16px; right: 20px;
+  background: none; border: none; cursor: pointer;
+  font-size: 24px; color: var(--ink-faint);
+  width: 32px; height: 32px; line-height: 1;
+}
+.drawer-close:hover { color: var(--ink); }
+.drawer-head {
+  padding-bottom: 20px; border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
+}
+.drawer-section { margin-bottom: 24px; }
+.drawer-section-title {
+  font-family: 'Noto Serif JP', serif; font-size: 18px; font-weight: 500;
+  margin-bottom: 8px; color: var(--ink);
+}
+.drawer-section-desc {
+  font-family: 'Noto Serif JP', serif; font-size: 12px;
+  color: var(--ink-faint); line-height: 1.7; margin-bottom: 16px;
+}
+.drawer-actions {
+  margin-top: 24px; padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+/* ── Mastery editor (segmented control) ─────────────── */
+.mastery-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.mastery-row:last-child { border-bottom: none; }
+.mastery-row-label {
+  display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px;
+}
+.mastery-dim-letter {
+  font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+  font-weight: 600; color: var(--accent);
+  letter-spacing: 0.08em;
+}
+.mastery-dim-name {
+  font-family: 'Noto Serif JP', serif; font-size: 14px; color: var(--ink);
+}
+.mastery-dim-desc {
+  font-family: 'Noto Serif JP', serif; font-size: 11px;
+  color: var(--ink-faint); margin-left: 4px;
+}
+.mastery-segments {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--line-strong);
+  background: var(--paper-warm);
+}
+.mastery-segment {
+  background: none; border: none; cursor: pointer;
+  padding: 8px 4px;
+  font-family: 'Noto Serif JP', serif; font-size: 13px;
+  color: var(--ink-soft);
+  border-right: 1px solid var(--line);
+  transition: background 0.15s, color 0.15s;
+}
+.mastery-segment:last-child { border-right: none; }
+.mastery-segment:hover:not(.active) { background: var(--paper-deep); }
+.mastery-segment.active {
+  background: var(--ink); color: var(--paper);
+  font-weight: 500;
+}
+
 /* ── Responsive ─────────────────────────────────────── */
 @media (max-width: 720px) {
   .app { padding: 32px 20px 80px; }
@@ -385,4 +555,7 @@ body {
   .quiz-stem { font-size: 20px; }
   .nav { gap: 14px; font-size: 11px; }
   .masthead { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .drawer-panel { width: 100%; padding: 24px 20px; }
+  .settings-row { flex-direction: column; gap: 8px; }
+  .mastery-segment { font-size: 11px; padding: 8px 2px; }
 }

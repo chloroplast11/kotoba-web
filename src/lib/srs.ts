@@ -8,6 +8,7 @@ import {
 import type { UserWordState } from "@/generated/prisma";
 import type { AppSettingsData, DimKey, MasteryLevel, SrsData } from "@/types/domain";
 import { UNLOCK_THRESHOLD } from "./constants";
+import { getCurrentDate } from "./time";
 
 const f = new FSRS(generatorParameters({ enable_fuzz: false }));
 
@@ -16,7 +17,7 @@ export { Rating };
 // Convert DB record → ts-fsrs Card
 export function toFsrsCard(state: SrsData): Card {
   const empty = createEmptyCard();
-  const now = new Date();
+  const now = getCurrentDate();
   const lastReview = state.lastReview ?? now;
   const due = state.due ?? now;
   const elapsedDays = Math.max(
@@ -73,6 +74,16 @@ export function scheduleReview(
 export function getMasteryLevel(state: SrsData | null): MasteryLevel {
   if (!state || state.reps === 0) return 0;
   if (state.stability < 7) return 1;
+  return 2;
+}
+
+// 3-tier self-assessment scale, separate from getMasteryLevel
+// 0=未学, 1=学习中, 2=精通
+export type MasteryTier = 0 | 1 | 2;
+
+export function getMasteryTier(state: SrsData | null): MasteryTier {
+  if (!state || state.reps === 0) return 0;
+  if (state.stability < 11) return 1;
   return 2;
 }
 

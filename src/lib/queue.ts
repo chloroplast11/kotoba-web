@@ -150,3 +150,92 @@ export function buildTodayQueue(
 
   return [...finalQueue, ...interleaved];
 }
+
+export function reconcileNewWordsInQueue(
+  currentQueue: QueueItem[],
+  cursor: number,
+  desiredNewCount: number,
+  words: Word[],
+  questions: Question[],
+  wordStates: WordStateMap
+): QueueItem[] {
+  const round1NewItems = currentQueue
+    .map((item, idx) => ({ item, idx }))
+    .filter(({ item }) => item.isNew && item.round === 1);
+  const currentNewCount = round1NewItems.length;
+
+  if (currentNewCount === desiredNewCount) return currentQueue;
+
+  const usedQuestionIds = new Set(currentQueue.map((q) => q.questionId));
+  const queueWordIds = new Set(currentQueue.filter((q) => q.isNew).map((q) => q.wordId));
+
+  if (desiredNewCount > currentNewCount) {
+    const learnedIds = new Set(
+      [...wordStates.entries()]
+        .filter(([, ws]) => ws.R?.learnedAt !== null)
+        .map(([id]) => id)
+    );
+    const candidates = words
+      .filter((w) => !learnedIds.has(w.id) && !queueWordIds.has(w.id))
+      .sort((a, b) => (FREQ_ORDER[a.frequency] ?? 99) - (FREQ_ORDER[b.frequency] ?? 99))
+      .slice(0, desiredNewCount - currentNewCount);
+
+    const round1Additions: QueueItem[] = [];
+    const round2Additions: Array<{ wordId: number; dim: DimKey }> = [];
+
+    for (const word of candidates) {
+      const q1 = pickQuestion(word.id, "R", questions, usedQuestionIds);
+      if (!q1) continue;
+      usedQuestionIds.add(q1.id);
+      round1Additions.push({ wordId: word.id, dim: "R", isNew: true, round: 1, questionId: q1.id });
+
+      const remaining = questions.filter(
+        (q) => q.wordId === word.id && q.dimension === "R" && !usedQuestionIds.has(q.id)
+      );
+      if (word.frequency !== "low" && remaining.length > 0) {
+        round2Additions.push({ wordId: word.id, dim: "R" });
+      }
+    }
+
+    const round2Items: QueueItem[] = [];
+    for (const item of shuffle(round2Additions)) {
+      const q = pickQuestion(item.wordId, item.dim, questions, usedQuestionIds);
+      if (!q) continue;
+      usedQuestionIds.add(q.id);
+      round2Items.push({ wordId: item.wordId, dim: item.dim, isNew: true, round: 2, questionId: q.id });
+    }
+
+    let lastRound1Idx = -1;
+    let lastRound2Idx = -1;
+    currentQueue.forEach((item, idx) => {
+      if (item.isNew && item.round === 1) lastRound1Idx = idx;
+      if (item.isNew && item.round === 2) lastRound2Idx = idx;
+    });
+
+    const out = [...currentQueue];
+    const round2Insert = lastRound2Idx >= 0 ? lastRound2Idx + 1 : lastRound1Idx + 1 + round1Additions.length;
+    out.splice(lastRound1Idx + 1, 0, ...round1Additions);
+    const adjusted = lastRound2Idx >= 0 ? round2Insert + round1Additions.length : round2Insert;
+    out.splice(adjusted, 0, ...round2Items);
+    return out;
+  }
+
+  const toRemove = currentNewCount - desiredNewCount;
+  const removableRound1Indices: number[] = [];
+  for (let i = round1NewItems.length - 1; i >= 0; i--) {
+    const { idx } = round1NewItems[i];
+    if (idx < cursor) break;
+    removableRound1Indices.push(idx);
+    if (removableRound1Indices.length >= toRemove) break;
+  }
+  if (removableRound1Indices.length === 0) return currentQueue;
+
+  const removedWordIds = new Set(removableRound1Indices.map((idx) => currentQueue[idx].wordId));
+  const removedIndexSet = new Set(removableRound1Indices);
+
+  return currentQueue.filter((item, idx) => {
+    if (removedIndexSet.has(idx)) return false;
+    if (item.isNew && item.round === 2 && removedWordIds.has(item.wordId) && idx >= cursor) return false;
+    return true;
+  });
+}

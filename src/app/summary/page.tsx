@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useSessionStore } from "@/store/sessionStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import { getCurrentDate } from "@/lib/time";
 import Masthead from "@/components/layout/Masthead";
 
 export default function SummaryPage() {
@@ -28,7 +29,7 @@ export default function SummaryPage() {
       <Masthead />
       <section className="home-hero" style={{ marginBottom: "32px" }}>
         <div className="date-line">
-          セッション完了 · {new Date().toLocaleDateString("ja-JP")}
+          セッション完了 · {getCurrentDate().toLocaleDateString("ja-JP")}
         </div>
         <h1>
           <em>{acc}%</em> の正解率<br />

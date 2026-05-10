@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { scheduleReview, answerToRating, isDimensionUnlocked, toSrsData, getMasteryLevel } from "@/lib/srs";
-import { todayDateString } from "@/lib/time";
+import { applyTimeOffset, todayDateString } from "@/lib/time";
 import type { DimKey, ReviewResult } from "@/types/domain";
 
 interface ReviewRequest {
@@ -16,6 +16,9 @@ interface ReviewRequest {
 export async function POST(req: Request) {
   const body = (await req.json()) as ReviewRequest;
   const { wordId, dimension, correct, timestamp, learnOnly } = body;
+
+  const settingsRow = await prisma.appSettings.findUnique({ where: { id: 1 } });
+  applyTimeOffset(settingsRow?.timeOffset);
 
   const now = new Date(timestamp);
 
@@ -84,13 +87,12 @@ export async function POST(req: Request) {
   // Check if any new dimensions were unlocked
   const allDimStates = await prisma.userWordState.findMany({ where: { wordId } });
   const word = await prisma.word.findUnique({ where: { id: wordId } });
-  const settings = await prisma.appSettings.findUnique({ where: { id: 1 } });
 
   const dimMap: Record<DimKey, ReturnType<typeof toSrsData> | null> = { R: null, P: null, U: null };
   for (const s of allDimStates) dimMap[s.dimension as DimKey] = toSrsData(s);
 
   const settingsData = {
-    practiceLowFreqUsage: settings?.practiceLowFreqUsage ?? false,
+    practiceLowFreqUsage: settingsRow?.practiceLowFreqUsage ?? false,
   };
 
   const unlockedDimensions: DimKey[] = [];

@@ -1,4 +1,4 @@
-import { getMasteryLevel } from "@/lib/srs";
+import { getMasteryTier } from "@/lib/srs";
 import { DIM_NAMES, DIM_DESCRIPTIONS } from "@/lib/constants";
 import type { DimKey, SrsData } from "@/types/domain";
 
@@ -6,15 +6,23 @@ interface Props {
   dimStates: Record<DimKey, SrsData | null>;
 }
 
+const TIER_WIDTHS = ["0%", "50%", "100%"] as const;
+
 export default function DimBars({ dimStates }: Props) {
   return (
     <div className="dim-bars">
       {(["R", "P", "U"] as DimKey[]).map((dim) => {
         const s = dimStates[dim];
-        const level = getMasteryLevel(s);
         const locked = s === null;
-        const fillClass = locked ? "locked" : level === 2 ? "mastered" : level === 1 ? "learning" : "";
-        const fillWidth = locked ? "100%" : level === 2 ? "100%" : level === 1 ? "50%" : "0%";
+        const tier = getMasteryTier(s);
+        const fillClass = locked
+          ? "locked"
+          : tier === 0
+            ? ""
+            : tier === 2
+              ? "mastered"
+              : "learning";
+        const fillWidth = locked ? "100%" : TIER_WIDTHS[tier];
 
         return (
           <div

@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import type { ExampleSentence, QuestionOption } from "@/types/domain";
 import RubyText from "@/components/ui/RubyText";
+import { getCurrentTime } from "@/lib/time";
 
 interface WordData {
   id: number;
@@ -38,7 +39,7 @@ export default function WordEntry({ word }: { word: WordData }) {
         dimension: "R",
         questionId: "__learn__",
         correct: true,
-        timestamp: Date.now(),
+        timestamp: getCurrentTime(),
         learnOnly: true,
       }),
     });

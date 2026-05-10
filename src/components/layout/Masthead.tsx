@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 const NAV_ITEMS = [
   { href: "/", label: "ホーム" },
   { href: "/library", label: "単語帳" },
+  { href: "/settings", label: "設定" },
 ];
 
 export default function Masthead() {

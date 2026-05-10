@@ -10,6 +10,10 @@ export function getTimeOffset(): number {
   return _timeOffset;
 }
 
+export function applyTimeOffset(ms: number | null | undefined) {
+  _timeOffset = ms ?? 0;
+}
+
 export function getCurrentTime(): number {
   return Date.now() + _timeOffset;
 }

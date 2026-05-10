@@ -4,6 +4,8 @@ import LibraryGrid from "@/components/library/LibraryGrid";
 import { toSrsData } from "@/lib/srs";
 import type { DimKey } from "@/types/domain";
 
+export const dynamic = "force-dynamic";
+
 export default async function LibraryPage() {
   const [words, allStates] = await Promise.all([
     prisma.word.findMany({ orderBy: [{ frequency: "asc" }, { word: "asc" }] }),
@@ -21,6 +23,7 @@ export default async function LibraryPage() {
     word: w.word,
     furigana: w.furigana,
     meaningZh: w.meaningZh,
+    level: w.level,
     frequency: w.frequency,
     dimStates: statesByWord.get(w.id) ?? { R: null, P: null, U: null },
   }));

@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import type { DimKey, QueueItem, ReviewResult } from "@/types/domain";
 import { Rating } from "@/lib/srs";
+import { getCurrentTime } from "@/lib/time";
 
 interface SessionState {
   queue: QueueItem[];
@@ -51,7 +52,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   },
 
   submitAnswer: async (wordId, dim, questionId, correct) => {
-    const now = Date.now();
+    const now = getCurrentTime();
     const rating = correct ? Rating.Good : Rating.Again;
 
     // Optimistic: append result locally

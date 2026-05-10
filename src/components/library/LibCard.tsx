@@ -1,5 +1,4 @@
 "use client";
-import { useRouter } from "next/navigation";
 import DimBars from "./DimBars";
 import type { DimKey, SrsData } from "@/types/domain";
 
@@ -12,10 +11,14 @@ interface WordCardData {
   dimStates: Record<DimKey, SrsData | null>;
 }
 
-export default function LibCard({ data }: { data: WordCardData }) {
-  const router = useRouter();
+interface Props {
+  data: WordCardData;
+  onSelect: (wordId: number) => void;
+}
+
+export default function LibCard({ data, onSelect }: Props) {
   return (
-    <div className="lib-card" onClick={() => router.push(`/learn/${data.id}`)}>
+    <div className="lib-card" onClick={() => onSelect(data.id)}>
       <div className="lib-card-furi">{data.furigana}</div>
       <div className="lib-card-word">{data.word}</div>
       <div className="lib-card-meaning">{data.meaningZh}</div>
