@@ -194,6 +194,7 @@ UI 文案明确分两区：
 3. **Practice 题目页**：维度 Pill 标签上 hover/tap 显示 tooltip
 4. **首次启动 Onboarding**：用一整页讲清楚（未实现）
 5. **首页副标题或导航附近**：常驻一句简介，让新用户随时能看到
+6. **Practice 题目页 popover 快速标记**：题目页 header 提供「習得度」按钮，点击弹出轻量 popover，直接调整当前词的 R / P / U 三维度掌握档位（未学 / 学习中 / 精通）。复用 Library drawer 的三档管理控件，无需中断练习返回 Library。文案规则同 drawer——管理动作 → 中文区，触发器 → 日语 chrome。
 
 ---
 

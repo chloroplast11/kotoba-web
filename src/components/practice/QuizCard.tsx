@@ -2,6 +2,7 @@
 import { useState } from "react";
 import RubyText from "@/components/ui/RubyText";
 import DimPill from "@/components/layout/DimPill";
+import MasteryPopover from "@/components/practice/MasteryPopover";
 import type { DimKey, QueueItem, QuestionOption } from "@/types/domain";
 
 interface QuestionData {
@@ -59,6 +60,7 @@ export default function QuizCard({ item, question, index, total, onAnswer }: Pro
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           {getRoundLabel(item)}
           <DimPill dim={item.dim} />
+          <MasteryPopover wordId={item.wordId} />
         </div>
       </div>
 

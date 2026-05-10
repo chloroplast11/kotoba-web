@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { applyTimeOffset, getCurrentDate } from "@/lib/time";
-import type { DimKey } from "@/types/domain";
+import { toSrsData } from "@/lib/srs";
+import type { DimKey, SrsData } from "@/types/domain";
 
 interface MasteryRequest {
   wordId: number;
@@ -13,6 +14,23 @@ const TIER_PRESETS: Record<1 | 2, { stability: number; dueDays: number }> = {
   1: { stability: 3.5, dueDays: 3 },
   2: { stability: 15, dueDays: 15 },
 };
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const wordId = Number(searchParams.get("wordId"));
+  if (!Number.isFinite(wordId)) {
+    return NextResponse.json({ error: "invalid wordId" }, { status: 400 });
+  }
+
+  const rows = await prisma.userWordState.findMany({ where: { wordId } });
+  const dimStates: Record<DimKey, SrsData | null> = { R: null, P: null, U: null };
+  for (const r of rows) {
+    if (r.dimension === "R" || r.dimension === "P" || r.dimension === "U") {
+      dimStates[r.dimension] = toSrsData(r);
+    }
+  }
+  return NextResponse.json({ dimStates });
+}
 
 export async function PATCH(req: Request) {
   const { wordId, dimension, level } = (await req.json()) as MasteryRequest;
