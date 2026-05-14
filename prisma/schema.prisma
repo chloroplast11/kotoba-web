@@ -22,6 +22,8 @@ model Word {
   synonyms         String
   antonyms         String
   collocations     String
+  qualityScore     Int?
+  needsReview      Boolean @default(false)
 
   questions    Question[]
   wordStates   UserWordState[]
@@ -38,6 +40,8 @@ model Question {
   correctIndex Int
   explanation  String?
   explanationZh String?
+  qualityScore Int?
+  needsReview  Boolean @default(false)
 
   word Word @relation(fields: [wordId], references: [id])
 }
