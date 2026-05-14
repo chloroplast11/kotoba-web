@@ -23,22 +23,21 @@ model Word {
   antonyms         String
   collocations     String
 
-  questions  Question[]
-  wordStates UserWordState[]
+  questions    Question[]
+  wordStates   UserWordState[]
+  wrongAnswers WrongAnswer[]
 }
 
 model Question {
-  id               String  @id
-  wordId           Int
-  dimension        String
-  type             String
-  question         String
-  questionPlain    String
-  options          String
-  correctIndex     Int
-  explanation      String?
-  explanationPlain String?
-  explanationZh    String?
+  id           String  @id
+  wordId       Int
+  dimension    String
+  type         String
+  question     String?
+  options      String
+  correctIndex Int
+  explanation  String?
+  explanationZh String?
 
   word Word @relation(fields: [wordId], references: [id])
 }
@@ -60,6 +59,21 @@ model UserWordState {
 
   @@unique([wordId, dimension])
   @@index([due])
+}
+
+model WrongAnswer {
+  id           Int      @id @default(autoincrement())
+  wordId       Int
+  dimension    String
+  resolved     Boolean  @default(false)
+  wrongCount   Int      @default(1)
+  firstWrongAt DateTime @default(now())
+  lastWrongAt  DateTime @default(now())
+
+  word Word @relation(fields: [wordId], references: [id])
+
+  @@unique([wordId, dimension])
+  @@index([resolved, lastWrongAt])
 }
 
 model DailySession {

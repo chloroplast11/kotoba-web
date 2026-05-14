@@ -11,7 +11,6 @@ interface QuestionData {
   dimension: DimKey;
   type: string;
   question: string;
-  questionPlain: string;
   options: QuestionOption[];
   correctIndex: number;
   explanation: string | null;
@@ -49,7 +48,7 @@ export default function QuizCard({ item, question, index, total, onAnswer }: Pro
   }
 
   const stemHtml = question.question.replace("____", '<span class="blank"></span>');
-  const isShort = question.questionPlain.length < 60;
+  const isShort = question.question.replace(/<rt>[^<]*<\/rt>|<\/?ruby>/g, "").length < 60;
 
   return (
     <div className="quiz-wrap">

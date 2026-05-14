@@ -84,6 +84,14 @@ export async function POST(req: Request) {
     update: { totalReviews: { increment: 1 } },
   });
 
+  if (!correct) {
+    await prisma.wrongAnswer.upsert({
+      where: { wordId_dimension: { wordId, dimension } },
+      create: { wordId, dimension, lastWrongAt: now, firstWrongAt: now },
+      update: { resolved: false, wrongCount: { increment: 1 }, lastWrongAt: now },
+    });
+  }
+
   // Check if any new dimensions were unlocked
   const allDimStates = await prisma.userWordState.findMany({ where: { wordId } });
   const word = await prisma.word.findUnique({ where: { id: wordId } });

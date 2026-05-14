@@ -24,14 +24,19 @@ interface EnrichedWord {
   word_id: number;
 }
 
+interface RawOption {
+  text: string;
+  text_plain?: string;
+}
+
 interface RawQuestion {
   id: string;
   word_id: number;
   dimension: string;
   type: string;
-  question: string;
-  question_plain: string;
-  options: object[];
+  question?: string;
+  question_plain?: string;
+  options: RawOption[];
   correct_index: number;
   explanation?: string;
   explanation_plain?: string;
@@ -75,12 +80,10 @@ async function seedQuestions(questions: RawQuestion[]) {
       wordId: q.word_id,
       dimension: q.dimension,
       type: q.type,
-      question: q.question,
-      questionPlain: q.question_plain ?? "",
-      options: JSON.stringify(q.options),
+      question: q.question ?? null,
+      options: JSON.stringify(q.options.map((o) => ({ text: o.text }))),
       correctIndex: q.correct_index,
       explanation: q.explanation || null,
-      explanationPlain: q.explanation_plain || null,
       explanationZh: q.explanation_zh || null,
     })),
   });

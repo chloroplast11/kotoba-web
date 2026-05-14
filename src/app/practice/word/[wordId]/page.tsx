@@ -46,8 +46,7 @@ export default async function WordPracticePage({
     dimension: DimKey;
     type: string;
     question: string;
-    questionPlain: string;
-    options: { text: string; text_plain: string }[];
+    options: { text: string }[];
     correctIndex: number;
     explanation: string | null;
     explanationZh: string | null;
@@ -58,8 +57,7 @@ export default async function WordPracticePage({
       wordId: q.wordId,
       dimension: q.dimension as DimKey,
       type: q.type,
-      question: q.question,
-      questionPlain: q.questionPlain,
+      question: q.question ?? "",
       options: JSON.parse(q.options),
       correctIndex: q.correctIndex,
       explanation: q.explanation,

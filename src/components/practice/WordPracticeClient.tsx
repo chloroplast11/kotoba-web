@@ -13,7 +13,6 @@ interface QuestionData {
   dimension: DimKey;
   type: string;
   question: string;
-  questionPlain: string;
   options: QuestionOption[];
   correctIndex: number;
   explanation: string | null;

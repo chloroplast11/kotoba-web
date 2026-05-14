@@ -50,7 +50,26 @@ export interface ExampleSentence {
 
 export interface QuestionOption {
   text: string;
-  text_plain: string;
+}
+
+export interface WrongAnswerItem {
+  id: number;
+  wordId: number;
+  word: string;
+  furigana: string;
+  meaningZh: string;
+  level: number;
+  dimension: DimKey;
+  wrongCount: number;
+  firstWrongAt: string;
+  lastWrongAt: string;
+  masteryLevel: MasteryLevel;
+}
+
+export interface CalendarDay {
+  date: string;
+  count: number;
+  hasNew: boolean;
 }
 
 export interface AppSettingsData {

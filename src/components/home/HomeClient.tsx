@@ -8,6 +8,7 @@ import { useSettingsStore } from "@/store/settingsStore";
 import { getCurrentDate } from "@/lib/time";
 import type { ReviewResult } from "@/types/domain";
 import OnboardingModal from "@/components/onboarding/OnboardingModal";
+import LearningCalendar from "@/components/home/LearningCalendar";
 import { useOnboardingStore } from "@/store/onboardingStore";
 
 interface SessionData {
@@ -95,7 +96,7 @@ export default function HomeClient({ initialData }: Props) {
 
   return (
     <div>
-      <div style={{ position: "relative" }}>
+      <div className="home-top">
         <div className="kanji-mark km1">言</div>
         <section className="home-hero">
           <div className="date-line">{formatDate()} · {currentSeasonLabel()}</div>
@@ -117,6 +118,9 @@ export default function HomeClient({ initialData }: Props) {
             認識・産出・運用 ── 三つの次元で言葉を学ぶ
           </button>
         </section>
+        <aside className="home-calendar-slot">
+          <LearningCalendar />
+        </aside>
       </div>
 
       <div className="stats-row">

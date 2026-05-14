@@ -99,6 +99,16 @@ body {
 }
 
 /* ── Home ───────────────────────────────────────────── */
+.home-top {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 48px;
+  margin-bottom: 64px;
+}
+.home-top .home-hero { margin-bottom: 0; }
+.home-calendar-slot { justify-self: end; }
 .home-hero { margin-bottom: 64px; }
 .date-line {
   font-family: 'IBM Plex Mono', monospace; font-size: 11px;
@@ -458,7 +468,7 @@ body {
   color: var(--ink); opacity: 0.025; font-weight: 700;
   pointer-events: none; user-select: none; line-height: 1;
 }
-.kanji-mark.km1 { top: 80px; right: -30px; }
+.kanji-mark.km1 { top: 460px; right: -30px; }
 
 /* ── Settings page ──────────────────────────────────── */
 .settings-section {
@@ -781,6 +791,126 @@ body {
 .mastery-popover-row:last-child { border-bottom: none; }
 .mastery-popover-row .mastery-row-label { margin-bottom: 6px; }
 
+/* ── Learning calendar ──────────────────────────────── */
+.calendar-card {
+  width: 260px;
+  padding: 16px 18px 18px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+.calendar-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.calendar-title { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.calendar-label {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.calendar-month {
+  font-family: 'Noto Serif JP', serif; font-size: 15px;
+  font-weight: 500; color: var(--ink); letter-spacing: 0.04em;
+}
+.calendar-nav {
+  background: none; border: 0; cursor: pointer;
+  width: 28px; height: 28px;
+  font-size: 12px; color: var(--ink-faint);
+  transition: color 0.15s;
+}
+.calendar-nav:hover:not(:disabled) { color: var(--ink); }
+.calendar-nav:disabled { opacity: 0.25; cursor: default; }
+
+.calendar-weekrow {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 6px;
+}
+.calendar-weekday {
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; color: var(--ink-faint);
+  letter-spacing: 0.08em;
+}
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.calendar-cell {
+  aspect-ratio: 1 / 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.calendar-cell.empty { visibility: hidden; }
+.calendar-dot {
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--line);
+  transition: transform 0.15s;
+}
+.calendar-cell.lvl-low .calendar-dot { background: var(--moss); opacity: 0.55; }
+.calendar-cell.lvl-mid .calendar-dot { background: var(--moss); }
+.calendar-cell.lvl-high .calendar-dot { background: var(--accent); }
+.calendar-cell.has-new .calendar-dot { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--ink-soft); }
+.calendar-cell.is-today::before {
+  content: '';
+  position: absolute;
+  width: 22px; height: 22px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+}
+.calendar-cell:hover .calendar-dot { transform: scale(1.4); }
+
+/* ── Mistakes (復習帖) ──────────────────────────────── */
+.mistake-list {
+  list-style: none;
+  display: flex; flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+.mistake-row {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 24px; padding: 22px 4px;
+  border-bottom: 1px solid var(--line);
+}
+.mistake-main { flex: 1; min-width: 0; }
+.mistake-word {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 26px; font-weight: 500; color: var(--ink);
+  line-height: 1.2; margin-bottom: 6px;
+}
+.mistake-word ruby rt {
+  font-size: 11px; color: var(--ink-faint);
+  letter-spacing: 0.06em; font-weight: 400;
+}
+.mistake-meaning {
+  font-family: 'Fraunces', serif; font-size: 14px;
+  color: var(--ink-soft); margin-bottom: 10px;
+}
+.mistake-tags {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.mistake-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+.mistake-hint {
+  font-family: 'Noto Serif JP', serif; font-size: 12px;
+  color: var(--ink-faint); font-weight: 300;
+}
+.mistake-actions {
+  display: flex; flex-direction: column; gap: 8px;
+  flex-shrink: 0;
+}
+.mistake-btn {
+  font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 12px; padding: 8px 14px;
+  background: var(--paper-warm); color: var(--ink-soft);
+  border: 1px solid var(--line-strong); cursor: pointer;
+  white-space: nowrap; transition: background 0.15s, color 0.15s;
+}
+.mistake-btn:hover { background: var(--paper-deep); color: var(--ink); }
+.mistake-btn.mistake-btn-primary {
+  background: var(--ink); color: var(--paper); border-color: var(--ink);
+}
+.mistake-btn.mistake-btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+
 /* ── Responsive ─────────────────────────────────────── */
 @media (max-width: 720px) {
   .app { padding: 32px 20px 80px; }
@@ -795,4 +925,10 @@ body {
   .settings-row { flex-direction: column; gap: 8px; }
   .mastery-segment { font-size: 11px; padding: 8px 2px; }
   .mastery-popover-popup { width: min(280px, calc(100vw - 40px)); }
+  .mistake-row { flex-direction: column; gap: 14px; }
+  .mistake-actions { flex-direction: row; width: 100%; }
+  .mistake-btn { flex: 1; }
+  .home-top { grid-template-columns: 1fr; gap: 32px; }
+  .home-calendar-slot { justify-self: stretch; }
+  .calendar-card { width: 100%; max-width: 360px; margin: 0 auto; }
 }

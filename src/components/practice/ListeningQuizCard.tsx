@@ -13,7 +13,6 @@ interface QuestionData {
   dimension: DimKey;
   type: string;
   question: string;
-  questionPlain: string;
   options: QuestionOption[];
   correctIndex: number;
   explanation: string | null;
@@ -120,7 +119,7 @@ export default function ListeningQuizCard({
             <span className="marker">{OPTION_LABELS[idx]}</span>
             <span>
               {audioMode === "listen_kanji" ? (
-                opt.text_plain
+                opt.text
               ) : (
                 <RubyText html={opt.text} />
               )}
