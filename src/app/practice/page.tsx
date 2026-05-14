@@ -23,14 +23,10 @@ export default async function PracticePage() {
   const queue = JSON.parse(session.queue) as QueueItem[];
   const questionIds = [...new Set(queue.map((q) => q.questionId))];
   const wordIds = [...new Set(queue.map((q) => q.wordId))];
-  const needsListeningPool = queue.some((q) => q.audioMode === "listen_kanji");
 
-  const [dbQuestions, dbWords, poolWords] = await Promise.all([
+  const [dbQuestions, dbWords] = await Promise.all([
     prisma.question.findMany({ where: { id: { in: questionIds } } }),
     prisma.word.findMany({ where: { id: { in: wordIds } } }),
-    needsListeningPool
-      ? prisma.word.findMany({ select: { id: true, word: true } })
-      : Promise.resolve([]),
   ]);
 
   const questionsMap = new Map(
@@ -60,7 +56,7 @@ export default async function PracticePage() {
   return (
     <div className="app">
       <Masthead />
-      <PracticeClient questions={questionsMap} words={wordsMap} wordPool={poolWords} />
+      <PracticeClient questions={questionsMap} words={wordsMap} />
     </div>
   );
 }

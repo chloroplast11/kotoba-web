@@ -17,8 +17,9 @@ function pickQuestion(
   questions: Question[],
   usedIds: Set<string>
 ): Question | null {
+  // Cram mode 是纯文字模式，过滤掉 listening_kanji（没有音频播放上下文，题干会失效）
   const candidates = questions.filter(
-    (q) => q.wordId === wordId && q.dimension === dim
+    (q) => q.wordId === wordId && q.dimension === dim && q.type !== "listening_kanji"
   );
   if (candidates.length === 0) return null;
   const fresh = candidates.filter((q) => !usedIds.has(q.id));

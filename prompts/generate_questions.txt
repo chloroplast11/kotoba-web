@@ -15,6 +15,7 @@
 4. fill_blank (填空): 在句子中填入正确的词
 5. context_inference (语境推断): 根据上下文选择正确用法
 6. wrong_usage (用法判断): 判断句子中的用法是否正确
+7. listening_kanji (听音选汉字): 听单词读音，从 4 个汉字选项中选出对应词；3 个干扰项必须与目标词读音相近
 
 **出题要求**：
 1. 每个单词生成 4-6 道题
@@ -24,6 +25,15 @@
 5. 每道题必须有唯一正确答案
 6. 难度符合 N2 水平
 7. 答案要随机，即correct_index所有问题不要是全是一样的
+
+**listening_kanji 题型专项要求**（强约束，违反即判作废）：
+- 每个单词必须额外生成且仅生成 1 道 listening_kanji 题，归 R 维度，与上面 4-6 道题并列。
+- 题干（`question` / `question_plain`）使用固定提示语，照搬下方示例即可。
+- 4 个选项 = 1 个目标词 + 3 个**读音相近但不同**的真实日语词。相近维度（至少命中一条）：同首拍 / 同尾拍 / 长短音差 / 清浊半浊差 / 拗音直音差 / 同音异字。音节数与目标词相差不超过 1。
+- 干扰项必须是真实存在的常用日语词（优先 N3-N1 词汇），**不可生造**；不可使用与目标词意思相同或近义的词（避免歧义答案）。
+- 选项 `text` 与 `text_plain` 都**必须是纯汉字/假名词形，禁止使用 `<ruby>` 标签**（否则会泄露读音，破坏听辨）。
+- 解析（`explanation` / `explanation_plain`）需逐一给出每个干扰项的假名读音，并指出与目标词的发音差异点；`explanation_zh` 用中文总结。
+- 解析中的汉字按常规规则标注 ruby（不受选项的禁 ruby 约束影响）。
 
 输出格式（纯 JSON 数组）：
 ```json
@@ -96,6 +106,26 @@ U 维度题目示例：
     {{"text": "<ruby>題名<rt>だいめい</rt></ruby>な<ruby>人<rt>ひと</rt></ruby>に<ruby>会<rt>あ</rt></ruby>った。"}}
   ],
   "correct_index": 2
+}}
+```
+
+listening_kanji 题目示例（注意选项不含 ruby）：
+```json
+{{
+  "dimension": "R",
+  "type": "listening_kanji",
+  "question": "<ruby>音声<rt>おんせい</rt></ruby>を<ruby>聞<rt>き</rt></ruby>いて、<ruby>正<rt>ただ</rt></ruby>しい<ruby>言葉<rt>ことば</rt></ruby>を<ruby>選<rt>えら</rt></ruby>んでください。",
+  "question_plain": "音声を聞いて、正しい言葉を選んでください。",
+  "options": [
+    {{"text": "題名", "text_plain": "題名"}},
+    {{"text": "大名", "text_plain": "大名"}},
+    {{"text": "提案", "text_plain": "提案"}},
+    {{"text": "代案", "text_plain": "代案"}}
+  ],
+  "correct_index": 0,
+  "explanation": "<ruby>題名<rt>だいめい</rt></ruby>（だいめい）が<ruby>正解<rt>せいかい</rt></ruby>。<ruby>大名<rt>だいみょう</rt></ruby>（だいみょう）は<ruby>長音<rt>ちょうおん</rt></ruby>の<ruby>位置<rt>いち</rt></ruby>と<ruby>拗音<rt>ようおん</rt></ruby>が<ruby>異<rt>こと</rt></ruby>なる。<ruby>提案<rt>ていあん</rt></ruby>（ていあん）は<ruby>頭<rt>あたま</rt></ruby>の<ruby>子音<rt>しいん</rt></ruby>が「て」で<ruby>異<rt>こと</rt></ruby>なる。<ruby>代案<rt>だいあん</rt></ruby>（だいあん）は<ruby>語尾<rt>ごび</rt></ruby>が「あん」で<ruby>異<rt>こと</rt></ruby>なる。",
+  "explanation_plain": "題名（だいめい）が正解。大名（だいみょう）は長音の位置と拗音が異なる。提案（ていあん）は頭の子音が「て」で異なる。代案（だいあん）は語尾が「あん」で異なる。",
+  "explanation_zh": "「题名」读作 だいめい。干扰项「大名 だいみょう」差在拗音与长音位置；「提案 ていあん」首音节是 て；「代案 だいあん」尾音节为 あん。"
 }}
 ```
 

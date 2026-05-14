@@ -20,7 +20,8 @@ export function buildWordPracticeQueue(
   wordId: number,
   questions: Question[]
 ): WordPracticeItem[] {
-  const own = questions.filter((q) => q.wordId === wordId);
+  // word practice 走文字版，跳过 listening_kanji（无音频播放上下文）
+  const own = questions.filter((q) => q.wordId === wordId && q.type !== "listening_kanji");
 
   const byDim: Record<DimKey, WordPracticeItem[]> = { R: [], P: [], U: [] };
   for (const q of own) {

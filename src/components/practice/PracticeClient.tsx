@@ -25,10 +25,9 @@ interface QuestionData {
 interface Props {
   questions: Map<string, QuestionData>;
   words: Map<number, { word: string; furigana: string }>;
-  wordPool: Array<{ id: number; word: string }>;
 }
 
-export default function PracticeClient({ questions, words, wordPool }: Props) {
+export default function PracticeClient({ questions, words }: Props) {
   const router = useRouter();
   const session = useSessionStore();
   const [answered, setAnswered] = useState(false);
@@ -168,7 +167,6 @@ export default function PracticeClient({ questions, words, wordPool }: Props) {
           item={item}
           question={questionWithMeta}
           audioMode={item.audioMode}
-          wordPool={wordPool}
           index={session.cursor}
           total={session.queue.length}
           onAnswer={handleAnswer}

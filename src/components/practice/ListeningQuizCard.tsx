@@ -1,13 +1,11 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import RubyText from "@/components/ui/RubyText";
 import DimPill from "@/components/layout/DimPill";
 import MasteryPopover from "@/components/practice/MasteryPopover";
 import PlayButton from "@/components/ui/PlayButton";
 import { getWordAudioUrl } from "@/lib/audio";
-import type { DimKey, QueueItem, QuestionOption } from "@/types/domain";
-
-export type ListenMode = "listen_kanji" | "listen_meaning";
+import type { DimKey, ListenMode, QueueItem, QuestionOption } from "@/types/domain";
 
 interface QuestionData {
   id: string;
@@ -28,7 +26,6 @@ interface Props {
   item: QueueItem;
   question: QuestionData;
   audioMode: ListenMode;
-  wordPool: Array<{ id: number; word: string }>;
   index: number;
   total: number;
   onAnswer: (correct: boolean) => void;
@@ -37,29 +34,10 @@ interface Props {
 
 const OPTION_LABELS = ["A", "B", "C", "D"];
 
-function deriveOptions(
-  audioMode: ListenMode,
-  question: QuestionData,
-  wordPool: Array<{ id: number; word: string }>
-): { options: QuestionOption[]; correctIndex: number } {
-  if (audioMode === "listen_meaning") {
-    return { options: question.options, correctIndex: question.correctIndex };
-  }
-  const correctText = question.word;
-  const candidates = wordPool.filter((w) => w.id !== question.wordId && w.word !== correctText);
-  const shuffled = [...candidates].sort(() => Math.random() - 0.5).slice(0, 3);
-  const distractors: QuestionOption[] = shuffled.map((w) => ({ text: w.word, text_plain: w.word }));
-  const correct: QuestionOption = { text: correctText, text_plain: correctText };
-  const finalOpts = [correct, ...distractors].sort(() => Math.random() - 0.5);
-  const correctIndex = finalOpts.findIndex((o) => o.text_plain === correctText);
-  return { options: finalOpts, correctIndex };
-}
-
 export default function ListeningQuizCard({
   item,
   question,
   audioMode,
-  wordPool,
   index,
   total,
   onAnswer,
@@ -68,10 +46,7 @@ export default function ListeningQuizCard({
   const [chosen, setChosen] = useState<number | null>(null);
   const answered = chosen !== null;
 
-  const { options, correctIndex } = useMemo(
-    () => deriveOptions(audioMode, question, wordPool),
-    [audioMode, question, wordPool]
-  );
+  const { options, correctIndex } = question;
   const correct = chosen === correctIndex;
   const audioSrc = getWordAudioUrl(item.wordId);
 
@@ -144,7 +119,11 @@ export default function ListeningQuizCard({
           >
             <span className="marker">{OPTION_LABELS[idx]}</span>
             <span>
-              <RubyText html={opt.text} />
+              {audioMode === "listen_kanji" ? (
+                opt.text_plain
+              ) : (
+                <RubyText html={opt.text} />
+              )}
             </span>
           </button>
         ))}

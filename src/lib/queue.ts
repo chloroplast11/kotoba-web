@@ -1,18 +1,29 @@
 import type { Word, Question } from "@/generated/prisma";
-import type { AppSettingsData, DimKey, QueueItem, SrsData } from "@/types/domain";
+import type { AppSettingsData, DimKey, ListenMode, QueueItem, SrsData } from "@/types/domain";
 import { FREQ_ORDER } from "./constants";
 import { isDimensionUnlocked } from "./srs";
 
 type WordStateMap = Map<number, Record<DimKey, SrsData | null>>;
+type TypeFilter = "listening_kanji" | "non_listening" | "any";
+
+const LISTENING_KANJI_TYPE = "listening_kanji";
+
+function applyTypeFilter(qs: Question[], filter: TypeFilter): Question[] {
+  if (filter === "listening_kanji") return qs.filter((q) => q.type === LISTENING_KANJI_TYPE);
+  if (filter === "non_listening") return qs.filter((q) => q.type !== LISTENING_KANJI_TYPE);
+  return qs;
+}
 
 function pickQuestion(
   wordId: number,
   dim: DimKey,
   questions: Question[],
-  usedIds: Set<string>
+  usedIds: Set<string>,
+  typeFilter: TypeFilter = "any"
 ): Question | null {
-  const candidates = questions.filter(
-    (q) => q.wordId === wordId && q.dimension === dim
+  const candidates = applyTypeFilter(
+    questions.filter((q) => q.wordId === wordId && q.dimension === dim),
+    typeFilter
   );
   if (candidates.length === 0) return null;
   const fresh = candidates.filter((q) => !usedIds.has(q.id));
@@ -88,8 +99,8 @@ export function buildTodayQueue(
   // ── Question picker ───────────────────────────────────────────
   const usedQuestionIds = new Set<string>();
 
-  function pick(wordId: number, dim: DimKey): Question | null {
-    const q = pickQuestion(wordId, dim, questions, usedQuestionIds);
+  function pick(wordId: number, dim: DimKey, typeFilter: TypeFilter = "any"): Question | null {
+    const q = pickQuestion(wordId, dim, questions, usedQuestionIds, typeFilter);
     if (q) usedQuestionIds.add(q.id);
     return q;
   }
@@ -98,15 +109,19 @@ export function buildTodayQueue(
   const finalQueue: QueueItem[] = [];
   const round2Staged: Array<{ wordId: number; dim: DimKey }> = [];
 
-  // Round 1: learn-and-test pairs
+  // Round 1: learn-and-test pairs (听音题不进新词流程)
   for (const word of newCandidates) {
-    const q1 = pick(word.id, "R");
+    const q1 = pick(word.id, "R", "non_listening");
     if (!q1) continue;
     finalQueue.push({ wordId: word.id, dim: "R", isNew: true, round: 1, questionId: q1.id });
 
-    // Stage Round 2 if another question exists and word is not low-frequency
+    // Stage Round 2 if another non-listening question exists and word is not low-frequency
     const remaining = questions.filter(
-      (q) => q.wordId === word.id && q.dimension === "R" && !usedQuestionIds.has(q.id)
+      (q) =>
+        q.wordId === word.id &&
+        q.dimension === "R" &&
+        q.type !== LISTENING_KANJI_TYPE &&
+        !usedQuestionIds.has(q.id)
     );
     if (word.frequency !== "low" && remaining.length > 0) {
       round2Staged.push({ wordId: word.id, dim: "R" });
@@ -115,14 +130,38 @@ export function buildTodayQueue(
 
   // Round 2: assign questions after shuffling
   for (const item of shuffle(round2Staged)) {
-    const q = pick(item.wordId, item.dim);
+    const q = pick(item.wordId, item.dim, "non_listening");
     if (q) finalQueue.push({ wordId: item.wordId, dim: item.dim, isNew: true, round: 2, questionId: q.id });
   }
 
-  // Part C: Reviews — interleave by dimension
+  // Part C: Reviews — decide listening mode first, then pick a matching question
+  const ratio = Math.max(0, Math.min(100, settings.listeningRatio ?? 30));
   const reviewWithQs: QueueItem[] = [];
   for (const item of reviewItems) {
-    const q = pick(item.wordId, item.dim);
+    let audioMode: ListenMode | undefined;
+    let q: Question | null = null;
+
+    const eligibleForListening = item.dim === "R" && !item.isNewDim && ratio > 0;
+    if (eligibleForListening && Math.random() * 100 < ratio) {
+      const preferKanji = Math.random() < 0.5;
+      if (preferKanji) {
+        q = pick(item.wordId, item.dim, "listening_kanji");
+        if (q) {
+          audioMode = "listen_kanji";
+        } else {
+          q = pick(item.wordId, item.dim, "non_listening");
+          if (q) audioMode = "listen_meaning";
+        }
+      } else {
+        q = pick(item.wordId, item.dim, "non_listening");
+        if (q) audioMode = "listen_meaning";
+      }
+    }
+
+    if (!q) {
+      q = pick(item.wordId, item.dim, "non_listening");
+    }
+
     if (q) {
       reviewWithQs.push({
         wordId: item.wordId,
@@ -130,6 +169,7 @@ export function buildTodayQueue(
         questionId: q.id,
         urgency: item.urgency,
         isNewDim: item.isNewDim,
+        audioMode,
       });
     }
   }
@@ -148,18 +188,7 @@ export function buildTodayQueue(
     if (u) interleaved.push(u);
   }
 
-  const result = [...finalQueue, ...interleaved];
-
-  const ratio = Math.max(0, Math.min(100, settings.listeningRatio ?? 30));
-  if (ratio > 0) {
-    for (const it of result) {
-      if (it.dim === "R" && !it.isNew && Math.random() * 100 < ratio) {
-        it.audioMode = Math.random() < 0.5 ? "listen_kanji" : "listen_meaning";
-      }
-    }
-  }
-
-  return result;
+  return [...finalQueue, ...interleaved];
 }
 
 export function reconcileNewWordsInQueue(
@@ -195,13 +224,17 @@ export function reconcileNewWordsInQueue(
     const round2Additions: Array<{ wordId: number; dim: DimKey }> = [];
 
     for (const word of candidates) {
-      const q1 = pickQuestion(word.id, "R", questions, usedQuestionIds);
+      const q1 = pickQuestion(word.id, "R", questions, usedQuestionIds, "non_listening");
       if (!q1) continue;
       usedQuestionIds.add(q1.id);
       round1Additions.push({ wordId: word.id, dim: "R", isNew: true, round: 1, questionId: q1.id });
 
       const remaining = questions.filter(
-        (q) => q.wordId === word.id && q.dimension === "R" && !usedQuestionIds.has(q.id)
+        (q) =>
+          q.wordId === word.id &&
+          q.dimension === "R" &&
+          q.type !== LISTENING_KANJI_TYPE &&
+          !usedQuestionIds.has(q.id)
       );
       if (word.frequency !== "low" && remaining.length > 0) {
         round2Additions.push({ wordId: word.id, dim: "R" });
@@ -210,7 +243,7 @@ export function reconcileNewWordsInQueue(
 
     const round2Items: QueueItem[] = [];
     for (const item of shuffle(round2Additions)) {
-      const q = pickQuestion(item.wordId, item.dim, questions, usedQuestionIds);
+      const q = pickQuestion(item.wordId, item.dim, questions, usedQuestionIds, "non_listening");
       if (!q) continue;
       usedQuestionIds.add(q.id);
       round2Items.push({ wordId: item.wordId, dim: item.dim, isNew: true, round: 2, questionId: q.id });
