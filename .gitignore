@@ -58,3 +58,11 @@ dev.db
 
 # test outputs
 test_results_*.json
+
+# Phase 5 pipeline runtime state
+.phase5_progress/
+phase5/__pycache__/
+phase5/**/__pycache__/
+failed_items.json
+rejected_words.json
+rejected_questions.json
