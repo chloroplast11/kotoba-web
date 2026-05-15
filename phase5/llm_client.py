@@ -8,12 +8,11 @@ from __future__ import annotations
 import json
 import os
 import random
-import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Iterator, List, Tuple
 
-from openai import OpenAI
+from openai import APIError, OpenAI
 
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
@@ -52,7 +51,6 @@ class LLMClient:
         self.temperature = temperature
         self.timeout = timeout
         self._client = OpenAI(api_key=key, base_url=OPENROUTER_BASE_URL)
-        self._sem = threading.Semaphore(concurrency)
 
     def call(
         self,
@@ -81,7 +79,7 @@ class LLMClient:
                 last_err = e
                 # for JSON errors, slightly lower temperature on retry
                 current_temp = max(0.1, current_temp - 0.2)
-            except Exception as e:  # APIError, RateLimit, timeout, network
+            except APIError as e:
                 last_err = e
             if attempt < max_retries - 1:
                 delay = base_backoff * (2 ** attempt) + random.uniform(0, 0.5)
@@ -105,17 +103,16 @@ class LLMClient:
         """
 
         def _task(idx: int, prompt: str):
-            with self._sem:
-                try:
-                    result = self.call(
-                        prompt,
-                        max_retries=max_retries,
-                        base_backoff=base_backoff,
-                        temperature=temperature,
-                    )
-                    return idx, result, None
-                except LLMError as e:
-                    return idx, None, e
+            try:
+                result = self.call(
+                    prompt,
+                    max_retries=max_retries,
+                    base_backoff=base_backoff,
+                    temperature=temperature,
+                )
+                return idx, result, None
+            except LLMError as e:
+                return idx, None, e
 
         with ThreadPoolExecutor(max_workers=self.concurrency) as pool:
             futures = [pool.submit(_task, i, p) for i, p in enumerate(prompts)]
