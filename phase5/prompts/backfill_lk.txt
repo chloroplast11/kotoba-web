@@ -14,13 +14,14 @@
 - 选项 `text` **纯汉字/假名形，禁止 `<ruby>` 标签**
 - `correct_index` 不要总是 0（在 0-3 之间分散）
 - 解析按 ruby 规则标注，逐一说明每个干扰项的假名读音与发音差异
+- `id` 必须使用 `bf1` 后缀（标识为 backfill 题目，避免与 generate_questions 步骤产生的 `listening_kanji_1` ID 冲突）
 
 输出（纯 JSON 数组，恰好 1 个元素）：
 
 ```json
 [
   {{
-    "id": "word_{{word_id}}_listening_kanji_1",
+    "id": "word_{{word_id}}_listening_kanji_bf1",
     "word_id": {{word_id}},
     "dimension": "R",
     "type": "listening_kanji",

@@ -26,6 +26,8 @@
 - L6 音节数差距 > 1 → warning
 - L7 解析未列出干扰项读音差异 → warning
 
+**dimension_coverage 统计**：统计本批所有题目的维度分布（不限于 approved 状态）。
+
 输出（纯 JSON）：
 ```json
 {{
