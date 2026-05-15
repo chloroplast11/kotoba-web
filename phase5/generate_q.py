@@ -82,17 +82,43 @@ def main() -> None:
                     if err is not None:
                         append_failed({"step": STEP_NAME, "word_id": w["word_id"], "word": w["word"], "error": str(err)})
                         continue
-                    if not isinstance(result, list) or len(result) < 4:
-                        append_failed({"step": STEP_NAME, "word_id": w["word_id"], "word": w["word"], "error": f"expected list of >=4 questions, got {type(result).__name__} len={len(result) if hasattr(result, '__len__') else 'N/A'}"})
+                    # Spec: 5-6 questions per word (4-5 regular + 1 listening_kanji)
+                    if not isinstance(result, list):
+                        append_failed({"step": STEP_NAME, "word_id": w["word_id"], "word": w["word"], "error": f"expected list, got {type(result).__name__}"})
+                        continue
+                    if not (4 <= len(result) <= 8):
+                        append_failed({"step": STEP_NAME, "word_id": w["word_id"], "word": w["word"], "error": f"expected 4-8 questions, got {len(result)}"})
                         continue
                     bad = []
+                    has_lk = False
                     for q_idx, q in enumerate(result):
                         if not isinstance(q, dict):
                             bad.append(f"q{q_idx}: not a dict")
                             continue
+                        # Required keys
                         for required in ("dimension", "type", "options", "correct_index"):
                             if required not in q:
                                 bad.append(f"q{q_idx}: missing {required}")
+                        # Type checks
+                        if q.get("dimension") not in ("R", "P", "U"):
+                            bad.append(f"q{q_idx}: invalid dimension {q.get('dimension')!r}")
+                        if not isinstance(q.get("correct_index"), int):
+                            bad.append(f"q{q_idx}: correct_index not int (got {type(q.get('correct_index')).__name__})")
+                        opts = q.get("options")
+                        if not isinstance(opts, list) or len(opts) != 4:
+                            bad.append(f"q{q_idx}: options must be list of 4 (got {type(opts).__name__} len={len(opts) if hasattr(opts, '__len__') else 'N/A'})")
+                        else:
+                            for o_idx, o in enumerate(opts):
+                                if not isinstance(o, dict) or "text" not in o:
+                                    bad.append(f"q{q_idx}.opt{o_idx}: must be dict with 'text' key")
+                        # correct_index range
+                        ci = q.get("correct_index")
+                        if isinstance(ci, int) and isinstance(opts, list) and not (0 <= ci < len(opts)):
+                            bad.append(f"q{q_idx}: correct_index {ci} out of range for {len(opts) if hasattr(opts, '__len__') else 0} options")
+                        if q.get("type") == "listening_kanji":
+                            has_lk = True
+                    if not has_lk:
+                        bad.append("missing listening_kanji question")
                     if bad:
                         append_failed({"step": STEP_NAME, "word_id": w["word_id"], "word": w["word"], "error": f"malformed questions: {bad}"})
                         continue
