@@ -21,6 +21,26 @@ function countRound1New(queue: QueueItem[]): number {
   return queue.filter((q) => q.isNew && q.round === 1).length;
 }
 
+export async function pruneMasteredFromTodayQueue(
+  wordId: number,
+  dimension: DimKey
+): Promise<void> {
+  const today = todayDateString();
+  const daily = await prisma.dailySession.findUnique({ where: { date: today } });
+  if (!daily) return;
+  const queue = JSON.parse(daily.queue) as QueueItem[];
+  const pruned = queue.filter((item, idx) => {
+    if (idx <= daily.cursor) return true;
+    return !(item.wordId === wordId && item.dim === dimension);
+  });
+  if (pruned.length !== queue.length) {
+    await prisma.dailySession.update({
+      where: { date: today },
+      data: { queue: JSON.stringify(pruned) },
+    });
+  }
+}
+
 export async function loadOrReconcileTodaySession(
   settings: AppSettingsData
 ): Promise<TodaySession> {

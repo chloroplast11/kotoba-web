@@ -1,12 +1,12 @@
 "use client";
 import { useRouter } from "next/navigation";
-import type { ExampleSentence, QuestionOption } from "@/types/domain";
+import type { ExampleSentence } from "@/types/domain";
 import RubyText from "@/components/ui/RubyText";
 import PlayButton from "@/components/ui/PlayButton";
 import { getCurrentTime } from "@/lib/time";
 import { getWordAudioUrl, getSentenceAudioUrl } from "@/lib/audio";
 
-interface WordData {
+export interface WordData {
   id: number;
   word: string;
   furigana: string;
@@ -28,6 +28,98 @@ const FREQ_LABELS: Record<string, string> = {
   low: "低頻",
 };
 
+export function WordEntryBody({
+  word,
+  autoPlay = true,
+}: {
+  word: WordData;
+  autoPlay?: boolean;
+}) {
+  return (
+    <article className="entry" style={{ borderBottom: "none" }}>
+      <div className="entry-head">
+        <div className="entry-furigana">{word.furigana}</div>
+        <div className="entry-word" style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "center" }}>
+          <span>{word.word}</span>
+          <PlayButton
+            src={getWordAudioUrl(word.id)}
+            fallbackText={word.word}
+            autoPlay={autoPlay}
+            size="lg"
+            label="再生"
+            ariaLabel={`「${word.word}」を再生`}
+          />
+        </div>
+        <div className="entry-romaji">{word.romaji}</div>
+        <div className="tag-row">
+          <span className="tag">{word.pos}</span>
+          <span className={`tag freq-${word.frequency}`}>{FREQ_LABELS[word.frequency] ?? word.frequency}</span>
+          <span className="tag">N{word.level}</span>
+        </div>
+      </div>
+
+      <div className="entry-body">
+        <div className="entry-meaning">
+          {word.meaningZh}
+          <span className="en">{word.meaningEn}</span>
+        </div>
+
+        {word.usageNotes && (
+          <>
+            <div className="subhead">使い方 · 用法</div>
+            <div className="usage-note"><RubyText html={word.usageNotes} /></div>
+          </>
+        )}
+
+        {word.exampleSentences.length > 0 && (
+          <>
+            <div className="subhead">例文</div>
+            {word.exampleSentences.map((ex, i) => (
+              <div className="example" key={i}>
+                <div className="example-jp" style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                  <span style={{ flex: 1 }}><RubyText html={ex.ja} /></span>
+                  <PlayButton
+                    src={() => getSentenceAudioUrl(ex.ja_plain)}
+                    fallbackText={ex.ja_plain}
+                    size="sm"
+                    label="再生"
+                    ariaLabel="例文を再生"
+                  />
+                </div>
+                <div className="example-zh">{ex.zh}</div>
+              </div>
+            ))}
+          </>
+        )}
+
+        {word.collocations.length > 0 && (
+          <>
+            <div className="subhead">よく使う表現</div>
+            <div className="colloc-list">
+              {word.collocations.map((c, i) => (
+                <div className="colloc" key={i}>
+                  <span className="colloc-jp">{c}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {word.synonyms.length > 0 && (
+          <>
+            <div className="subhead">近義語</div>
+            {word.synonyms.map((s, i) => (
+              <div className="synonym" key={i}>
+                <div className="synonym-word">{s}</div>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+    </article>
+  );
+}
+
 export default function WordEntry({
   word,
   fromLibrary = false,
@@ -38,7 +130,6 @@ export default function WordEntry({
   const router = useRouter();
 
   async function handleGotIt() {
-    // Mark word as learned via API (create R dim state with learnedAt)
     await fetch("/api/review", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -56,87 +147,7 @@ export default function WordEntry({
 
   return (
     <div>
-      <article className="entry" style={{ borderBottom: "none" }}>
-        <div className="entry-head">
-          <div className="entry-furigana">{word.furigana}</div>
-          <div className="entry-word" style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "center" }}>
-            <span>{word.word}</span>
-            <PlayButton
-              src={getWordAudioUrl(word.id)}
-              fallbackText={word.word}
-              autoPlay
-              size="lg"
-              label="再生"
-              ariaLabel={`「${word.word}」を再生`}
-            />
-          </div>
-          <div className="entry-romaji">{word.romaji}</div>
-          <div className="tag-row">
-            <span className="tag">{word.pos}</span>
-            <span className={`tag freq-${word.frequency}`}>{FREQ_LABELS[word.frequency] ?? word.frequency}</span>
-            <span className="tag">N{word.level}</span>
-          </div>
-        </div>
-
-        <div className="entry-body">
-          <div className="entry-meaning">
-            {word.meaningZh}
-            <span className="en">{word.meaningEn}</span>
-          </div>
-
-          {word.usageNotes && (
-            <>
-              <div className="subhead">使い方 · 用法</div>
-              <div className="usage-note"><RubyText html={word.usageNotes} /></div>
-            </>
-          )}
-
-          {word.exampleSentences.length > 0 && (
-            <>
-              <div className="subhead">例文</div>
-              {word.exampleSentences.map((ex, i) => (
-                <div className="example" key={i}>
-                  <div className="example-jp" style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-                    <span style={{ flex: 1 }}><RubyText html={ex.ja} /></span>
-                    <PlayButton
-                      src={() => getSentenceAudioUrl(ex.ja_plain)}
-                      fallbackText={ex.ja_plain}
-                      size="sm"
-                      label="再生"
-                      ariaLabel="例文を再生"
-                    />
-                  </div>
-                  <div className="example-zh">{ex.zh}</div>
-                </div>
-              ))}
-            </>
-          )}
-
-          {word.collocations.length > 0 && (
-            <>
-              <div className="subhead">よく使う表現</div>
-              <div className="colloc-list">
-                {word.collocations.map((c, i) => (
-                  <div className="colloc" key={i}>
-                    <span className="colloc-jp">{c}</span>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          {word.synonyms.length > 0 && (
-            <>
-              <div className="subhead">近義語</div>
-              {word.synonyms.map((s, i) => (
-                <div className="synonym" key={i}>
-                  <div className="synonym-word">{s}</div>
-                </div>
-              ))}
-            </>
-          )}
-        </div>
-      </article>
+      <WordEntryBody word={word} />
 
       <div className="learn-nav">
         {fromLibrary ? (

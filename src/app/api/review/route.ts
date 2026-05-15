@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { scheduleReview, answerToRating, isDimensionUnlocked, toSrsData, getMasteryLevel } from "@/lib/srs";
+import { scheduleReview, answerToRating, isDimensionUnlocked, toSrsData, getMasteryLevel, getMasteryTier } from "@/lib/srs";
 import { applyTimeOffset, todayDateString } from "@/lib/time";
+import { pruneMasteredFromTodayQueue } from "@/lib/session";
 import type { DimKey, ReviewResult } from "@/types/domain";
 
 interface ReviewRequest {
@@ -92,6 +93,11 @@ export async function POST(req: Request) {
     });
   }
 
+  const reachedMasteryTier = getMasteryTier(toSrsData(newState)) === 2;
+  if (reachedMasteryTier) {
+    await pruneMasteredFromTodayQueue(wordId, dimension);
+  }
+
   // Check if any new dimensions were unlocked
   const allDimStates = await prisma.userWordState.findMany({ where: { wordId } });
   const word = await prisma.word.findUnique({ where: { id: wordId } });
@@ -116,5 +122,6 @@ export async function POST(req: Request) {
     stability: newState.stability,
     masteryLevel: getMasteryLevel(toSrsData(newState)),
     unlockedDimensions,
+    pruned: reachedMasteryTier,
   });
 }

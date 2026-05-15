@@ -47,7 +47,28 @@ function normalizeFrequency(freq: string): string {
   return freq === "medium" ? "mid" : freq;
 }
 
+function assertNoWordCollisions(words: EnrichedWord[]) {
+  const seen = new Map<string, number>();
+  const collisions: string[] = [];
+  for (const w of words) {
+    for (const form of w.word.split(/[/／]/).map((s) => s.trim()).filter(Boolean)) {
+      const prev = seen.get(form);
+      if (prev !== undefined && prev !== w.word_id) {
+        collisions.push(`"${form}": word_id ${prev} ↔ ${w.word_id}`);
+      } else {
+        seen.set(form, w.word_id);
+      }
+    }
+  }
+  if (collisions.length > 0) {
+    throw new Error(
+      `Duplicate word forms detected in n2_enriched.json:\n  ${collisions.join("\n  ")}`
+    );
+  }
+}
+
 async function seedWords(words: EnrichedWord[]) {
+  assertNoWordCollisions(words);
   console.log(`Seeding ${words.length} words...`);
   await prisma.word.deleteMany();
   await prisma.word.createMany({

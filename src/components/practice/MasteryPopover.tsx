@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { DIM_NAMES, DIM_DESCRIPTIONS } from "@/lib/constants";
 import { getMasteryTier, type MasteryTier } from "@/lib/srs";
+import { useSessionStore } from "@/store/sessionStore";
 import type { DimKey, SrsData } from "@/types/domain";
 
 interface Props {
@@ -85,6 +86,9 @@ export default function MasteryPopover({ wordId }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ wordId, dimension: dim, level: tier }),
       });
+      if (tier === 2) {
+        await useSessionStore.getState().loadSession();
+      }
     } finally {
       setPending(null);
     }

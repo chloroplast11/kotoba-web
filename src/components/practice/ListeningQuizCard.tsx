@@ -3,6 +3,7 @@ import { useState } from "react";
 import RubyText from "@/components/ui/RubyText";
 import DimPill from "@/components/layout/DimPill";
 import MasteryPopover from "@/components/practice/MasteryPopover";
+import WordInfoSheet from "@/components/practice/WordInfoSheet";
 import PlayButton from "@/components/ui/PlayButton";
 import { getWordAudioUrl } from "@/lib/audio";
 import type { DimKey, ListenMode, QueueItem, QuestionOption } from "@/types/domain";
@@ -43,6 +44,7 @@ export default function ListeningQuizCard({
   onSkipListening,
 }: Props) {
   const [chosen, setChosen] = useState<number | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const answered = chosen !== null;
 
   const { options, correctIndex } = question;
@@ -64,6 +66,14 @@ export default function ListeningQuizCard({
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <span className="round-tag round-review">復習 · 聴解</span>
           <DimPill dim={item.dim} />
+          <button
+            type="button"
+            className="word-info-trigger"
+            onClick={() => setSheetOpen(true)}
+            aria-label="単語の詳細を見る"
+          >
+            詳しく
+          </button>
           <MasteryPopover wordId={item.wordId} />
         </div>
       </div>
@@ -158,6 +168,12 @@ export default function ListeningQuizCard({
           </span>
         )}
       </div>
+
+      <WordInfoSheet
+        wordId={item.wordId}
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+      />
     </div>
   );
 }

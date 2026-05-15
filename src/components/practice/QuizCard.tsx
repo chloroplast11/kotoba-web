@@ -3,6 +3,7 @@ import { useState } from "react";
 import RubyText from "@/components/ui/RubyText";
 import DimPill from "@/components/layout/DimPill";
 import MasteryPopover from "@/components/practice/MasteryPopover";
+import WordInfoSheet from "@/components/practice/WordInfoSheet";
 import type { DimKey, QueueItem, QuestionOption } from "@/types/domain";
 
 interface QuestionData {
@@ -38,6 +39,7 @@ function getRoundLabel(item: QueueItem) {
 
 export default function QuizCard({ item, question, index, total, onAnswer }: Props) {
   const [chosen, setChosen] = useState<number | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const answered = chosen !== null;
   const correct = chosen === question.correctIndex;
 
@@ -59,6 +61,14 @@ export default function QuizCard({ item, question, index, total, onAnswer }: Pro
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           {getRoundLabel(item)}
           <DimPill dim={item.dim} />
+          <button
+            type="button"
+            className="word-info-trigger"
+            onClick={() => setSheetOpen(true)}
+            aria-label="単語の詳細を見る"
+          >
+            詳しく
+          </button>
           <MasteryPopover wordId={item.wordId} />
         </div>
       </div>
@@ -110,6 +120,12 @@ export default function QuizCard({ item, question, index, total, onAnswer }: Pro
           {question.word} · {question.furigana}
         </span>
       </div>
+
+      <WordInfoSheet
+        wordId={item.wordId}
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { applyTimeOffset, getCurrentDate } from "@/lib/time";
+import { pruneMasteredFromTodayQueue } from "@/lib/session";
 import { toSrsData } from "@/lib/srs";
 import type { DimKey, SrsData } from "@/types/domain";
 
@@ -79,6 +80,10 @@ export async function PATCH(req: Request) {
       due,
     },
   });
+
+  if (level === 2) {
+    await pruneMasteredFromTodayQueue(wordId, dimension);
+  }
 
   return NextResponse.json({ ok: true });
 }

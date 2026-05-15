@@ -59,11 +59,24 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     const result: ReviewResult = { wordId, dim, correct, timestamp: now };
     set((s) => ({ results: [...s.results, result] }));
 
-    await fetch("/api/review", {
+    const res = await fetch("/api/review", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ wordId, dimension: dim, questionId, correct, rating, timestamp: now }),
     });
+
+    if (res.ok) {
+      const data = (await res.json().catch(() => null)) as { pruned?: boolean } | null;
+      if (data?.pruned) {
+        const cursor = get().cursor;
+        const queue = get().queue;
+        const trimmed = queue.filter((item, idx) => {
+          if (idx <= cursor) return true;
+          return !(item.wordId === wordId && item.dim === dim);
+        });
+        if (trimmed.length !== queue.length) set({ queue: trimmed });
+      }
+    }
   },
 
   advanceCursor: () => set((s) => ({ cursor: s.cursor + 1 })),

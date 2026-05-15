@@ -1,7 +1,7 @@
 import type { Word, Question } from "@/generated/prisma";
 import type { AppSettingsData, DimKey, ListenMode, QueueItem, SrsData } from "@/types/domain";
 import { FREQ_ORDER } from "./constants";
-import { isDimensionUnlocked } from "./srs";
+import { getMasteryTier, isDimensionUnlocked } from "./srs";
 
 type WordStateMap = Map<number, Record<DimKey, SrsData | null>>;
 type TypeFilter = "listening_kanji" | "non_listening" | "any";
@@ -73,6 +73,7 @@ export function buildTodayQueue(
       if (!isDimensionUnlocked(dim, dimStates, word.frequency, settings)) continue;
 
       const srs = dimStates[dim] ?? getEmptySrsData();
+      if (getMasteryTier(srs) === 2) continue;
 
       if (srs.reps > 0 && srs.due && srs.due.getTime() <= nowMs) {
         reviewItems.push({ wordId, dim, urgency: nowMs - srs.due.getTime() });

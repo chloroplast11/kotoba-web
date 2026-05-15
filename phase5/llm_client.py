@@ -9,9 +9,10 @@ import json
 import os
 import random
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError, as_completed
 from typing import Any, Iterator, List, Tuple
 
+import httpx
 from openai import APIError, OpenAI
 
 
@@ -60,7 +61,15 @@ class LLMClient:
         self.temperature = temperature
         self.timeout = timeout
         self.provider_order = provider_order
-        self._client = OpenAI(api_key=key, base_url=OPENROUTER_BASE_URL)
+        http_client = httpx.Client(
+            timeout=httpx.Timeout(connect=10.0, read=timeout, write=10.0, pool=10.0),
+        )
+        self._client = OpenAI(
+            api_key=key,
+            base_url=OPENROUTER_BASE_URL,
+            http_client=http_client,
+            max_retries=0,
+        )
 
     def call(
         self,
@@ -92,7 +101,7 @@ class LLMClient:
                 last_err = e
                 # for JSON errors, slightly lower temperature on retry
                 current_temp = max(0.1, current_temp - 0.2)
-            except (APIError, OSError) as e:
+            except (APIError, OSError, httpx.HTTPError) as e:
                 last_err = e
             if attempt < max_retries - 1:
                 delay = base_backoff * (2 ** attempt) + random.uniform(0, 0.5)
@@ -129,7 +138,27 @@ class LLMClient:
                 # Wrap unexpected errors so the consumer's error branch handles them
                 return idx, None, LLMError(f"unexpected {type(e).__name__}: {e}")
 
+        # Belt-and-suspenders: if a worker truly zombies past the SDK + httpx
+        # timeouts, this stall budget prevents the whole chunk from hanging
+        # forever. Budget = worst-case per-call (timeout * retries + backoff) + slack.
+        stall_budget = self.timeout * max_retries + base_backoff * (2 ** max_retries) + 30.0
+
         with ThreadPoolExecutor(max_workers=self.concurrency) as pool:
             futures = [pool.submit(_task, i, p) for i, p in enumerate(prompts)]
-            for fut in as_completed(futures):
-                yield fut.result()
+            pending = set(futures)
+            while pending:
+                try:
+                    for fut in as_completed(pending, timeout=stall_budget):
+                        pending.discard(fut)
+                        yield fut.result()
+                except FutureTimeoutError:
+                    # No future completed within the stall budget: treat the
+                    # remaining as hung and synthesize errors so the caller
+                    # can move on. Threads keep running but will exit on their
+                    # own when httpx finally gives up (or process exit).
+                    for fut in list(pending):
+                        idx = futures.index(fut)
+                        pending.discard(fut)
+                        fut.cancel()
+                        yield idx, None, LLMError(f"worker stalled > {stall_budget:.0f}s")
+                    break

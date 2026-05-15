@@ -50,6 +50,8 @@ next-env.d.ts
 
 # local database
 dev.db
+dev.db-shm
+dev.db-wal
 
 # generated TTS audio (run `npm run gen:audio` to regenerate)
 /public/audio/words/
