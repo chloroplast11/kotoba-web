@@ -116,9 +116,15 @@ def main() -> None:
                     result.setdefault("furigana", w.get("furigana", ""))
                     result.setdefault("romaji", w.get("romaji", ""))
                     result.setdefault("level", w.get("level", 2))
+                    # Validate critical fields are non-empty (LLM sometimes returns empty/null)
+                    required_fields = ("meaning_zh", "pos", "frequency")
+                    missing = [f for f in required_fields if not result.get(f)]
+                    if missing:
+                        append_failed({"step": STEP_NAME, "word": w["word"], "error": f"missing fields: {missing}"})
+                        continue
+                    upsert_word(db, result)
                     enriched.append(result)
                     atomic_write_json(OUTPUT_FILE, enriched)
-                    upsert_word(db, result)
                     progress.mark_done(w["word"])
     finally:
         db.close()
