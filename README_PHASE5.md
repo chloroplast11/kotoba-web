@@ -17,7 +17,14 @@ export OPENROUTER_API_KEY="sk-or-v1-..."
 # 可选覆盖（保留默认即用作者推荐的模型）
 export GENERATOR_MODEL="deepseek/deepseek-v4-flash"
 export VALIDATOR_MODEL="qwen/qwen-2.5-72b-instruct"
+
+# 可选：指定 OpenRouter 的 provider 顺序（逗号分隔，前者优先）
+# 例：DeepSeek 在 atlas-cloud 和 novita 上一般最快；Qwen 默认即可
+export GENERATOR_PROVIDER_ORDER="atlas-cloud/fp8,novita,siliconflow/fp8"
+export VALIDATOR_PROVIDER_ORDER=""   # 空 = 让 OpenRouter 自动路由
 ```
+
+不设置或设为空字符串 = OpenRouter 自由路由（默认）。可在 OpenRouter 网站的模型详情页查看可用 provider ID。
 
 数据库默认连接 `dev.db`（不可通过 env 覆盖；如需要改，修改 `phase5/db_writer.py` 中 `connect()` 的默认值）。
 

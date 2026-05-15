@@ -16,10 +16,11 @@ from tqdm import tqdm
 
 from phase5.db_writer import connect, upsert_question
 from phase5.io_utils import atomic_write_json, append_failed
-from phase5.llm_client import LLMClient, LLMError
+from phase5.llm_client import LLMClient, LLMError, parse_provider_order
 from phase5.progress import Progress
 
 GENERATOR_MODEL = os.getenv("GENERATOR_MODEL", "deepseek/deepseek-v4-flash")
+GENERATOR_PROVIDER_ORDER = parse_provider_order(os.getenv("GENERATOR_PROVIDER_ORDER"))
 ENRICHED_FILE = Path("n2_enriched.json")
 QUESTIONS_FILE = Path("n2_questions.json")
 PROMPT_FILE = Path("phase5/prompts/generate_questions.txt")
@@ -55,6 +56,8 @@ def main() -> None:
         todo = todo[: args.limit]
 
     print(f"[generate_q] new_words={len(new_words)} todo={len(todo)} existing_questions={len(all_questions)} model={GENERATOR_MODEL} concurrency={args.concurrency}")
+    if GENERATOR_PROVIDER_ORDER:
+        print(f"[generate_q] provider_order={GENERATOR_PROVIDER_ORDER}")
     if args.dry_run:
         print("[generate_q] DRY RUN — exiting")
         return
@@ -63,7 +66,7 @@ def main() -> None:
         return
 
     prompt_template = PROMPT_FILE.read_text(encoding="utf-8")
-    client = LLMClient(model=GENERATOR_MODEL, concurrency=args.concurrency, temperature=0.8)
+    client = LLMClient(model=GENERATOR_MODEL, concurrency=args.concurrency, temperature=0.8, provider_order=GENERATOR_PROVIDER_ORDER)
     db = connect()
     chunk_size = max(args.concurrency * 4, 32)
 

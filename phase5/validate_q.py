@@ -22,10 +22,11 @@ from tqdm import tqdm
 
 from phase5.db_writer import connect, set_question_quality
 from phase5.io_utils import atomic_write_json, append_failed
-from phase5.llm_client import LLMClient, LLMError
+from phase5.llm_client import LLMClient, LLMError, parse_provider_order
 from phase5.progress import Progress
 
 VALIDATOR_MODEL = os.getenv("VALIDATOR_MODEL", "qwen/qwen-2.5-72b-instruct")
+VALIDATOR_PROVIDER_ORDER = parse_provider_order(os.getenv("VALIDATOR_PROVIDER_ORDER"))
 QUESTIONS_FILE = Path("n2_questions.json")
 PROMPT_FILE = Path("phase5/prompts/validate_questions.txt")
 REPORT_FILE = Path("question_validation_report.json")
@@ -81,6 +82,8 @@ def main() -> None:
         todo_ids = todo_ids[: args.limit]
 
     print(f"[validate_q] batches={len(word_ids)} todo={len(todo_ids)} questions_in_todo={sum(len(batches[w]) for w in todo_ids)} model={VALIDATOR_MODEL}")
+    if VALIDATOR_PROVIDER_ORDER:
+        print(f"[validate_q] provider_order={VALIDATOR_PROVIDER_ORDER}")
     if args.dry_run:
         print("[validate_q] DRY RUN — exiting")
         return
@@ -89,7 +92,7 @@ def main() -> None:
         return
 
     prompt_template = PROMPT_FILE.read_text(encoding="utf-8")
-    client = LLMClient(model=VALIDATOR_MODEL, concurrency=args.concurrency, temperature=0.3)
+    client = LLMClient(model=VALIDATOR_MODEL, concurrency=args.concurrency, temperature=0.3, provider_order=VALIDATOR_PROVIDER_ORDER)
     db = connect()
     chunk_size = max(args.concurrency * 4, 32)
 

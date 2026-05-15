@@ -18,6 +18,14 @@ from openai import APIError, OpenAI
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
 
+def parse_provider_order(env_val: str | None) -> list[str] | None:
+    """Parse a comma-separated provider list, ignoring blanks. Returns None if unset/empty."""
+    if not env_val:
+        return None
+    items = [p.strip() for p in env_val.split(",") if p.strip()]
+    return items or None
+
+
 class LLMError(RuntimeError):
     """Raised when the LLM call exhausts all retries."""
 
@@ -42,6 +50,7 @@ class LLMClient:
         concurrency: int = 8,
         temperature: float = 0.7,
         timeout: float = 90.0,
+        provider_order: list[str] | None = None,
     ) -> None:
         key = api_key or os.getenv("OPENROUTER_API_KEY")
         if not key:
@@ -50,6 +59,7 @@ class LLMClient:
         self.concurrency = concurrency
         self.temperature = temperature
         self.timeout = timeout
+        self.provider_order = provider_order
         self._client = OpenAI(api_key=key, base_url=OPENROUTER_BASE_URL)
 
     def call(
@@ -64,12 +74,15 @@ class LLMClient:
         current_temp = temperature if temperature is not None else self.temperature
         for attempt in range(max_retries):
             try:
-                resp = self._client.chat.completions.create(
+                kwargs = dict(
                     model=self.model,
                     messages=[{"role": "user", "content": prompt}],
-                    temperature=current_temp,
+                    temperature=current_temp if current_temp is not None else self.temperature,
                     timeout=self.timeout,
                 )
+                if self.provider_order:
+                    kwargs["extra_body"] = {"provider": {"order": list(self.provider_order)}}
+                resp = self._client.chat.completions.create(**kwargs)
                 content = resp.choices[0].message.content or ""
                 stripped = _strip_json_fence(content)
                 if not stripped:

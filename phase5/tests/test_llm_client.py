@@ -55,6 +55,39 @@ def test_call_raises_after_max_retries():
         client.call("hi", max_retries=2, base_backoff=0.0)
 
 
+def test_parse_provider_order_empty():
+    from phase5.llm_client import parse_provider_order
+    assert parse_provider_order(None) is None
+    assert parse_provider_order("") is None
+    assert parse_provider_order("  ") is None
+    assert parse_provider_order(",,,") is None
+
+
+def test_parse_provider_order_strips_and_splits():
+    from phase5.llm_client import parse_provider_order
+    assert parse_provider_order("a,b,c") == ["a", "b", "c"]
+    assert parse_provider_order(" a , b , c ") == ["a", "b", "c"]
+    assert parse_provider_order("a,,b") == ["a", "b"]
+
+
+def test_call_passes_provider_order_in_extra_body():
+    client = LLMClient(model="x", api_key="k", concurrency=1, provider_order=["atlas-cloud/fp8", "novita"])
+    client._client = MagicMock()
+    client._client.chat.completions.create.return_value = _mock_completion('{"ok": true}')
+    client.call("hi")
+    call_kwargs = client._client.chat.completions.create.call_args.kwargs
+    assert call_kwargs["extra_body"] == {"provider": {"order": ["atlas-cloud/fp8", "novita"]}}
+
+
+def test_call_omits_extra_body_when_no_provider_order():
+    client = LLMClient(model="x", api_key="k", concurrency=1)
+    client._client = MagicMock()
+    client._client.chat.completions.create.return_value = _mock_completion('{"ok": true}')
+    client.call("hi")
+    call_kwargs = client._client.chat.completions.create.call_args.kwargs
+    assert "extra_body" not in call_kwargs
+
+
 def test_call_many_returns_all_results_keyed_by_index():
     client = LLMClient(model="x", api_key="k", concurrency=2)
     client._client = MagicMock()

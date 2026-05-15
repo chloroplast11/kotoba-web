@@ -16,10 +16,11 @@ from tqdm import tqdm
 
 from phase5.db_writer import connect, max_word_id, upsert_word
 from phase5.io_utils import atomic_write_json, append_failed
-from phase5.llm_client import LLMClient, LLMError
+from phase5.llm_client import LLMClient, LLMError, parse_provider_order
 from phase5.progress import Progress
 
 GENERATOR_MODEL = os.getenv("GENERATOR_MODEL", "deepseek/deepseek-v4-flash")
+GENERATOR_PROVIDER_ORDER = parse_provider_order(os.getenv("GENERATOR_PROVIDER_ORDER"))
 INPUT_FILE = Path("n2.json")
 OUTPUT_FILE = Path("n2_enriched.json")
 PROMPT_FILE = Path("phase5/prompts/enrich_word.txt")
@@ -53,6 +54,8 @@ def main() -> None:
         todo = todo[: args.limit]
 
     print(f"[enrich] total={len(all_words)} existing={len(existing_words)} todo={len(todo)} model={GENERATOR_MODEL} concurrency={args.concurrency}")
+    if GENERATOR_PROVIDER_ORDER:
+        print(f"[enrich] provider_order={GENERATOR_PROVIDER_ORDER}")
 
     if args.dry_run:
         print("[enrich] DRY RUN — exiting")
@@ -63,7 +66,7 @@ def main() -> None:
         return
 
     prompt_template = PROMPT_FILE.read_text(encoding="utf-8")
-    client = LLMClient(model=GENERATOR_MODEL, concurrency=args.concurrency)
+    client = LLMClient(model=GENERATOR_MODEL, concurrency=args.concurrency, provider_order=GENERATOR_PROVIDER_ORDER)
     db = connect()
     chunk_size = max(args.concurrency * 4, 32)
 

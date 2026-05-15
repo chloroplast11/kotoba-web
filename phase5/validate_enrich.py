@@ -16,10 +16,11 @@ from tqdm import tqdm
 
 from phase5.db_writer import connect, set_word_quality
 from phase5.io_utils import atomic_write_json, append_failed
-from phase5.llm_client import LLMClient, LLMError
+from phase5.llm_client import LLMClient, LLMError, parse_provider_order
 from phase5.progress import Progress
 
 VALIDATOR_MODEL = os.getenv("VALIDATOR_MODEL", "qwen/qwen-2.5-72b-instruct")
+VALIDATOR_PROVIDER_ORDER = parse_provider_order(os.getenv("VALIDATOR_PROVIDER_ORDER"))
 INPUT_FILE = Path("n2_enriched.json")
 PROMPT_FILE = Path("phase5/prompts/validate_word.txt")
 REPORT_FILE = Path("validation_report.json")
@@ -52,6 +53,8 @@ def main() -> None:
         todo = todo[: args.limit]
 
     print(f"[validate_enrich] total={len(enriched)} todo={len(todo)} model={VALIDATOR_MODEL} concurrency={args.concurrency}")
+    if VALIDATOR_PROVIDER_ORDER:
+        print(f"[validate_enrich] provider_order={VALIDATOR_PROVIDER_ORDER}")
     if args.dry_run:
         print("[validate_enrich] DRY RUN — exiting")
         return
@@ -60,7 +63,7 @@ def main() -> None:
         return
 
     prompt_template = PROMPT_FILE.read_text(encoding="utf-8")
-    client = LLMClient(model=VALIDATOR_MODEL, concurrency=args.concurrency, temperature=0.3)
+    client = LLMClient(model=VALIDATOR_MODEL, concurrency=args.concurrency, temperature=0.3, provider_order=VALIDATOR_PROVIDER_ORDER)
     db = connect()
     chunk_size = max(args.concurrency * 4, 32)
 
