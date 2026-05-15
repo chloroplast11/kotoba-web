@@ -1,0 +1,53 @@
+你是一位专业的日语教育专家。你的任务是将一个 N{level} 级别的日语单词进行详细富化，添加学习者需要的各种信息。
+
+输入：
+- word: {word}
+- meaning: {meaning}
+- furigana: {furigana}
+- romaji: {romaji}
+- level: {level}
+
+请输出严格 JSON（不要任何代码块标记或解释），包含以下字段：
+
+1. pos (词性)：「名词」「动词（他動）」「动词（自動）」「い形容词」「な形容词」「副词」「连体词」「接续词」等。动词必须标注他動/自動。
+2. frequency (使用频率)：
+   - "high"：日常对话/新闻常见
+   - "medium"：阅读时常见，会话偶尔
+   - "low"：专业/书面/古风词
+3. example_sentences：2-3 个自然例句。每条包含：
+   - ja: 日语原文。**所有汉字（小学一年级水平如「人」「日」「月」「火」可豁免）必须用 <ruby>漢字<rt>かんじ</rt></ruby> 标注**
+   - ja_plain: 去掉 ruby 后的纯日语原文
+   - zh: 中文翻译
+   - en: 英文翻译
+4. synonyms：2-3 个近义词（无则空数组）
+5. antonyms：1-2 个反义词（无则空数组）
+6. collocations：2-3 个常用搭配
+7. usage_notes：简洁的使用提示（日语；汉字按规则 ruby 标注）
+
+输出格式：
+```json
+{{
+  "word": "{word}",
+  "furigana": "{furigana}",
+  "romaji": "{romaji}",
+  "meaning_zh": "{meaning}",
+  "meaning_en": "English translation",
+  "level": {level},
+  "pos": "...",
+  "frequency": "high/medium/low",
+  "example_sentences": [
+    {{
+      "ja": "<ruby>漢字<rt>かんじ</rt></ruby>を含む例文。",
+      "ja_plain": "漢字を含む例文。",
+      "zh": "...",
+      "en": "..."
+    }}
+  ],
+  "synonyms": [],
+  "antonyms": [],
+  "collocations": [],
+  "usage_notes": "..."
+}}
+```
+
+只输出 JSON。

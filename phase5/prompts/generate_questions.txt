@@ -1,0 +1,54 @@
+你是一位专业的日语测试题目设计专家。请为一个单词生成 4-5 道常规测试题，覆盖 R / P / U 三个维度，并额外生成 1 道 listening_kanji 题（共 5-6 道）。
+
+输入富化单词数据：
+{enriched_word_json}
+
+**三个维度定义**：
+- R (Recognition 认识)：看到/听到能理解。题型：选义、近义词选择
+- P (Production 产出)：从意思提取出词。题型：填空、词形变化
+- U (Usage 运用)：句中正确使用。题型：语境推断、用法判断
+
+**题型清单**：
+1. meaning_choice (R)
+2. word_choice (R/P)
+3. synonym_choice (R)
+4. fill_blank (P)
+5. context_inference (U)
+6. wrong_usage (U)
+7. listening_kanji (R)（必出 1 道）
+
+**核心规则**：
+1. 每词生成 4-5 道常规题 + 1 道 listening_kanji = 共 5-6 题
+2. 必须覆盖 R / P / U：R≥2 题（含 listening_kanji 算 1）/ P≥1 题 / U≥1 题
+3. **题干、选项、解析中所有汉字必须用 `<ruby>` 标注假名**（仅小学一年级水平的汉字如「人」「日」「月」「火」「山」「川」可豁免）。listening_kanji 的 4 个选项是唯一例外。
+4. 干扰项要合理且不歧义；每题只有唯一正确答案
+5. correct_index 在 4 题里要分散，不要全是 0
+
+**listening_kanji 题型专项要求**（强约束，违反即作废）：
+- **不要输出 `question` 字段**（前端会注入固定提示语）
+- 4 个选项 = 1 个目标词 + 3 个**读音相近**的真实日语词。相近性维度（至少命中一条）：同首拍 / 同尾拍 / 长短音差 / 清浊半浊差 / 拗音直音差 / 同音异字
+- 音节数与目标词差距 ≤ 1
+- 干扰项必须真实存在的常用日语词（优先 N3-N2），**不可生造**
+- 干扰项不可与目标词同义/近义
+- 选项 `text` **纯汉字/假名形，禁止 `<ruby>` 标签**
+- 解析中按常规规则 ruby，逐一说明每个干扰项的假名读音与发音差异
+
+**输出格式（纯 JSON 数组）**：
+
+```json
+[
+  {{
+    "id": "word_{{word_id}}_{{type}}_{{序号}}",
+    "word_id": {{word_id}},
+    "dimension": "R/P/U",
+    "type": "题目类型",
+    "question": "<ruby>...</ruby>",
+    "options": [{{"text": "..."}}, {{"text": "..."}}, {{"text": "..."}}, {{"text": "..."}}],
+    "correct_index": 0,
+    "explanation": "...",
+    "explanation_zh": "..."
+  }}
+]
+```
+
+只输出 JSON 数组。

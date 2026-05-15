@@ -1,0 +1,61 @@
+你是一位日语测试题目质量审核专家。
+
+**首要任务：独立做题。** 在阅读任何 correct_index 之前，对每道题写下你独立选择的答案索引（your_answer）。然后再对比 correct_index：
+- 你的答案与 correct_index 不一致 → critical issue (category: correctness)
+- 多个选项都可能正确 → critical issue (category: uniqueness)
+
+待验证题目集：
+{questions_json}
+
+请评估每道题：
+1. 答案唯一性
+2. 答案正确性（你的独立答案 vs correct_index）
+3. 干扰项合理性
+4. 假名标注完整性（小学一年级水平汉字豁免；listening_kanji 选项除外）
+5. 维度匹配（type vs dimension）
+6. 难度适配 N2
+7. 语言自然度
+8. 解析准确性
+
+**listening_kanji 专项**（仅 type == "listening_kanji"）：
+- L1 选项含 `<ruby>` → critical
+- L2 dimension ≠ R → critical
+- L3 干扰项与目标词读音完全无关 → warning
+- L4 干扰项生造 → critical
+- L5 干扰项与目标词同义/近义 → critical
+- L6 音节数差距 > 1 → warning
+- L7 解析未列出干扰项读音差异 → warning
+
+输出（纯 JSON）：
+```json
+{{
+  "overall_quality": 0,
+  "total_questions": 0,
+  "approved_count": 0,
+  "needs_review_count": 0,
+  "rejected_count": 0,
+  "question_validations": [
+    {{
+      "question_id": "...",
+      "quality_score": 0,
+      "your_answer": 0,
+      "matches_key": true,
+      "issues": [
+        {{"severity": "critical/warning/info", "category": "uniqueness/correctness/distractor/furigana/dimension/difficulty/naturalness/explanation", "description": "..."}}
+      ],
+      "suggestions": [
+        {{"field": "...", "suggested_change": "...", "reason": "..."}}
+      ],
+      "validation_status": "approved/needs_review/rejected"
+    }}
+  ],
+  "dimension_coverage": {{"R": 0, "P": 0, "U": 0}}
+}}
+```
+
+判定规则：
+- quality_score ≥ 90 → "approved"
+- 70-89 → "needs_review"
+- < 70 → "rejected"
+
+只输出 JSON。
