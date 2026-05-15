@@ -64,7 +64,7 @@ python3 -m phase5.run split-json
 - 中途 Ctrl-C 安全：每个 step 在每条数据上都按 **DB 写 → JSON 写 → progress 写** 顺序持久化
 - 进度文件：`.phase5_progress/<step>.json`
 - 失败项：`failed_items.json`（按 step + word_id 分类，手动复查）
-- 写入顺序保证：最坏情况只重复一次 LLM 调用（DB upsert 幂等），不会出现 "JSON 有但 DB 没有" 的不一致
+- 写入顺序保证：每次 LLM 调用返回后立刻 DB upsert + JSON 写 + progress 标记，按 **DB → JSON → progress** 顺序持久化。Ctrl-C 时正在并发执行的 LLM 调用（最多 N 个，N=concurrency）会丢失，下次重跑时这些 N 条会重复调用 LLM；DB upsert 幂等所以不会出现 "JSON 有但 DB 没有" 的不一致
 
 ## 输出文件
 

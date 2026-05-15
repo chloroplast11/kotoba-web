@@ -7,19 +7,14 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 from pathlib import Path
 from typing import Dict, List
+
+from phase5.io_utils import atomic_write_json
 
 DEFAULT_INPUT = Path("n2_questions.json")
 DEFAULT_OUTDIR = Path(".")
 DIMS = ("R", "P", "U")
-
-
-def atomic_write_json(path: Path, data) -> None:
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    os.replace(tmp, path)
 
 
 def split_by_dimension(src: Path, outdir: Path) -> Dict[str, Path]:

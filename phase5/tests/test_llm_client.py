@@ -55,20 +55,21 @@ def test_call_raises_after_max_retries():
         client.call("hi", max_retries=2, base_backoff=0.0)
 
 
-def test_call_many_preserves_order_and_returns_errors():
+def test_call_many_returns_all_results_keyed_by_index():
     client = LLMClient(model="x", api_key="k", concurrency=2)
     client._client = MagicMock()
     responses = ['{"i": 0}', "bad", '{"i": 2}']
 
     def side(model, messages, **kw):
-        # crude: use prompt content to pick response
         idx = int(messages[0]["content"])
         return _mock_completion(responses[idx])
 
     client._client.chat.completions.create.side_effect = side
 
+    # Results may arrive in any order due to concurrency; collect and key by idx
     results = list(client.call_many(["0", "1", "2"], max_retries=1, base_backoff=0.0))
     assert len(results) == 3
-    assert results[0] == (0, {"i": 0}, None)
-    assert results[1][0] == 1 and results[1][1] is None and isinstance(results[1][2], LLMError)
-    assert results[2] == (2, {"i": 2}, None)
+    by_idx = {idx: (result, err) for idx, result, err in results}
+    assert by_idx[0] == ({"i": 0}, None)
+    assert by_idx[1][0] is None and isinstance(by_idx[1][1], LLMError)
+    assert by_idx[2] == ({"i": 2}, None)

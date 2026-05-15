@@ -79,7 +79,7 @@ class LLMClient:
                 last_err = e
                 # for JSON errors, slightly lower temperature on retry
                 current_temp = max(0.1, current_temp - 0.2)
-            except APIError as e:
+            except (APIError, OSError) as e:
                 last_err = e
             if attempt < max_retries - 1:
                 delay = base_backoff * (2 ** attempt) + random.uniform(0, 0.5)
@@ -95,32 +95,28 @@ class LLMClient:
         base_backoff: float = 1.0,
         temperature: float | None = None,
     ) -> Iterator[Tuple[int, Any, Exception | None]]:
-        """Yields (index, result_or_None, error_or_None) in INPUT order.
-
-        Dispatches all prompts concurrently via ThreadPoolExecutor, but
-        collects results into an index-aligned buffer and yields them in
-        input order so callers can iterate alongside their input list.
+        """Yields (index, result_or_None, error_or_None) in COMPLETION order
+        (not input order). Callers should look up their input by index, not
+        by position. This streaming yield enables per-item DB writes from
+        the consumer so Ctrl-C loses at most one in-flight LLM call per
+        worker thread, not the entire batch.
         """
 
-        def _task(idx: int, prompt: str):
+        def _task(idx, prompt):
             try:
-                result = self.call(
+                return idx, self.call(
                     prompt,
                     max_retries=max_retries,
                     base_backoff=base_backoff,
                     temperature=temperature,
-                )
-                return idx, result, None
+                ), None
             except LLMError as e:
                 return idx, None, e
+            except Exception as e:
+                # Wrap unexpected errors so the consumer's error branch handles them
+                return idx, None, LLMError(f"unexpected {type(e).__name__}: {e}")
 
         with ThreadPoolExecutor(max_workers=self.concurrency) as pool:
             futures = [pool.submit(_task, i, p) for i, p in enumerate(prompts)]
-            completed: List[Tuple[int, Any, Exception | None] | None] = [None] * len(prompts)
             for fut in as_completed(futures):
-                idx, result, err = fut.result()
-                completed[idx] = (idx, result, err)
-
-        for tup in completed:
-            assert tup is not None
-            yield tup
+                yield fut.result()
