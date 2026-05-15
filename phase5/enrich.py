@@ -15,6 +15,7 @@ from typing import Dict, List
 from tqdm import tqdm
 
 from phase5.db_writer import connect, max_word_id, upsert_word
+from phase5.io_utils import atomic_write_json, append_failed
 from phase5.llm_client import LLMClient, LLMError
 from phase5.progress import Progress
 
@@ -22,25 +23,7 @@ GENERATOR_MODEL = os.getenv("GENERATOR_MODEL", "deepseek/deepseek-v4-flash")
 INPUT_FILE = Path("n2.json")
 OUTPUT_FILE = Path("n2_enriched.json")
 PROMPT_FILE = Path("phase5/prompts/enrich_word.txt")
-FAILED_FILE = Path("failed_items.json")
 STEP_NAME = "enrich"
-
-
-def atomic_write_json(path: Path, data) -> None:
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    os.replace(tmp, path)
-
-
-def append_failed(item: Dict) -> None:
-    existing: List[Dict] = []
-    if FAILED_FILE.exists():
-        try:
-            existing = json.loads(FAILED_FILE.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            existing = []
-    existing.append(item)
-    atomic_write_json(FAILED_FILE, existing)
 
 
 def main() -> None:

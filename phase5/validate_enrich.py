@@ -15,6 +15,7 @@ from typing import Dict, List
 from tqdm import tqdm
 
 from phase5.db_writer import connect, set_word_quality
+from phase5.io_utils import atomic_write_json, append_failed
 from phase5.llm_client import LLMClient, LLMError
 from phase5.progress import Progress
 
@@ -23,25 +24,7 @@ INPUT_FILE = Path("n2_enriched.json")
 PROMPT_FILE = Path("phase5/prompts/validate_word.txt")
 REPORT_FILE = Path("validation_report.json")
 REJECTED_FILE = Path("rejected_words.json")
-FAILED_FILE = Path("failed_items.json")
 STEP_NAME = "validate_enrich"
-
-
-def atomic_write_json(path: Path, data) -> None:
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    os.replace(tmp, path)
-
-
-def append_failed(item: Dict) -> None:
-    existing: List[Dict] = []
-    if FAILED_FILE.exists():
-        try:
-            existing = json.loads(FAILED_FILE.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            existing = []
-    existing.append(item)
-    atomic_write_json(FAILED_FILE, existing)
 
 
 def main() -> None:
@@ -112,9 +95,22 @@ def main() -> None:
                     if "quality_score" not in result or "validation_status" not in result:
                         append_failed({"step": STEP_NAME, "word_id": w["word_id"], "error": f"missing fields in validation: keys={list(result.keys())}"})
                         continue
-                    score = int(result.get("quality_score", 0))
-                    status = result.get("validation_status", "needs_review")
+                    try:
+                        score = int(result["quality_score"])
+                    except (KeyError, ValueError, TypeError) as e:
+                        append_failed({"step": STEP_NAME, "word_id": w["word_id"], "error": f"non-numeric quality_score: {result.get('quality_score')!r} ({type(e).__name__})"})
+                        continue
+                    status = result.get("validation_status")
+                    if status not in ("approved", "needs_review", "rejected"):
+                        append_failed({"step": STEP_NAME, "word_id": w["word_id"], "error": f"unknown validation_status: {status!r}"})
+                        continue
                     needs_review = status != "approved"
+                    # Sanity: status and score should agree
+                    if status == "approved" and score < 90:
+                        append_failed({"step": STEP_NAME, "word_id": w["word_id"], "error": f"status=approved but quality_score={score} (<90)"})
+                        # still proceed — trust the status, but log the contradiction
+                    elif status == "rejected" and score >= 70:
+                        append_failed({"step": STEP_NAME, "word_id": w["word_id"], "error": f"status=rejected but quality_score={score} (>=70)"})
                     set_word_quality(db, w["word_id"], score=score, needs_review=needs_review)
                     report.append({"word_id": w["word_id"], "word": w["word"], "validation": result})
                     atomic_write_json(REPORT_FILE, report)
