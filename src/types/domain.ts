@@ -52,18 +52,35 @@ export interface QuestionOption {
   text: string;
 }
 
-export interface WrongAnswerItem {
+export interface MistakeQuestionItem {
   id: number;
+  questionId: string;
+  dimension: DimKey;
+  type: string;
+  question: string | null;
+  options: QuestionOption[];
+  correctIndex: number;
+  wrongChoice: number;
+  explanation: string | null;
+  explanationZh: string | null;
+  wrongCount: number;
+  lastWrongAt: string;
+}
+
+export interface MistakeWordGroup {
   wordId: number;
   word: string;
   furigana: string;
   meaningZh: string;
   level: number;
-  dimension: DimKey;
-  wrongCount: number;
-  firstWrongAt: string;
+  totalWrongQuestions: number;
+  dimensions: DimKey[];
   lastWrongAt: string;
-  masteryLevel: MasteryLevel;
+  questions: MistakeQuestionItem[];
+}
+
+export interface MistakesResponse {
+  groups: MistakeWordGroup[];
 }
 
 export interface CalendarDay {
