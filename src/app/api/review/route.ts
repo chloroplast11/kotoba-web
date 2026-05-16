@@ -12,11 +12,12 @@ interface ReviewRequest {
   correct: boolean;
   timestamp: number;
   learnOnly?: boolean;
+  wrongChoice?: number;
 }
 
 export async function POST(req: Request) {
   const body = (await req.json()) as ReviewRequest;
-  const { wordId, dimension, correct, timestamp, learnOnly } = body;
+  const { wordId, dimension, correct, timestamp, learnOnly, questionId, wrongChoice } = body;
 
   const settingsRow = await prisma.appSettings.findUnique({ where: { id: 1 } });
   applyTimeOffset(settingsRow?.timeOffset);
@@ -87,9 +88,26 @@ export async function POST(req: Request) {
 
   if (!correct) {
     await prisma.wrongAnswer.upsert({
-      where: { wordId_dimension: { wordId, dimension } },
-      create: { wordId, dimension, lastWrongAt: now, firstWrongAt: now },
-      update: { resolved: false, wrongCount: { increment: 1 }, lastWrongAt: now },
+      where: { questionId },
+      create: {
+        questionId,
+        wordId,
+        dimension,
+        wrongChoice: wrongChoice ?? -1,
+        firstWrongAt: now,
+        lastWrongAt: now,
+      },
+      update: {
+        resolved: false,
+        wrongCount: { increment: 1 },
+        lastWrongAt: now,
+        wrongChoice: wrongChoice ?? -1,
+      },
+    });
+  } else {
+    await prisma.wrongAnswer.updateMany({
+      where: { questionId, resolved: false },
+      data: { resolved: true },
     });
   }
 
