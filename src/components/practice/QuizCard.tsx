@@ -25,7 +25,7 @@ interface Props {
   question: QuestionData;
   index: number;
   total: number;
-  onAnswer: (correct: boolean) => void;
+  onAnswer: (correct: boolean, chosenIndex: number) => void;
 }
 
 const OPTION_LABELS = ["A", "B", "C", "D"];
@@ -46,7 +46,7 @@ export default function QuizCard({ item, question, index, total, onAnswer }: Pro
   function handleChoice(idx: number) {
     if (answered) return;
     setChosen(idx);
-    onAnswer(idx === question.correctIndex);
+    onAnswer(idx === question.correctIndex, idx);
   }
 
   const stemHtml = question.question.replace("____", '<span class="blank"></span>');

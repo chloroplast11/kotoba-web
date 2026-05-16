@@ -85,10 +85,10 @@ export default function PracticeClient({ questions, words }: Props) {
     furigana: w?.furigana ?? "",
   };
 
-  function handleAnswer(correct: boolean) {
+  function handleAnswer(correct: boolean, chosenIndex: number) {
     if (!item) return;
     setAnswered(true);
-    session.submitAnswer(item.wordId, item.dim, item.questionId, correct);
+    session.submitAnswer(item.wordId, item.dim, item.questionId, correct, chosenIndex);
   }
 
   function handleNext() {

@@ -17,7 +17,8 @@ interface SessionState {
     wordId: number,
     dim: DimKey,
     questionId: string,
-    correct: boolean
+    correct: boolean,
+    wrongChoice: number,
   ) => Promise<void>;
   advanceCursor: () => void;
   reset: () => void;
@@ -51,7 +52,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     });
   },
 
-  submitAnswer: async (wordId, dim, questionId, correct) => {
+  submitAnswer: async (wordId, dim, questionId, correct, wrongChoice) => {
     const now = getCurrentTime();
     const rating = correct ? Rating.Good : Rating.Again;
 
@@ -62,7 +63,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     const res = await fetch("/api/review", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ wordId, dimension: dim, questionId, correct, rating, timestamp: now }),
+      body: JSON.stringify({ wordId, dimension: dim, questionId, correct, rating, timestamp: now, wrongChoice }),
     });
 
     if (res.ok) {

@@ -28,7 +28,7 @@ interface Props {
   audioMode: ListenMode;
   index: number;
   total: number;
-  onAnswer: (correct: boolean) => void;
+  onAnswer: (correct: boolean, chosenIndex: number) => void;
   onSkipListening: () => void;
 }
 
@@ -54,7 +54,7 @@ export default function ListeningQuizCard({
   function handleChoice(idx: number) {
     if (answered) return;
     setChosen(idx);
-    onAnswer(idx === correctIndex);
+    onAnswer(idx === correctIndex, idx);
   }
 
   return (
