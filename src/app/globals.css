@@ -989,7 +989,7 @@ body {
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  padding: 22px 4px;
+  padding: 22px 24px;
   background: none;
   border: none;
   text-align: left;
@@ -1007,7 +1007,7 @@ body {
   font-family: 'IBM Plex Mono', monospace;
 }
 .mistake-question-list {
-  padding: 0 4px 22px 4px;
+  padding: 0 24px 22px 24px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -1122,7 +1122,8 @@ body {
   .mistake-actions { flex-direction: row; width: 100%; }
   .mistake-btn { flex: 1; }
   .mistake-row.expandable { flex-direction: column; }
-  .mistake-row-toggle { flex-direction: row; padding: 18px 4px; }
+  .mistake-row-toggle { flex-direction: row; padding: 18px 18px; }
+  .mistake-question-list { padding: 0 18px 18px 18px; }
   .mistake-question { padding: 14px; }
   .mistake-question-foot { flex-direction: column; align-items: flex-start; }
   .mistake-question-foot .mistake-btn { width: 100%; }
