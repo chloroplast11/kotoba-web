@@ -1,41 +1,30 @@
 import { prisma } from "@/lib/db";
 import Masthead from "@/components/layout/Masthead";
 import LibraryGrid from "@/components/library/LibraryGrid";
-import { toSrsData } from "@/lib/srs";
-import type { DimKey } from "@/types/domain";
+import { queryLibrary } from "@/lib/library-query";
 
 export const dynamic = "force-dynamic";
 
+const PAGE_SIZE = 60;
+
 export default async function LibraryPage() {
-  const [words, allStates] = await Promise.all([
-    prisma.word.findMany({ orderBy: [{ frequency: "asc" }, { word: "asc" }] }),
-    prisma.userWordState.findMany(),
+  const [initial, totalWords] = await Promise.all([
+    queryLibrary({
+      q: "",
+      pageSize: PAGE_SIZE,
+      pages: { mastered: 1, learned: 1, notYet: 1 },
+    }),
+    prisma.word.count(),
   ]);
-
-  const statesByWord = new Map<number, Record<DimKey, ReturnType<typeof toSrsData> | null>>();
-  for (const s of allStates) {
-    if (!statesByWord.has(s.wordId)) statesByWord.set(s.wordId, { R: null, P: null, U: null });
-    statesByWord.get(s.wordId)![s.dimension as DimKey] = toSrsData(s);
-  }
-
-  const wordData = words.map((w) => ({
-    id: w.id,
-    word: w.word,
-    furigana: w.furigana,
-    meaningZh: w.meaningZh,
-    level: w.level,
-    frequency: w.frequency,
-    dimStates: statesByWord.get(w.id) ?? { R: null, P: null, U: null },
-  }));
 
   return (
     <div className="app">
       <Masthead />
       <div className="section-head" style={{ marginTop: "0" }}>
         <h2>単語帖</h2>
-        <span className="meta">{words.length} 語 · N2</span>
+        <span className="meta">{totalWords} 語 · N2</span>
       </div>
-      <LibraryGrid words={wordData} />
+      <LibraryGrid initial={initial} pageSize={PAGE_SIZE} />
     </div>
   );
 }
