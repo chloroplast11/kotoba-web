@@ -43,7 +43,8 @@ model Question {
   qualityScore Int?
   needsReview  Boolean @default(false)
 
-  word Word @relation(fields: [wordId], references: [id])
+  word        Word         @relation(fields: [wordId], references: [id])
+  wrongAnswer WrongAnswer?
 }
 
 model UserWordState {
@@ -67,17 +68,20 @@ model UserWordState {
 
 model WrongAnswer {
   id           Int      @id @default(autoincrement())
+  questionId   String   @unique
   wordId       Int
   dimension    String
+  wrongChoice  Int
   resolved     Boolean  @default(false)
   wrongCount   Int      @default(1)
   firstWrongAt DateTime @default(now())
   lastWrongAt  DateTime @default(now())
 
-  word Word @relation(fields: [wordId], references: [id])
+  question Question @relation(fields: [questionId], references: [id])
+  word     Word     @relation(fields: [wordId], references: [id])
 
-  @@unique([wordId, dimension])
   @@index([resolved, lastWrongAt])
+  @@index([wordId, resolved])
 }
 
 model DailySession {
