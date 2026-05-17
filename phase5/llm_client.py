@@ -9,7 +9,7 @@ import json
 import os
 import random
 import time
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError, as_completed
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from typing import Any, Iterator, List, Tuple
 
 import httpx
@@ -50,7 +50,7 @@ class LLMClient:
         api_key: str | None = None,
         concurrency: int = 8,
         temperature: float = 0.7,
-        timeout: float = 30.0,
+        timeout: float = 90.0,
         provider_order: list[str] | None = None,
     ) -> None:
         key = api_key or os.getenv("OPENROUTER_API_KEY")
@@ -138,33 +138,36 @@ class LLMClient:
                 # Wrap unexpected errors so the consumer's error branch handles them
                 return idx, None, LLMError(f"unexpected {type(e).__name__}: {e}")
 
-        # Belt-and-suspenders: if a worker truly zombies past the SDK + httpx
-        # timeouts, this stall budget prevents the whole chunk from hanging
-        # forever. Budget = worst-case per-call (timeout * retries + backoff) + slack.
-        stall_budget = self.timeout * max_retries + base_backoff * (2 ** max_retries) + 30.0
+        # Idle-window watchdog: if NO future completes within this window,
+        # treat the remaining workers as zombies and abandon them. Resets
+        # on each completion so legitimate slow batches with multiple
+        # waves don't get killed mid-batch. Worst-case per-call budget +
+        # generous slack covers a fresh httpx call that has to drain.
+        idle_budget = self.timeout * max_retries + base_backoff * (2 ** max_retries) + 30.0
 
         pool = ThreadPoolExecutor(max_workers=self.concurrency)
         try:
             futures = [pool.submit(_task, i, p) for i, p in enumerate(prompts)]
             pending = set(futures)
             while pending:
-                try:
-                    for fut in as_completed(pending, timeout=stall_budget):
-                        pending.discard(fut)
-                        yield fut.result()
-                except FutureTimeoutError:
-                    # Stall budget exceeded: synthesize errors for stuck
-                    # workers and abandon them. The finally block below
-                    # shuts the pool down without waiting, so hung httpx
-                    # threads do not block the script. Those threads will
-                    # exit on their own when httpx finally errors out (or
-                    # process exit).
+                done_now, pending = wait(
+                    pending,
+                    timeout=idle_budget,
+                    return_when=FIRST_COMPLETED,
+                )
+                if not done_now:
+                    # Nothing completed in the idle window → genuine stall.
+                    # Synthesize errors for the rest and abandon. The finally
+                    # block shuts the pool down without waiting so hung
+                    # httpx threads do not block the script.
                     for fut in list(pending):
                         idx = futures.index(fut)
-                        pending.discard(fut)
                         fut.cancel()
-                        yield idx, None, LLMError(f"worker stalled > {stall_budget:.0f}s")
+                        yield idx, None, LLMError(f"worker idle > {idle_budget:.0f}s")
+                    pending.clear()
                     break
+                for fut in done_now:
+                    yield fut.result()
         finally:
             # wait=False + cancel_futures: do NOT wait for hung workers; cancel
             # any future that hasn't started running yet. This prevents the
