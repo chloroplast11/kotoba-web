@@ -1,7 +1,6 @@
 import type { Word, Question } from "@/generated/prisma";
 import type { AppSettingsData, DimKey, SrsData } from "@/types/domain";
 import { isDimensionUnlocked, getMasteryTier } from "./srs";
-import { FREQ_ORDER } from "./constants";
 
 export interface CramItem {
   wordId: number;
@@ -40,7 +39,6 @@ interface Candidate {
   wordId: number;
   dim: DimKey;
   tier: number;
-  freqRank: number;
 }
 
 export function buildCramQueue(
@@ -63,22 +61,16 @@ export function buildCramQueue(
     if (!dimStates.R?.learnedAt) continue;
 
     for (const dim of ["R", "P", "U"] as DimKey[]) {
-      if (!isDimensionUnlocked(dim, dimStates, word.frequency, settings)) continue;
+      if (!isDimensionUnlocked(dim, dimStates)) continue;
       const tier = getMasteryTier(dimStates[dim]);
       if (tier === 2) continue;
-      candidates.push({
-        wordId,
-        dim,
-        tier,
-        freqRank: FREQ_ORDER[word.frequency] ?? 99,
-      });
+      candidates.push({ wordId, dim, tier });
     }
   }
 
-  // Sort: tier asc → freqRank asc → random
+  // Sort: tier asc → random
   candidates.sort((a, b) => {
     if (a.tier !== b.tier) return a.tier - b.tier;
-    if (a.freqRank !== b.freqRank) return a.freqRank - b.freqRank;
     return Math.random() - 0.5;
   });
 

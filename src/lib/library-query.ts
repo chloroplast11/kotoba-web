@@ -12,7 +12,6 @@ export interface LibraryItem {
   furigana: string;
   meaningZh: string;
   level: number;
-  frequency: string;
   dimStates: Record<DimKey, SrsData | null>;
 }
 
@@ -46,14 +45,13 @@ export async function queryLibrary(opts: QueryLibraryOpts): Promise<LibraryResul
 
   const words = await prisma.word.findMany({
     where,
-    orderBy: [{ frequency: "asc" }, { word: "asc" }],
+    orderBy: [{ id: "asc" }, { word: "asc" }],
     select: {
       id: true,
       word: true,
       furigana: true,
       meaningZh: true,
       level: true,
-      frequency: true,
     },
   });
 
