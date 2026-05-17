@@ -14,10 +14,4 @@ export const DIM_DESCRIPTIONS: Record<DimKey, string> = {
 
 export const UNLOCK_THRESHOLD = 3;
 
-export const FREQ_ORDER: Record<string, number> = {
-  high: 0,
-  mid: 1,
-  low: 2,
-};
-
 export const DIM_ORDER: DimKey[] = ["R", "P", "U"];

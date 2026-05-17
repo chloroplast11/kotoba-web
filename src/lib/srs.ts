@@ -6,7 +6,7 @@ import {
   type Card,
 } from "ts-fsrs";
 import type { UserWordState } from "@/generated/prisma";
-import type { AppSettingsData, DimKey, MasteryLevel, SrsData } from "@/types/domain";
+import type { DimKey, MasteryLevel, SrsData } from "@/types/domain";
 import { UNLOCK_THRESHOLD } from "./constants";
 import { getCurrentDate } from "./time";
 
@@ -87,26 +87,21 @@ export function getMasteryTier(state: SrsData | null): MasteryTier {
   return 2;
 }
 
-// Whether a dimension is unlocked for practice
+// Whether a dimension is unlocked for practice.
+// R 始终解锁；P 解锁要求 R.stability >= UNLOCK_THRESHOLD；U 同理依赖 P。
 export function isDimensionUnlocked(
   dim: DimKey,
-  dimStates: Record<DimKey, SrsData | null>,
-  frequency: string,
-  settings: Pick<AppSettingsData, "practiceLowFreqUsage">
+  dimStates: Record<DimKey, SrsData | null>
 ): boolean {
   if (dim === "R") return true;
-
   if (dim === "P") {
     const r = dimStates.R;
     return !!r && r.stability >= UNLOCK_THRESHOLD;
   }
-
   if (dim === "U") {
-    if (frequency === "low" && !settings.practiceLowFreqUsage) return false;
     const p = dimStates.P;
     return !!p && p.stability >= UNLOCK_THRESHOLD;
   }
-
   return false;
 }
 

@@ -1,6 +1,5 @@
 import type { Word, Question } from "@/generated/prisma";
 import type { AppSettingsData, DimKey, ListenMode, QueueItem, SrsData } from "@/types/domain";
-import { FREQ_ORDER } from "./constants";
 import { getMasteryTier, isDimensionUnlocked } from "./srs";
 
 type WordStateMap = Map<number, Record<DimKey, SrsData | null>>;
@@ -70,7 +69,7 @@ export function buildTodayQueue(
     if (!word) continue;
 
     for (const dim of ["R", "P", "U"] as DimKey[]) {
-      if (!isDimensionUnlocked(dim, dimStates, word.frequency, settings)) continue;
+      if (!isDimensionUnlocked(dim, dimStates)) continue;
 
       const srs = dimStates[dim] ?? getEmptySrsData();
       if (getMasteryTier(srs) === 2) continue;
@@ -94,7 +93,7 @@ export function buildTodayQueue(
 
   const newCandidates = words
     .filter((w) => !learnedIds.has(w.id))
-    .sort((a, b) => (FREQ_ORDER[a.frequency] ?? 99) - (FREQ_ORDER[b.frequency] ?? 99))
+    .sort((a, b) => a.id - b.id)
     .slice(0, settings.dailyNewWords);
 
   // ── Question picker ───────────────────────────────────────────
@@ -116,7 +115,7 @@ export function buildTodayQueue(
     if (!q1) continue;
     finalQueue.push({ wordId: word.id, dim: "R", isNew: true, round: 1, questionId: q1.id });
 
-    // Stage Round 2 if another non-listening question exists and word is not low-frequency
+    // Stage Round 2 if another non-listening question exists
     const remaining = questions.filter(
       (q) =>
         q.wordId === word.id &&
@@ -124,7 +123,7 @@ export function buildTodayQueue(
         q.type !== LISTENING_KANJI_TYPE &&
         !usedQuestionIds.has(q.id)
     );
-    if (word.frequency !== "low" && remaining.length > 0) {
+    if (remaining.length > 0) {
       round2Staged.push({ wordId: word.id, dim: "R" });
     }
   }
@@ -218,7 +217,7 @@ export function reconcileNewWordsInQueue(
     );
     const candidates = words
       .filter((w) => !learnedIds.has(w.id) && !queueWordIds.has(w.id))
-      .sort((a, b) => (FREQ_ORDER[a.frequency] ?? 99) - (FREQ_ORDER[b.frequency] ?? 99))
+      .sort((a, b) => a.id - b.id)
       .slice(0, desiredNewCount - currentNewCount);
 
     const round1Additions: QueueItem[] = [];
@@ -237,7 +236,7 @@ export function reconcileNewWordsInQueue(
           q.type !== LISTENING_KANJI_TYPE &&
           !usedQuestionIds.has(q.id)
       );
-      if (word.frequency !== "low" && remaining.length > 0) {
+      if (remaining.length > 0) {
         round2Additions.push({ wordId: word.id, dim: "R" });
       }
     }
