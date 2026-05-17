@@ -11,7 +11,6 @@ interface SettingsState extends AppSettingsData {
 
 const defaults: AppSettingsData = {
   dailyNewWords: 4,
-  practiceLowFreqUsage: false,
   activeLevels: [2],
   totalReviews: 0,
   streak: 0,

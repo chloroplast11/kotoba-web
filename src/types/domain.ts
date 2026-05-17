@@ -91,7 +91,6 @@ export interface CalendarDay {
 
 export interface AppSettingsData {
   dailyNewWords: number;
-  practiceLowFreqUsage: boolean;
   activeLevels: number[];
   totalReviews: number;
   streak: number;
