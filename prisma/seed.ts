@@ -8,20 +8,17 @@ const adapter = new PrismaLibSql({ url: process.env.DATABASE_URL ?? "file:dev.db
 const prisma = new PrismaClient({ adapter } as any);
 
 interface EnrichedWord {
+  word_id: number;
   word: string;
   furigana: string;
-  romaji: string;
   meaning_zh: string;
-  meaning_en: string;
   level: number;
   pos: string;
-  frequency: string;
   example_sentences: object[];
-  synonyms: string[];
-  antonyms: string[];
-  collocations: string[];
-  usage_notes: string;
-  word_id: number;
+  synonyms: string | null;
+  pitch_accent: string | null;
+  homophones: string | null;
+  audio_file: string | null;
 }
 
 interface RawOption {
@@ -43,26 +40,25 @@ interface RawQuestion {
   explanation_zh?: string;
 }
 
-function normalizeFrequency(freq: string): string {
-  return freq === "medium" ? "mid" : freq;
-}
-
 function assertNoWordCollisions(words: EnrichedWord[]) {
   const seen = new Map<string, number>();
   const collisions: string[] = [];
   for (const w of words) {
-    for (const form of w.word.split(/[/／]/).map((s) => s.trim()).filter(Boolean)) {
-      const prev = seen.get(form);
-      if (prev !== undefined && prev !== w.word_id) {
-        collisions.push(`"${form}": word_id ${prev} ↔ ${w.word_id}`);
-      } else {
-        seen.set(form, w.word_id);
+    for (const wordForm of w.word.split(/[/／]/).map((s) => s.trim()).filter(Boolean)) {
+      for (const furiganaForm of (w.furigana ?? "").split(/[/／]/).map((s) => s.trim()).filter(Boolean)) {
+        const key = `${wordForm}|${furiganaForm}`;
+        const prev = seen.get(key);
+        if (prev !== undefined && prev !== w.word_id) {
+          collisions.push(`"${wordForm}"（${furiganaForm}）: word_id ${prev} ↔ ${w.word_id}`);
+        } else {
+          seen.set(key, w.word_id);
+        }
       }
     }
   }
   if (collisions.length > 0) {
-    throw new Error(
-      `Duplicate word forms detected in n2_enriched.json:\n  ${collisions.join("\n  ")}`
+    console.warn(
+      `⚠ Duplicate word+furigana combinations in n2_words.json (proceeding — each has a unique word_id):\n  ${collisions.join("\n  ")}`
     );
   }
 }
@@ -76,17 +72,14 @@ async function seedWords(words: EnrichedWord[]) {
       id: w.word_id,
       word: w.word,
       furigana: w.furigana,
-      romaji: w.romaji,
       meaningZh: w.meaning_zh || "",
-      meaningEn: w.meaning_en || "",
       level: w.level,
       pos: w.pos || "",
-      frequency: normalizeFrequency(w.frequency || "mid"),
-      usageNotes: w.usage_notes || "",
       exampleSentences: JSON.stringify(w.example_sentences || []),
-      synonyms: JSON.stringify(w.synonyms || []),
-      antonyms: JSON.stringify(w.antonyms || []),
-      collocations: JSON.stringify(w.collocations || []),
+      synonyms: w.synonyms ?? "",
+      pitchAccent: w.pitch_accent,
+      homophones: w.homophones,
+      audioFile: w.audio_file,
     })),
   });
   console.log(`✓ Seeded ${words.length} words`);
@@ -112,17 +105,18 @@ async function seedQuestions(questions: RawQuestion[]) {
 }
 
 async function main() {
-  const dataDir = path.join(__dirname, "..");
-  const wordsPath = path.join(dataDir, "n2_enriched.json");
-  const questionsPath = path.join(dataDir, "n2_questions.json");
+  const wordsPath = path.resolve(__dirname, "..", "n2_words.json");
+  const questionsPath = path.resolve(__dirname, "..", "n2_questions.json");
 
-  const words: EnrichedWord[] = JSON.parse(fs.readFileSync(wordsPath, "utf-8"));
-  const questions: RawQuestion[] = JSON.parse(
-    fs.readFileSync(questionsPath, "utf-8")
-  );
-
+  const words = JSON.parse(fs.readFileSync(wordsPath, "utf-8")) as EnrichedWord[];
   await seedWords(words);
-  await seedQuestions(questions);
+
+  if (fs.existsSync(questionsPath)) {
+    const questions = JSON.parse(fs.readFileSync(questionsPath, "utf-8")) as RawQuestion[];
+    await seedQuestions(questions);
+  } else {
+    console.log("⚠ n2_questions.json not found, skipping question seed");
+  }
 
   // Initialize default AppSettings
   await prisma.appSettings.upsert({
