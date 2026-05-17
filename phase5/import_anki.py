@@ -16,6 +16,8 @@ from typing import Dict, List, Optional, Tuple
 
 from bs4 import BeautifulSoup
 
+from phase5.io_utils import atomic_write_json
+
 ANKI_DB = Path("N2/collection.anki2")
 OUTPUT_FILE = Path("n2_words.json")
 RUBYBOOK_MID = 1452150778360  # model id for 红宝书卡牌
@@ -125,10 +127,7 @@ def main() -> None:
         if args.limit and len(parsed) >= args.limit:
             break
 
-    args.out.write_text(
-        json.dumps(parsed, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    atomic_write_json(args.out, parsed)
     print(f"[import_anki] notes={len(rows)} parsed={len(parsed)} skipped={len(skipped)} → {args.out}")
     if skipped:
         print(f"[import_anki] skipped note ids (first 10): {skipped[:10]}")
