@@ -22,17 +22,14 @@ def db(tmp_path):
             id INTEGER PRIMARY KEY,
             word TEXT NOT NULL,
             furigana TEXT NOT NULL,
-            romaji TEXT NOT NULL,
             meaningZh TEXT NOT NULL,
-            meaningEn TEXT NOT NULL,
             level INTEGER NOT NULL,
             pos TEXT NOT NULL,
-            frequency TEXT NOT NULL,
-            usageNotes TEXT NOT NULL,
             exampleSentences TEXT NOT NULL,
             synonyms TEXT NOT NULL,
-            antonyms TEXT NOT NULL,
-            collocations TEXT NOT NULL,
+            pitchAccent TEXT,
+            homophones TEXT,
+            audioFile TEXT,
             qualityScore INTEGER,
             needsReview INTEGER NOT NULL DEFAULT 0
         );
@@ -61,29 +58,25 @@ def test_upsert_word_inserts(db):
         "word_id": 1,
         "word": "題名",
         "furigana": "だいめい",
-        "romaji": "daimei",
         "meaning_zh": "标题",
-        "meaning_en": "title",
         "level": 2,
         "pos": "名词",
-        "frequency": "medium",
-        "usage_notes": "本や映画などの名前。",
         "example_sentences": [{"ja": "本の題名", "zh": "书的标题"}],
-        "synonyms": ["タイトル"],
-        "antonyms": [],
-        "collocations": ["題名を付ける"],
+        "synonyms": "タイトル",
+        "pitch_accent": "2",
+        "homophones": None,
+        "audio_file": "1_daimeい.mp3",
     }
     upsert_word(db, enriched)
-    row = db.execute("SELECT word, frequency, meaningZh FROM Word WHERE id=1").fetchone()
-    assert row == ("題名", "mid", "标题")
+    row = db.execute("SELECT word, meaningZh, pitchAccent, audioFile FROM Word WHERE id=1").fetchone()
+    assert row == ("題名", "标题", "2", "1_daimeい.mp3")
 
 
 def test_upsert_word_replaces(db):
     enriched = {
-        "word_id": 1, "word": "題名", "furigana": "だいめい", "romaji": "daimei",
-        "meaning_zh": "old", "meaning_en": "title", "level": 2, "pos": "名词",
-        "frequency": "high", "usage_notes": "x", "example_sentences": [],
-        "synonyms": [], "antonyms": [], "collocations": [],
+        "word_id": 1, "word": "題名", "furigana": "だいめい",
+        "meaning_zh": "old", "level": 2, "pos": "名词",
+        "example_sentences": [], "synonyms": "",
     }
     upsert_word(db, enriched)
     enriched["meaning_zh"] = "new"
@@ -94,7 +87,7 @@ def test_upsert_word_replaces(db):
 
 def test_upsert_question_with_listening_kanji_no_question_field(db):
     db.execute(
-        "INSERT INTO Word VALUES (1,'a','a','a','a','a',2,'p','high','u','[]','[]','[]','[]',NULL,0)"
+        "INSERT INTO Word VALUES (1,'a','a','a',2,'p','[]','',NULL,NULL,NULL,NULL,0)"
     )
     q = {
         "id": "word_1_listening_kanji_1",
@@ -112,14 +105,14 @@ def test_upsert_question_with_listening_kanji_no_question_field(db):
 
 
 def test_set_word_quality(db):
-    db.execute("INSERT INTO Word VALUES (1,'a','a','a','a','a',2,'p','high','u','[]','[]','[]','[]',NULL,0)")
+    db.execute("INSERT INTO Word VALUES (1,'a','a','a',2,'p','[]','',NULL,NULL,NULL,NULL,0)")
     set_word_quality(db, 1, score=85, needs_review=True)
     row = db.execute("SELECT qualityScore, needsReview FROM Word WHERE id=1").fetchone()
     assert row == (85, 1)
 
 
 def test_set_question_quality(db):
-    db.execute("INSERT INTO Word VALUES (1,'a','a','a','a','a',2,'p','high','u','[]','[]','[]','[]',NULL,0)")
+    db.execute("INSERT INTO Word VALUES (1,'a','a','a',2,'p','[]','',NULL,NULL,NULL,NULL,0)")
     db.execute("INSERT INTO Question VALUES ('q1',1,'R','meaning_choice','q','[]',0,'e','ez',NULL,0)")
     set_question_quality(db, "q1", score=95, needs_review=False)
     row = db.execute("SELECT qualityScore, needsReview FROM Question WHERE id='q1'").fetchone()
@@ -131,7 +124,7 @@ def test_max_word_id_empty(db):
 
 
 def test_max_word_id_with_rows(db):
-    db.execute("INSERT INTO Word VALUES (1,'a','a','a','a','a',2,'p','high','u','[]','[]','[]','[]',NULL,0)")
-    db.execute("INSERT INTO Word VALUES (450,'b','b','b','b','b',2,'p','high','u','[]','[]','[]','[]',NULL,0)")
+    db.execute("INSERT INTO Word VALUES (1,'a','a','a',2,'p','[]','',NULL,NULL,NULL,NULL,0)")
+    db.execute("INSERT INTO Word VALUES (450,'b','b','b',2,'p','[]','',NULL,NULL,NULL,NULL,0)")
     db.commit()
     assert max_word_id(db) == 450

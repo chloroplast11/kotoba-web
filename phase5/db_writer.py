@@ -8,10 +8,6 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict
 
-# CLAUDE.md / seed.ts compatibility: frequency "medium" → "mid"
-_FREQ_MAP = {"medium": "mid", "mid": "mid", "high": "high", "low": "low"}
-
-
 def connect(db_path: str | Path = "dev.db") -> sqlite3.Connection:
     conn = sqlite3.connect(str(db_path), isolation_level=None, check_same_thread=False)
     conn.execute("PRAGMA foreign_keys = ON")
@@ -19,47 +15,37 @@ def connect(db_path: str | Path = "dev.db") -> sqlite3.Connection:
     return conn
 
 
-def _norm_freq(f: str) -> str:
-    return _FREQ_MAP.get((f or "mid").lower(), "mid")
-
-
 def upsert_word(conn: sqlite3.Connection, w: Dict[str, Any]) -> None:
     conn.execute(
         """
-        INSERT INTO Word (id, word, furigana, romaji, meaningZh, meaningEn, level,
-                          pos, frequency, usageNotes, exampleSentences, synonyms,
-                          antonyms, collocations)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO Word (id, word, furigana, meaningZh, level, pos,
+                          exampleSentences, synonyms,
+                          pitchAccent, homophones, audioFile)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
             word=excluded.word,
             furigana=excluded.furigana,
-            romaji=excluded.romaji,
             meaningZh=excluded.meaningZh,
-            meaningEn=excluded.meaningEn,
             level=excluded.level,
             pos=excluded.pos,
-            frequency=excluded.frequency,
-            usageNotes=excluded.usageNotes,
             exampleSentences=excluded.exampleSentences,
             synonyms=excluded.synonyms,
-            antonyms=excluded.antonyms,
-            collocations=excluded.collocations
+            pitchAccent=excluded.pitchAccent,
+            homophones=excluded.homophones,
+            audioFile=excluded.audioFile
         """,
         (
             w["word_id"],
             w["word"],
             w.get("furigana", ""),
-            w.get("romaji", ""),
             w.get("meaning_zh", "") or "",
-            w.get("meaning_en", "") or "",
             w.get("level", 2),
             w.get("pos", "") or "",
-            _norm_freq(w.get("frequency", "mid")),
-            w.get("usage_notes", "") or "",
             json.dumps(w.get("example_sentences") or [], ensure_ascii=False),
-            json.dumps(w.get("synonyms") or [], ensure_ascii=False),
-            json.dumps(w.get("antonyms") or [], ensure_ascii=False),
-            json.dumps(w.get("collocations") or [], ensure_ascii=False),
+            w.get("synonyms") or "",
+            w.get("pitch_accent"),
+            w.get("homophones"),
+            w.get("audio_file"),
         ),
     )
 

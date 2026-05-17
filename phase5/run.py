@@ -4,13 +4,12 @@ Usage:
     python3 -m phase5.run <step> [step-args]
 
 Steps:
-    enrich              Step 1: enrich new N2 words (DeepSeek)
-    validate-enrich     Step 2: Qwen validates enriched words
-    generate-q          Step 3: generate questions for new words
-    backfill-lk         Step 4: backfill listening_kanji for MVP 450 words
-    validate-q          Step 5: Qwen validates all questions
-    split-json          Step 6: split questions JSON by dimension
-    all                 Run 1-6 in sequence (NOT recommended for first run)
+    import-anki         Step 1: parse Anki collection.anki2 → n2_words.json
+    import-audio        Step 2: copy hypertts mp3 → public/audio/words/
+    generate-q          Step 3: AI generate R/P/U questions
+    validate-q          Step 4: Qwen validates all questions
+    split-json          Step 5: split questions JSON by dimension
+    all                 Run 1-5 in sequence (use with care)
 """
 from __future__ import annotations
 
@@ -19,15 +18,14 @@ import sys
 import subprocess
 
 STEPS = {
-    "enrich":          "phase5.enrich",
-    "validate-enrich": "phase5.validate_enrich",
-    "generate-q":      "phase5.generate_q",
-    "backfill-lk":     "phase5.backfill_lk",
-    "validate-q":      "phase5.validate_q",
-    "split-json":      "phase5.split_json",
+    "import-anki":   "phase5.import_anki",
+    "import-audio":  "phase5.import_audio",
+    "generate-q":    "phase5.generate_q",
+    "validate-q":    "phase5.validate_q",
+    "split-json":    "phase5.split_json",
 }
 
-ORDER = ["enrich", "validate-enrich", "generate-q", "backfill-lk", "validate-q", "split-json"]
+ORDER = ["import-anki", "import-audio", "generate-q", "validate-q", "split-json"]
 
 
 def help_msg() -> str:
@@ -57,7 +55,7 @@ def main() -> int:
     extra = sys.argv[2:]
 
     if step == "all":
-        print("WARNING: running all 6 steps in sequence. Ctrl-C to abort.")
+        print("WARNING: running all 5 steps in sequence. Ctrl-C to abort.")
         for s in ORDER:
             rc = run_one(s, [])
             if rc != 0:
