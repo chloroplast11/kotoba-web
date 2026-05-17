@@ -9,9 +9,9 @@
 
 ## 当前状态
 
-**Phase 2 完成** — Next.js 15 + TypeScript + Tailwind + Prisma + SQLite，全 450 个 N2 单词 + 2320 道题目已入库。
+**Phase 2 完成** — Next.js 15 + TypeScript + Tailwind + Prisma + SQLite，约 2335 个 N2 单词（红宝书全量）已入库，题目通过 Phase 5 管线生成。
 
-> ℹ️ **关于词量**：当前 450 词是 MVP 版本的规模，仅作为体验验证使用。每个词条的富化数据（例句、搭配、近义词、用法注释）+ 多维度题目都需要消耗大量模型 token 生成，因此 MVP 阶段先聚焦 N2 子集跑通学习闭环。**上线只需 N2 全量词汇通过双模型验证即可**；N3 / N1 / N4 / N5 等级的词库扩展放到部署之后渐进生成。
+> ℹ️ **关于词表**：词汇来自 Anki 红宝书 N2 牌组（`N2/collection.anki2`），约 2335 词，按红宝书章节顺序排列。单词读音 mp3 来自牌组内置的 HyperTTS 音频。**上线只需 N2 全量题目通过双模型验证即可**；N3 / N1 / N4 / N5 等级的词库扩展放到部署之后渐进生成。
 
 原型文件 `index.html` 保留作参考。
 
@@ -24,12 +24,23 @@ npm install
 npm run dev        # 启动开发服务器 http://localhost:3000
 ```
 
-首次运行会自动从 `n2_enriched.json` / `n2_questions.json` 构建今日队列（无需手动导入，数据已在 `dev.db`）。
+首次运行会自动从 `n2_words.json` / `n2_questions.json` 构建今日队列（无需手动导入，数据已在 `dev.db`）。
 
 重置数据库：
 
 ```bash
 npm run db:seed    # 清空并重新导入全部词汇和题目
+```
+
+重新运行 Phase 5 数据管线（生成 / 更新词表和题目）：
+
+```bash
+python3 -m phase5.import_anki          # 解析 Anki 牌组 → n2_words.json
+python3 -m phase5.import_audio --clear # 复制 HyperTTS mp3 → public/audio/words/
+python3 -m phase5.run generate-q       # 生成题目
+python3 -m phase5.run validate-q       # 验证题目
+python3 -m phase5.run split-json       # 切分题目 JSON
+npm run db:seed                        # 入库
 ```
 
 ---
@@ -56,8 +67,8 @@ kotobaWeb/
 │   └── seed.ts            # 从 JSON 导入数据
 ├── dev.db                 # SQLite 数据库
 ├── index.html             # 原型文件（保留参考）
-├── n2_enriched.json       # 450 个富化 N2 词汇
-└── n2_questions.json      # 2320 道题目
+├── n2_words.json          # ~2335 个 N2 词汇（来自 Anki 红宝书牌组）
+└── n2_questions.json      # 题目（由 phase5/generate-q 生成）
 ```
 
 ---
@@ -81,11 +92,9 @@ UI 文案分两区：
   - R 始终解锁
   - P 在 R stability ≥ 3 天后解锁
   - U 在 P stability ≥ 3 天后解锁
-  - 低频词 U 维度默认锁死（用户可手动开启）
 - **新词当日两轮制**：
   - Round 1（即时测试效应）：学一个测一个
   - Round 2（间隔检索效应）：所有新词学完后用**不同的题**再测一遍
-  - 低频词第一天只有 Round 1（减负）
 - **SRS**：`ts-fsrs` v5，每个维度独立调度
 - **视觉方向**：editorial × 日式静謐 — 大量留白、衬线字体、克制色彩
 
@@ -93,17 +102,17 @@ UI 文案分两区：
 
 ## 已完成（Phase 1 + Phase 2）
 
-✅ 数据生成管线：450 个 N2 词富化 + 2320 道题目生成
+✅ 数据生成管线：Phase 5 五步管线（import-anki / import-audio / generate-q / validate-q / split-json）
 ✅ Next.js 15 + Prisma v7 + SQLite 全栈架构
 ✅ ts-fsrs 多维度 SRS 调度
 ✅ 首页（今日队列概览 + 统计）
-✅ Learn 页：单词富化数据完整展示（例句/搭配/近义词/使用提示）
+✅ Learn 页：单词数据完整展示（例句/声调/同音語）
 ✅ Practice 页：4选1题目，含解析反馈
-✅ Library 页：450 词卡片网格，R/P/U 进度可视化
+✅ Library 页：~2335 词卡片网格，R/P/U 进度可视化
 ✅ Summary 页：本日学习总结
 ✅ 多维度 SRS 调度（含新维度首次出题机制）
 ✅ 维度交错（避免 R/P/U 题目分块）
-✅ 低频词 U 维度可选解锁
+✅ U 维度软依赖解锁（P stability ≥ 3 天后自动解锁）
 ✅ 新词当日两轮制
 
 ---
@@ -133,12 +142,14 @@ UI 文案分两区：
 
 ### Phase 5：N2 全量验证（上线准备）⭐⭐
 
-> 上线门槛：当前 450 词 MVP 子集 → 扩展到 N2 全量词汇，并通过双模型交叉验证。完成后即可进入 Phase 6 部署，N3 / N1 等级扩展放到上线之后。
+> 词表已从 450 词扩展为红宝书 N2 全量（约 2335 词）。五步管线：import-anki → import-audio → generate-q → validate-q → split-json。
 
-- [ ] **N2 全量词汇生成**（补齐 450 词 MVP 子集到 N2 完整词表，约 1500 词）
-- [ ] 富化数据双模型交叉验证
-- [ ] 题目双模型独立答题一致性验证
-- [ ] **上线门槛**：N2 单等级词库齐全且全部通过验证
+- [x] **`import-anki`**：解析 `N2/collection.anki2` → `n2_words.json`
+- [x] **`import-audio`**：HyperTTS mp3 → `public/audio/words/`
+- [ ] **`generate-q`**：为每词生成 R/P/U 题目（DeepSeek）
+- [ ] **`validate-q`**：Qwen 独立答题验证一致性
+- [ ] **`split-json`**：按维度切分题目 JSON
+- [ ] **上线门槛**：N2 全量题目生成并通过验证
 
 ### Phase 6：部署 ⭐
 

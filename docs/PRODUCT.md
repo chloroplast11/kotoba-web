@@ -46,7 +46,6 @@ JLPT 尤其是 N2 以上，真正的难点正是这些。
 - R 始终开放
 - R 稳定（stability ≥ 3 天）后 P 解锁
 - P 稳定后 U 解锁
-- 低频词 U 维度默认锁死（用户可手动开启）
 
 这让学习按照"识别 → 主动回忆 → 灵活运用"的认知科学路径渐进，而不是无差别死记硬背。
 
@@ -108,8 +107,6 @@ Round 1 完成 → 第二回 (Round 2) 入场页
 
 - **Round 1（即时测试效应）**：学完立刻测，强化初始记忆痕迹
 - **Round 2（间隔检索效应）**：在所有新词学完后再次测试，且**用不同的题目**，强化巩固
-
-低频词只有 Round 1（减负，因为它们 U 维度本来也被锁住）。
 
 ### 2.3 多维度 SRS 调度
 
@@ -243,15 +240,17 @@ UI 文案明确分两区：
 - 每个等级独立做 quality 验证
 - 商业上可以做「免费 N5/N4，付费 N3-N1」的分层（如果走付费方向）
 
-### 5.5 MVP 期与上线期的词量约束 ⭐
+### 5.5 词量与词表来源 ⭐
 
-当前 MVP 仅入库 **450 个 N2 词**，并非产品的目标规模，而是出于以下考虑：
+当前词库来源：**Anki 红宝书 N2 牌组**（`N2/collection.anki2`），通过 `phase5/import_anki.py` 导出为 `n2_words.json`，共约 **2335 词**。
 
-- **token 成本**：每个词的富化数据（3 条例句 + 搭配 + 近义词辨析 + 用法注释）+ 4–6 道多维度题目，再加上双模型交叉验证，单词成本相当可观。在产品形态尚未定型时，全量生成 5000–7000 词等于把成本沉没在可能要推翻的字段设计上。
-- **体验先于规模**：MVP 阶段重点是验证「先理解、后练习」「R/P/U 三维度」「两轮制」等核心机制是否成立，450 词足够跑出 30 天以上的真实学习曲线。
-- **数据 schema 仍可能变化**：例如新增"语域"字段、调整搭配结构时，全量重跑的代价远高于 450 词重跑。
+与早期 MVP 的 450 词子集相比，全量词库的变化：
 
-**上线门槛**：补齐 **N2 全量词汇**（450 词 MVP 子集 → N2 完整词表），通过双模型交叉验证即可发布。N3 / N1 / N4 / N5 等其他等级的词库扩展放到部署之后渐进生成，数据生成管线（见第 8 节）已具备分等级渐进生成的能力，届时按等级优先级（N3 → N1 → N4 → N5）批量执行即可。
+- **不再区分高/中/低频**：新词候选按 `word.id`（即红宝书章节顺序）升序排列，不依赖 frequency 字段
+- **字段精简**：去掉了 `romaji / meaningEn / usageNotes / antonyms / collocations / frequency`；新增 `pitchAccent?`（声调）、`homophones?`（同音語）、`audioFile?`（word-level mp3 路径）
+- **音频**：单词读音 mp3 来自 Anki 牌组内置的 HyperTTS 音频（committed to `public/audio/words/<wordId>.mp3`），不再依赖 msedge-tts 实时生成；例句 TTS 仍走 `public/audio/sentences/`
+
+**上线门槛**：N2 全量词汇（~2335 词）题目生成并通过双模型交叉验证即可发布。N3 / N1 / N4 / N5 等级扩展放到部署之后渐进生成，届时按优先级（N3 → N1 → N4 → N5）批量执行即可。
 
 ### 5.5 代码层面的可扩展点
 
@@ -340,22 +339,27 @@ function getCurrentTime() {
 
 ## 8. 数据生成管线
 
-### 8.1 两阶段验证
+### 8.1 Phase 5 管线（5 步）
+
+词表直接来自 Anki 红宝书牌组，不再需要富化阶段：
 
 ```
-Generator（Claude/GPT）
-    │  生成单词富化数据（例句、搭配、近义词等）
+import-anki（解析 collection.anki2 → n2_words.json）
+    │
     ▼
-Cross-Model Validator（不同模型）
-    │  逆向出题验证内容准确
+import-audio（HyperTTS mp3 → public/audio/words/）
+    │
     ▼
-Question Generator
-    │  每词生成 4-6 道多维度题目
+generate-q（DeepSeek 为每词生成 R/P/U 题目）
+    │
     ▼
-Cross-Model Validator
-    │  独立答题，比对一致性 + 唯一性
+validate-q（Qwen 独立答题，验证答案一致性）
+    │
     ▼
-入库
+split-json（按维度切分题目 JSON，不调 LLM）
+    │
+    ▼
+npm run db:seed（入库）
 ```
 
 ### 8.3 干扰项策略
@@ -408,12 +412,13 @@ Cross-Model Validator
 
 ### Phase 5：N2 全量验证（上线准备）⭐⭐
 
-> 上线门槛：当前 MVP 仅 450 个 N2 词，扩展到 N2 完整词表（约 1500 词）并通过双模型验证后即可发布。N3 / N1 等级扩展放到上线之后。
+> 上线门槛：词表已从 450 词扩展为红宝书 N2 全量（约 2335 词）。完成题目生成并通过双模型验证后即可进入 Phase 6 部署。
 
-- **N2 全量词汇生成**（补齐 450 词 MVP 子集到 N2 完整词表，复用 Phase 1 管线）
-- 富化数据双模型交叉验证
-- 题目双模型独立答题一致性验证
-- 单等级（N2）跑通完整生成 → 验证 → 入库流程
+- **`import-anki`**：解析 `N2/collection.anki2` → `n2_words.json`（约 2335 词）
+- **`import-audio`**：将 HyperTTS mp3 复制到 `public/audio/words/`
+- **`generate-q`**：DeepSeek 为每词生成 R/P/U 题目
+- **`validate-q`**：Qwen 独立答题验证一致性
+- **`split-json`**：按维度切分题目 JSON
 
 ### Phase 6：部署 ⭐
 

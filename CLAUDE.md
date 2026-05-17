@@ -6,9 +6,9 @@
 
 ## 项目概览
 
-「言葉帖」是一款日语单词学习 Web 应用。当前处于 **Phase 2**——Next.js 15 + TypeScript + Tailwind + Prisma + SQLite，450 个 N2 词汇已入库。
+「言葉帖」是一款日语单词学习 Web 应用。当前处于 **Phase 2**——Next.js 15 + TypeScript + Tailwind + Prisma + SQLite，约 2335 个 N2 词汇（红宝书全量）已入库。
 
-详细的产品愿景、设计哲学、功能规划见 `PRODUCT.md`。这份文档只讲**改代码时要遵守什么**。
+详细的产品愿景、设计哲学、功能规划见 `docs/PRODUCT.md`。这份文档只讲**改代码时要遵守什么**。
 
 ---
 
@@ -27,8 +27,8 @@ kotobaWeb/
 │   └── seed.ts            # 从 JSON 导入数据
 ├── dev.db                 # SQLite 数据库
 ├── index.html             # 原型文件（保留参考，不再修改）
-├── n2_enriched.json       # 450 个富化词汇（seed 数据源）
-└── n2_questions.json      # 2320 道题目（seed 数据源）
+├── n2_words.json          # ~2335 个 N2 词汇（来自 Anki 红宝书牌组，seed 数据源）
+└── n2_questions.json      # 题目（由 phase5/generate-q 生成，seed 数据源）
 ```
 
 ---
@@ -53,7 +53,7 @@ kotobaWeb/
 - `meaningZh` / 例句的中文翻译 —— 本来就是中文
 - R / P / U 缩略字母 —— **首次出现必须配日文全称（認識・産出・運用）**
 
-判断原则：「面向用户学习」用日语；「面向用户配置/管理产品」用中文。详见 `PRODUCT.md` §4。
+判断原则：「面向用户学习」用日语；「面向用户配置/管理产品」用中文。详见 `docs/PRODUCT.md` §4。
 
 ### 规则 2：所有汉字必须配假名注音 ⭐
 
@@ -76,7 +76,7 @@ kotobaWeb/
 - **所有 UI chrome 元素**：按钮、标签、导航、标题、状态提示、空状态文案等固定字符串
 - **`listening_kanji` 题型的 4 个选项**：为了不让用户"看着假名做听力题"，该题型选项刻意保留为裸汉字（题干、解析仍按规则正常注音）。这是与数据字段相关的唯一例外。
 
-**必须注音的内容仅限数据库来源**：题干（`question` 字段）、选项、例句（`exampleSentences`）、用法注释（`usageNotes`）、近义词等 DB 字段内容。
+**必须注音的内容仅限数据库来源**：题干（`question` 字段）、选项、例句（`exampleSentences`）、同音語（`homophones`）等 DB 字段内容。
 
 ### 规则 3：项目内生成的 md、txt 等文件用中文，UI 文案才用日语
 
@@ -121,13 +121,13 @@ todayDateString(): string  // "YYYY-MM-DD"
 核心封装在 `src/lib/srs.ts`：
 - `scheduleReview(state, rating, now)` — 答题后更新，返回 DB 更新字段
 - `getMasteryLevel(state)` — 0=新/锁定，1=学习中，2=精通（stability ≥ 7）
-- `isDimensionUnlocked(dim, dimStates, frequency, settings)` — 解锁判定
+- `isDimensionUnlocked(dim, dimStates)` — 解锁判定
 
-**解锁阈值**（`UNLOCK_THRESHOLD = 3`，改了同步更新 `PRODUCT.md`）：
+**解锁阈值**（`UNLOCK_THRESHOLD = 3`，改了同步更新 `docs/PRODUCT.md`）：
 ```
 R 始终解锁
 P：R.stability >= 3 天
-U：P.stability >= 3 天 且 (非低频词 OR 用户已开启低频 U)
+U：P.stability >= 3 天
 ```
 
 ### 队列构建
@@ -171,8 +171,8 @@ U：P.stability >= 3 天 且 (非低频词 OR 用户已开启低频 U)
 
 修改 `buildTodayQueue` 或 SRS 时，最少要跑一次 Day 1 → Day 4 → Day 12 → Day 30 的模拟，确保：
 
-- Day 1：4 个高频新词，Round 1 + Round 2 共 8 题
-- Day 4：Day 1 高频词 R 维度第一次复习；新词配额转移到剩余高/中频
+- Day 1：4 个新词（按 word.id 升序取前 N），Round 1 + Round 2 共 8 题
+- Day 4：Day 1 词 R 维度第一次复习；新词配额取剩余 id 靠前的词
 - Day 12：Day 1 词的 P 维度首次解锁（NEW-DIM）
 - Day 30：U 维度开始出现，混合多种题型
 
@@ -187,6 +187,7 @@ U：P.stability >= 3 天 且 (非低频词 OR 用户已开启低频 U)
 3. **R/P/U 缺乏 hover/tap 说明**——Library 进度条 tooltip 已加，但首页无三次元说明区
 4. **Library 页缺少等级筛选器**——多等级支持时必加
 5. **Practice 页面刷新后 Zustand 状态丢失**——需从 `/api/session/today` 重新加载
+6. **声调（pitchAccent）和同音語（homophones）的 UI 展示**——字段已入库，Learn 页展示尚待实现
 
 ---
 
