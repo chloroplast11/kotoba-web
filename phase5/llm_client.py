@@ -50,7 +50,7 @@ class LLMClient:
         api_key: str | None = None,
         concurrency: int = 8,
         temperature: float = 0.7,
-        timeout: float = 90.0,
+        timeout: float = 30.0,
         provider_order: list[str] | None = None,
     ) -> None:
         key = api_key or os.getenv("OPENROUTER_API_KEY")
@@ -143,7 +143,8 @@ class LLMClient:
         # forever. Budget = worst-case per-call (timeout * retries + backoff) + slack.
         stall_budget = self.timeout * max_retries + base_backoff * (2 ** max_retries) + 30.0
 
-        with ThreadPoolExecutor(max_workers=self.concurrency) as pool:
+        pool = ThreadPoolExecutor(max_workers=self.concurrency)
+        try:
             futures = [pool.submit(_task, i, p) for i, p in enumerate(prompts)]
             pending = set(futures)
             while pending:
@@ -152,13 +153,20 @@ class LLMClient:
                         pending.discard(fut)
                         yield fut.result()
                 except FutureTimeoutError:
-                    # No future completed within the stall budget: treat the
-                    # remaining as hung and synthesize errors so the caller
-                    # can move on. Threads keep running but will exit on their
-                    # own when httpx finally gives up (or process exit).
+                    # Stall budget exceeded: synthesize errors for stuck
+                    # workers and abandon them. The finally block below
+                    # shuts the pool down without waiting, so hung httpx
+                    # threads do not block the script. Those threads will
+                    # exit on their own when httpx finally errors out (or
+                    # process exit).
                     for fut in list(pending):
                         idx = futures.index(fut)
                         pending.discard(fut)
                         fut.cancel()
                         yield idx, None, LLMError(f"worker stalled > {stall_budget:.0f}s")
                     break
+        finally:
+            # wait=False + cancel_futures: do NOT wait for hung workers; cancel
+            # any future that hasn't started running yet. This prevents the
+            # 'with' block hang we used to see when one provider stream stalls.
+            pool.shutdown(wait=False, cancel_futures=True)
