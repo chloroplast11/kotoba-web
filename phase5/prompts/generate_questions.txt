@@ -1,7 +1,17 @@
 你是一位专业的日语测试题目设计专家。请为一个单词生成 4-5 道常规测试题，覆盖 R / P / U 三个维度，并额外生成 1 道 listening_kanji 题（共 5-6 道）。
 
-输入富化单词数据：
+输入单词数据（JSON）：
 {enriched_word_json}
+
+字段说明：
+- word: 写法（汉字或假名）
+- furigana: 假名读音
+- pitch_accent: 声调（⓪①②③④ 或复合如 ⓪③）
+- pos: 词性（[副] / [名•自他動3] 等）
+- meaning_zh: 中文释义
+- example_sentences: 例句 list，每项含 jp / zh
+- synonyms: 同义/相关词（红宝书原文，可能为空）
+- homophones: 同音词（可能为空）
 
 **三个维度定义**：
 - R (Recognition 认识)：看到/听到能理解。题型：选义、近义词选择

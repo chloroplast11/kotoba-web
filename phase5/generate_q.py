@@ -21,11 +21,15 @@ from phase5.progress import Progress
 
 GENERATOR_MODEL = os.getenv("GENERATOR_MODEL", "deepseek/deepseek-v4-flash")
 GENERATOR_PROVIDER_ORDER = parse_provider_order(os.getenv("GENERATOR_PROVIDER_ORDER"))
-ENRICHED_FILE = Path("n2_enriched.json")
+ENRICHED_FILE = Path("n2_words.json")
 QUESTIONS_FILE = Path("n2_questions.json")
 PROMPT_FILE = Path("phase5/prompts/generate_questions.txt")
 STEP_NAME = "generate_q"
-NEW_WORD_ID_THRESHOLD = 450  # MVP cutoff; words with id > 450 are new
+NEW_WORD_ID_THRESHOLD = 0  # 0 means all words; no MVP cutoff
+
+
+def _strip_for_prompt(w: Dict) -> Dict:
+    return {k: v for k, v in w.items() if k not in ("audio_hash", "audio_file")}
 
 
 def main() -> None:
@@ -75,7 +79,7 @@ def main() -> None:
             for chunk_start in range(0, len(todo), chunk_size):
                 chunk = todo[chunk_start:chunk_start + chunk_size]
                 prompts = [
-                    prompt_template.format(enriched_word_json=json.dumps(w, ensure_ascii=False, indent=2))
+                    prompt_template.format(enriched_word_json=json.dumps(_strip_for_prompt(w), ensure_ascii=False, indent=2))
                     for w in chunk
                 ]
 
