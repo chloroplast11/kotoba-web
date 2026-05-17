@@ -11,17 +11,14 @@ model Word {
   id               Int    @id
   word             String
   furigana         String
-  romaji           String
   meaningZh        String
-  meaningEn        String
   level            Int
   pos              String
-  frequency        String
-  usageNotes       String
   exampleSentences String
   synonyms         String
-  antonyms         String
-  collocations     String
+  pitchAccent      String?
+  homophones       String?
+  audioFile        String?
   qualityScore     Int?
   needsReview      Boolean @default(false)
 
@@ -97,7 +94,6 @@ model DailySession {
 model AppSettings {
   id                   Int     @id @default(1)
   dailyNewWords        Int     @default(4)
-  practiceLowFreqUsage Boolean @default(false)
   activeLevels         String  @default("[2]")
   totalReviews         Int     @default(0)
   streak               Int     @default(0)

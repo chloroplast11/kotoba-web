@@ -3,17 +3,16 @@ CREATE TABLE "Word" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "word" TEXT NOT NULL,
     "furigana" TEXT NOT NULL,
-    "romaji" TEXT NOT NULL,
     "meaningZh" TEXT NOT NULL,
-    "meaningEn" TEXT NOT NULL,
     "level" INTEGER NOT NULL,
     "pos" TEXT NOT NULL,
-    "frequency" TEXT NOT NULL,
-    "usageNotes" TEXT NOT NULL,
     "exampleSentences" TEXT NOT NULL,
     "synonyms" TEXT NOT NULL,
-    "antonyms" TEXT NOT NULL,
-    "collocations" TEXT NOT NULL
+    "pitchAccent" TEXT,
+    "homophones" TEXT,
+    "audioFile" TEXT,
+    "qualityScore" INTEGER,
+    "needsReview" BOOLEAN NOT NULL DEFAULT false
 );
 
 -- CreateTable
@@ -22,13 +21,13 @@ CREATE TABLE "Question" (
     "wordId" INTEGER NOT NULL,
     "dimension" TEXT NOT NULL,
     "type" TEXT NOT NULL,
-    "question" TEXT NOT NULL,
-    "questionPlain" TEXT NOT NULL,
+    "question" TEXT,
     "options" TEXT NOT NULL,
     "correctIndex" INTEGER NOT NULL,
     "explanation" TEXT,
-    "explanationPlain" TEXT,
     "explanationZh" TEXT,
+    "qualityScore" INTEGER,
+    "needsReview" BOOLEAN NOT NULL DEFAULT false,
     CONSTRAINT "Question_wordId_fkey" FOREIGN KEY ("wordId") REFERENCES "Word" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -49,6 +48,21 @@ CREATE TABLE "UserWordState" (
 );
 
 -- CreateTable
+CREATE TABLE "WrongAnswer" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "questionId" TEXT NOT NULL,
+    "wordId" INTEGER NOT NULL,
+    "dimension" TEXT NOT NULL,
+    "wrongChoice" INTEGER NOT NULL,
+    "resolved" BOOLEAN NOT NULL DEFAULT false,
+    "wrongCount" INTEGER NOT NULL DEFAULT 1,
+    "firstWrongAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastWrongAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "WrongAnswer_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "WrongAnswer_wordId_fkey" FOREIGN KEY ("wordId") REFERENCES "Word" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "DailySession" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "date" TEXT NOT NULL,
@@ -63,11 +77,13 @@ CREATE TABLE "DailySession" (
 CREATE TABLE "AppSettings" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT DEFAULT 1,
     "dailyNewWords" INTEGER NOT NULL DEFAULT 4,
-    "practiceLowFreqUsage" BOOLEAN NOT NULL DEFAULT false,
     "activeLevels" TEXT NOT NULL DEFAULT '[2]',
     "totalReviews" INTEGER NOT NULL DEFAULT 0,
     "streak" INTEGER NOT NULL DEFAULT 0,
-    "timeOffset" INTEGER NOT NULL DEFAULT 0
+    "timeOffset" INTEGER NOT NULL DEFAULT 0,
+    "cramSize" INTEGER NOT NULL DEFAULT 50,
+    "audioAutoplay" BOOLEAN NOT NULL DEFAULT true,
+    "listeningRatio" INTEGER NOT NULL DEFAULT 30
 );
 
 -- CreateIndex
@@ -75,6 +91,15 @@ CREATE INDEX "UserWordState_due_idx" ON "UserWordState"("due");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserWordState_wordId_dimension_key" ON "UserWordState"("wordId", "dimension");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WrongAnswer_questionId_key" ON "WrongAnswer"("questionId");
+
+-- CreateIndex
+CREATE INDEX "WrongAnswer_resolved_lastWrongAt_idx" ON "WrongAnswer"("resolved", "lastWrongAt");
+
+-- CreateIndex
+CREATE INDEX "WrongAnswer_wordId_resolved_idx" ON "WrongAnswer"("wordId", "resolved");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "DailySession_date_key" ON "DailySession"("date");
