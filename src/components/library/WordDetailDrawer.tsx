@@ -13,7 +13,6 @@ interface WordDetail {
   furigana: string;
   meaningZh: string;
   level: number;
-  frequency: string;
   dimStates: Record<DimKey, SrsData | null>;
 }
 
@@ -28,12 +27,6 @@ const TIER_LABELS: Array<{ tier: MasteryTier; label: string }> = [
   { tier: 1, label: "学习中" },
   { tier: 2, label: "精通" },
 ];
-
-const FREQ_LABELS: Record<string, string> = {
-  high: "頻出",
-  mid: "中頻",
-  low: "低頻",
-};
 
 export default function WordDetailDrawer({ word, onClose, onChanged }: Props) {
   const router = useRouter();
@@ -81,9 +74,6 @@ export default function WordDetailDrawer({ word, onClose, onChanged }: Props) {
           </div>
           <div className="lib-card-meaning">{word.meaningZh}</div>
           <div className="tag-row" style={{ marginTop: "8px" }}>
-            <span className={`tag freq-${word.frequency}`}>
-              {FREQ_LABELS[word.frequency] ?? word.frequency}
-            </span>
             <span className="tag">N{word.level}</span>
           </div>
         </div>

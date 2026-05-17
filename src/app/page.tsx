@@ -31,7 +31,6 @@ export default async function HomePage() {
   const settings: AppSettingsData = settingsRow
     ? {
         dailyNewWords: settingsRow.dailyNewWords,
-        practiceLowFreqUsage: settingsRow.practiceLowFreqUsage,
         activeLevels: JSON.parse(settingsRow.activeLevels) as number[],
         totalReviews: settingsRow.totalReviews,
         streak: settingsRow.streak,
@@ -40,7 +39,7 @@ export default async function HomePage() {
         audioAutoplay: settingsRow.audioAutoplay ?? true,
         listeningRatio: settingsRow.listeningRatio ?? 30,
       }
-    : { dailyNewWords: 4, practiceLowFreqUsage: false, activeLevels: [2], totalReviews: 0, streak: 0, timeOffset: 0, cramSize: 50, audioAutoplay: true, listeningRatio: 30 };
+    : { dailyNewWords: 4, activeLevels: [2], totalReviews: 0, streak: 0, timeOffset: 0, cramSize: 50, audioAutoplay: true, listeningRatio: 30 };
 
   const { session, queue, results, allStates, wordMap } = await loadOrReconcileTodaySession(settings);
 

@@ -23,16 +23,13 @@ export default async function LearnPage({
     id: word.id,
     word: word.word,
     furigana: word.furigana,
-    romaji: word.romaji,
     meaningZh: word.meaningZh,
-    meaningEn: word.meaningEn,
     pos: word.pos,
     level: word.level,
-    frequency: word.frequency,
-    usageNotes: word.usageNotes,
+    pitchAccent: word.pitchAccent,
+    homophones: word.homophones,
     exampleSentences: JSON.parse(word.exampleSentences) as ExampleSentence[],
     synonyms: JSON.parse(word.synonyms) as string[],
-    collocations: JSON.parse(word.collocations) as string[],
   };
 
   return (

@@ -18,7 +18,6 @@ export default async function CramPage() {
       create: {
         id: 1,
         dailyNewWords: 4,
-        practiceLowFreqUsage: false,
         activeLevels: JSON.stringify([2]),
         totalReviews: 0,
         streak: 0,
@@ -31,7 +30,6 @@ export default async function CramPage() {
 
   const settings: AppSettingsData = {
     dailyNewWords: settingsRow.dailyNewWords,
-    practiceLowFreqUsage: settingsRow.practiceLowFreqUsage,
     activeLevels: JSON.parse(settingsRow.activeLevels) as number[],
     totalReviews: settingsRow.totalReviews,
     streak: settingsRow.streak,

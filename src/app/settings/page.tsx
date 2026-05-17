@@ -13,7 +13,6 @@ export default async function SettingsPage() {
   const initial: AppSettingsData = row
     ? {
         dailyNewWords: row.dailyNewWords,
-        practiceLowFreqUsage: row.practiceLowFreqUsage,
         activeLevels: JSON.parse(row.activeLevels) as number[],
         totalReviews: row.totalReviews,
         streak: row.streak,
@@ -24,7 +23,6 @@ export default async function SettingsPage() {
       }
     : {
         dailyNewWords: 4,
-        practiceLowFreqUsage: false,
         activeLevels: [2],
         totalReviews: 0,
         streak: 0,

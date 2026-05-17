@@ -10,23 +10,14 @@ export interface WordData {
   id: number;
   word: string;
   furigana: string;
-  romaji: string;
   meaningZh: string;
-  meaningEn: string;
   pos: string;
   level: number;
-  frequency: string;
-  usageNotes: string;
+  pitchAccent: string | null;
+  homophones: string | null;
   exampleSentences: ExampleSentence[];
   synonyms: string[];
-  collocations: string[];
 }
-
-const FREQ_LABELS: Record<string, string> = {
-  high: "頻出",
-  mid: "中頻",
-  low: "低頻",
-};
 
 export function WordEntryBody({
   word,
@@ -38,7 +29,14 @@ export function WordEntryBody({
   return (
     <article className="entry" style={{ borderBottom: "none" }}>
       <div className="entry-head">
-        <div className="entry-furigana">{word.furigana}</div>
+        <div className="entry-furigana">
+          {word.furigana}
+          {word.pitchAccent && (
+            <span className="ml-2 text-sm text-zinc-500" title="アクセント">
+              {word.pitchAccent}
+            </span>
+          )}
+        </div>
         <div className="entry-word" style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "center" }}>
           <span>{word.word}</span>
           <PlayButton
@@ -50,10 +48,8 @@ export function WordEntryBody({
             ariaLabel={`「${word.word}」を再生`}
           />
         </div>
-        <div className="entry-romaji">{word.romaji}</div>
         <div className="tag-row">
           <span className="tag">{word.pos}</span>
-          <span className={`tag freq-${word.frequency}`}>{FREQ_LABELS[word.frequency] ?? word.frequency}</span>
           <span className="tag">N{word.level}</span>
         </div>
       </div>
@@ -61,15 +57,7 @@ export function WordEntryBody({
       <div className="entry-body">
         <div className="entry-meaning">
           {word.meaningZh}
-          <span className="en">{word.meaningEn}</span>
         </div>
-
-        {word.usageNotes && (
-          <>
-            <div className="subhead">使い方 · 用法</div>
-            <div className="usage-note"><RubyText html={word.usageNotes} /></div>
-          </>
-        )}
 
         {word.exampleSentences.length > 0 && (
           <>
@@ -92,19 +80,6 @@ export function WordEntryBody({
           </>
         )}
 
-        {word.collocations.length > 0 && (
-          <>
-            <div className="subhead">よく使う表現</div>
-            <div className="colloc-list">
-              {word.collocations.map((c, i) => (
-                <div className="colloc" key={i}>
-                  <span className="colloc-jp">{c}</span>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
         {word.synonyms.length > 0 && (
           <>
             <div className="subhead">近義語</div>
@@ -114,6 +89,13 @@ export function WordEntryBody({
               </div>
             ))}
           </>
+        )}
+
+        {word.homophones && (
+          <section>
+            <div className="subhead">同音語</div>
+            <p className="mt-1 text-sm whitespace-pre-wrap">{word.homophones}</p>
+          </section>
         )}
       </div>
     </article>

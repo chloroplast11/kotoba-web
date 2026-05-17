@@ -7,7 +7,6 @@ interface WordCardData {
   word: string;
   furigana: string;
   meaningZh: string;
-  frequency: string;
   dimStates: Record<DimKey, SrsData | null>;
 }
 
