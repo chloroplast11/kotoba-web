@@ -7,7 +7,6 @@ import type { UserWordState } from "@/generated/prisma";
 
 const DEFAULT_SETTINGS: AppSettingsData = {
   dailyNewWords: 4,
-  practiceLowFreqUsage: false,
   activeLevels: [2],
   totalReviews: 0,
   streak: 0,
@@ -42,7 +41,6 @@ export async function GET() {
   const settings: AppSettingsData = settingsRow
     ? {
         dailyNewWords: settingsRow.dailyNewWords,
-        practiceLowFreqUsage: settingsRow.practiceLowFreqUsage,
         activeLevels: JSON.parse(settingsRow.activeLevels) as number[],
         totalReviews: settingsRow.totalReviews,
         streak: settingsRow.streak,

@@ -118,19 +118,14 @@ export async function POST(req: Request) {
 
   // Check if any new dimensions were unlocked
   const allDimStates = await prisma.userWordState.findMany({ where: { wordId } });
-  const word = await prisma.word.findUnique({ where: { id: wordId } });
 
   const dimMap: Record<DimKey, ReturnType<typeof toSrsData> | null> = { R: null, P: null, U: null };
   for (const s of allDimStates) dimMap[s.dimension as DimKey] = toSrsData(s);
 
-  const settingsData = {
-    practiceLowFreqUsage: settingsRow?.practiceLowFreqUsage ?? false,
-  };
-
   const unlockedDimensions: DimKey[] = [];
   for (const dim of ["P", "U"] as DimKey[]) {
     if (!dimMap[dim] || dimMap[dim]!.reps === 0) {
-      const wasLocked = !isDimensionUnlocked(dim, dimMap, word?.frequency ?? "mid", settingsData);
+      const wasLocked = !isDimensionUnlocked(dim, dimMap);
       if (!wasLocked) unlockedDimensions.push(dim);
     }
   }

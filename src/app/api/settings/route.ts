@@ -5,7 +5,6 @@ import type { AppSettingsData } from "@/types/domain";
 const DEFAULT_SETTINGS = {
   id: 1,
   dailyNewWords: 4,
-  practiceLowFreqUsage: false,
   activeLevels: JSON.stringify([2]),
   totalReviews: 0,
   streak: 0,
@@ -24,7 +23,6 @@ async function getOrCreate() {
 function serialize(row: Awaited<ReturnType<typeof getOrCreate>>): AppSettingsData {
   return {
     dailyNewWords: row.dailyNewWords,
-    practiceLowFreqUsage: row.practiceLowFreqUsage,
     activeLevels: JSON.parse(row.activeLevels) as number[],
     totalReviews: row.totalReviews,
     streak: row.streak,
@@ -48,9 +46,6 @@ export async function PATCH(req: Request) {
     where: { id: 1 },
     data: {
       ...(body.dailyNewWords !== undefined && { dailyNewWords: body.dailyNewWords }),
-      ...(body.practiceLowFreqUsage !== undefined && {
-        practiceLowFreqUsage: body.practiceLowFreqUsage,
-      }),
       ...(body.activeLevels !== undefined && {
         activeLevels: JSON.stringify(body.activeLevels),
       }),

@@ -5,7 +5,7 @@ import type { DimKey } from "@/types/domain";
 
 export async function GET() {
   const [words, allStates] = await Promise.all([
-    prisma.word.findMany({ orderBy: { frequency: "asc" } }),
+    prisma.word.findMany({ orderBy: { id: "asc" } }),
     prisma.userWordState.findMany(),
   ]);
 
@@ -23,10 +23,11 @@ export async function GET() {
     word: w.word,
     furigana: w.furigana,
     meaningZh: w.meaningZh,
-    meaningEn: w.meaningEn,
     level: w.level,
-    frequency: w.frequency,
     pos: w.pos,
+    pitchAccent: w.pitchAccent,
+    homophones: w.homophones,
+    audioFile: w.audioFile,
     dimStates: statesByWord.get(w.id) ?? { R: null, P: null, U: null },
   }));
 
