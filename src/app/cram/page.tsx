@@ -74,6 +74,7 @@ export default async function CramPage() {
     correctIndex: number;
     explanation: string | null;
     explanationZh: string | null;
+    qualityScore: number | null;
   }> = {};
   for (const q of questions) {
     questionMap[q.id] = {
@@ -86,6 +87,7 @@ export default async function CramPage() {
       correctIndex: q.correctIndex,
       explanation: q.explanation,
       explanationZh: q.explanationZh,
+      qualityScore: q.qualityScore ?? null,
     };
   }
 
