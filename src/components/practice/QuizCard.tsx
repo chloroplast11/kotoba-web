@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useDevStore } from "@/store/devStore";
 import RubyText from "@/components/ui/RubyText";
 import DimPill from "@/components/layout/DimPill";
 import MasteryPopover from "@/components/practice/MasteryPopover";
@@ -16,6 +17,7 @@ interface QuestionData {
   correctIndex: number;
   explanation: string | null;
   explanationZh: string | null;
+  qualityScore: number | null;
   word: string;
   furigana: string;
 }
@@ -38,6 +40,7 @@ function getRoundLabel(item: QueueItem) {
 }
 
 export default function QuizCard({ item, question, index, total, onAnswer }: Props) {
+  const showQualityScore = useDevStore((s) => s.showQualityScore);
   const [chosen, setChosen] = useState<number | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const answered = chosen !== null;
@@ -70,8 +73,17 @@ export default function QuizCard({ item, question, index, total, onAnswer }: Pro
             詳しく
           </button>
           <MasteryPopover wordId={item.wordId} />
+          {showQualityScore && (
+            <span className={`dev-score ${scoreToneClass(question.qualityScore)}`}>
+              Q:{question.qualityScore ?? "—"}
+            </span>
+          )}
         </div>
       </div>
+
+      {question.qualityScore != null && question.qualityScore < 70 && (
+        <div className="quality-warn">⚠ 此题质量存疑</div>
+      )}
 
       <div className={`quiz-stem ${isShort ? "short" : ""}`}>
         <RubyText html={stemHtml} />
@@ -128,4 +140,11 @@ export default function QuizCard({ item, question, index, total, onAnswer }: Pro
       />
     </div>
   );
+}
+
+function scoreToneClass(score: number | null): string {
+  if (score == null) return "tone-unknown";
+  if (score >= 90) return "tone-good";
+  if (score >= 70) return "tone-mid";
+  return "tone-warn";
 }
