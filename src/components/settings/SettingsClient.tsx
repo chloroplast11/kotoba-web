@@ -172,6 +172,21 @@ export default function SettingsClient({ initial }: Props) {
             重置
           </button>
         </div>
+        <div className="settings-row" style={{ marginTop: "20px" }}>
+          <div className="settings-row-text">
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={dev.showQualityScore}
+                onChange={(e) => dev.setShowQualityScore(e.target.checked)}
+              />
+              <span>显示题目质量分（Q:xx 小标）</span>
+            </label>
+            <p className="settings-row-desc">
+              在题目右上角显示 AI 评分（0-100），便于排查低分题。仅本地生效，刷新页面不保留。
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
