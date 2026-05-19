@@ -42,6 +42,7 @@ export default async function PracticePage() {
         correctIndex: q.correctIndex,
         explanation: q.explanation ?? null,
         explanationZh: q.explanationZh ?? null,
+        qualityScore: q.qualityScore ?? null,
         word: "",
         furigana: "",
       },
