@@ -5,6 +5,8 @@
   --ink: #1d2935;
   --ink-soft: #3a4654;
   --ink-faint: #8a8578;
+  --tone-warn: #b07a3a;
+  --tone-good: #4a8a4a;
   --paper: #f7f3ec;
   --paper-warm: #efe9dd;
   --paper-deep: #e6dfd0;
@@ -1171,7 +1173,7 @@ body {
 /* === Question quality score display === */
 .quality-warn {
   font-size: 12px;
-  color: #b07a3a;
+  color: var(--tone-warn);
   letter-spacing: 0.03em;
   padding: 6px 0 0;
 }
@@ -1182,7 +1184,7 @@ body {
   letter-spacing: 0.02em;
   color: var(--ink-faint);
 }
-.dev-score.tone-good     { color: #4a8a4a; }
+.dev-score.tone-good     { color: var(--tone-good); }
 .dev-score.tone-mid      { color: var(--ink-faint); }
-.dev-score.tone-warn     { color: #b07a3a; }
+.dev-score.tone-warn     { color: var(--tone-warn); }
 .dev-score.tone-unknown  { color: var(--ink-faint); opacity: 0.6; }
