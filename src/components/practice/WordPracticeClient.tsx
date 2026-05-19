@@ -17,6 +17,7 @@ interface QuestionData {
   correctIndex: number;
   explanation: string | null;
   explanationZh: string | null;
+  qualityScore: number | null;
 }
 
 interface Props {
