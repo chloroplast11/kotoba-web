@@ -74,32 +74,18 @@ kotobaWeb/
 **例外**：以下情况无需注音：
 - 平假名、片假名词
 - **所有 UI chrome 元素**：按钮、标签、导航、标题、状态提示、空状态文案等固定字符串
-- **`listening_kanji` 题型的 4 个选项**：为了不让用户"看着假名做听力题"，该题型选项刻意保留为裸汉字（题干、解析仍按规则正常注音）。这是与数据字段相关的唯一例外。
+- **`listening_kanji` 题型的 4 个选项**：为了不让用户"看着假名做听力题"，该题型选项刻意保留为裸汉字（题干、解析仍按规则正常注音）。
+- **例文（`exampleSentences`）**：红宝书替换后的数据源不再提供 ruby 注音，例文以裸文本展示。
 
-**必须注音的内容仅限数据库来源**：题干（`question` 字段）、选项、例句（`exampleSentences`）、同音語（`homophones`）等 DB 字段内容。
+**必须注音的内容仅限数据库来源**：题干（`question` 字段）、选项、同音語（`homophones`）等 DB 字段内容。
 
 ### 规则 3：项目内生成的 md、txt 等文件用中文，UI 文案才用日语
 
-### 规则 4：R / P / U 必须明确暴露给用户 ⭐
-
-R、P、U 是产品差异化的核心。所有出现 R/P/U 的位置必须有日文说明，常量定义在 `src/lib/constants.ts`：
-
-```typescript
-DIM_NAMES     = { R: '認識', P: '産出', U: '運用' }
-DIM_DESCRIPTIONS = {
-  R: '見て・聞いて意味が分かる',
-  P: '意味から正しい言葉を引き出せる',
-  U: '文の中で正しく使える'
-}
-```
-
-**绝不允许**只显示一个孤零零的 "R" 字母。
-
-### 规则 5：等级（level）不要硬编码
+### 规则 4：等级（level）不要硬编码
 
 显示等级时用 `word.level` 动态拼接（`N${word.level}`），不要写死 "N2"。等级相关设置走 `AppSettings.activeLevels`。
 
-### 规则 6：时间相关计算用 `getCurrentTime()` 而非 `Date.now()`
+### 规则 5：时间相关计算用 `getCurrentTime()` 而非 `Date.now()`
 
 为了支持开发者模式时间快进，所有当前时间判断必须经过：
 
@@ -184,7 +170,6 @@ U：P.stability >= 3 天
 
 1. **大量汉字缺假名注音**——题库中 `question` 字段有 ruby，但 `explanation` 字段部分缺失
 2. **`Date.now()` 仍散布在部分组件**——快进功能开发时一并改
-3. **R/P/U 缺乏 hover/tap 说明**——Library 进度条 tooltip 已加，但首页无三次元说明区
 4. **Library 页缺少等级筛选器**——多等级支持时必加
 5. **Practice 页面刷新后 Zustand 状态丢失**——需从 `/api/session/today` 重新加载
 6. **声调（pitchAccent）和同音語（homophones）的 UI 展示**——字段已入库，Learn 页展示尚待实现

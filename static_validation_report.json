@@ -1,0 +1,122 @@
+{
+  "total_questions": 12629,
+  "answer_leak_listening_kanji": [],
+  "ruby_format": [
+    {
+      "question_id": "word_1453548237176_listening_kanji_1",
+      "word_id": 1453548237176,
+      "issues": [
+        "explanation: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1453607087292_word_choice_2",
+      "word_id": 1453607087292,
+      "issues": [
+        "explanation: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1453869180525_listening_kanji_1",
+      "word_id": 1453869180525,
+      "issues": [
+        "explanation: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1453958654077_synonym_choice_1",
+      "word_id": 1453958654077,
+      "issues": [
+        "explanation: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1454126621756_context_inference_3",
+      "word_id": 1454126621756,
+      "issues": [
+        "question: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1454128511594_context_inference_03",
+      "word_id": 1454128511594,
+      "issues": [
+        "explanation: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1453893175354_listening_kanji_1",
+      "word_id": 1453893175354,
+      "issues": [
+        "explanation: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1454310201649_word_choice",
+      "word_id": 1454310201649,
+      "issues": [
+        "explanation: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1454310430145_context_inference_3",
+      "word_id": 1454310430145,
+      "issues": [
+        "option[1]: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1454395460207_wrong_usage_4",
+      "word_id": 1454395460207,
+      "issues": [
+        "option[3]: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_459598_wrong_usage_6",
+      "word_id": 1454595987958,
+      "issues": [
+        "option[2]: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1454649968382symbols_wrong_usage_1",
+      "word_id": 1454649968382,
+      "issues": [
+        "explanation: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1454693356752_wrong_usage_1",
+      "word_id": 1454693356752,
+      "issues": [
+        "option[3]: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1454742584888_wrong_usage_5",
+      "word_id": 1454742584888,
+      "issues": [
+        "option[0]: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1454743208380_wrong_usage_0",
+      "word_id": 1454743208380,
+      "issues": [
+        "question: broken HTML tag pattern"
+      ]
+    },
+    {
+      "question_id": "word_1454743773598_U_wrong_4",
+      "word_id": 1454743773598,
+      "issues": [
+        "option[1]: broken HTML tag pattern"
+      ]
+    }
+  ],
+  "counters": {
+    "answer_leak_listening_kanji": 0,
+    "ruby_format": 16
+  }
+}

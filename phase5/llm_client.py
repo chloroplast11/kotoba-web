@@ -13,6 +13,7 @@ from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from typing import Any, Iterator, List, Tuple
 
 import httpx
+import json_repair
 from openai import APIError, OpenAI
 
 
@@ -92,11 +93,20 @@ class LLMClient:
                 if self.provider_order:
                     kwargs["extra_body"] = {"provider": {"order": list(self.provider_order)}}
                 resp = self._client.chat.completions.create(**kwargs)
+                if not resp or not getattr(resp, "choices", None):
+                    raise ValueError("provider returned empty choices")
                 content = resp.choices[0].message.content or ""
                 stripped = _strip_json_fence(content)
                 if not stripped:
                     raise ValueError("empty response after stripping fence")
-                return json.loads(stripped)
+                try:
+                    return json.loads(stripped)
+                except json.JSONDecodeError:
+                    # Fallback: tolerant repair (trailing commas, missing quotes, etc.)
+                    repaired = json_repair.loads(stripped)
+                    if repaired in (None, "", [], {}):
+                        raise
+                    return repaired
             except (json.JSONDecodeError, ValueError) as e:
                 last_err = e
                 # for JSON errors, slightly lower temperature on retry

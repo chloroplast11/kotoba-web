@@ -70,7 +70,7 @@ def main() -> None:
         return
 
     prompt_template = PROMPT_FILE.read_text(encoding="utf-8")
-    client = LLMClient(model=GENERATOR_MODEL, concurrency=args.concurrency, temperature=0.8, provider_order=GENERATOR_PROVIDER_ORDER)
+    client = LLMClient(model=GENERATOR_MODEL, concurrency=args.concurrency, temperature=0.5, provider_order=GENERATOR_PROVIDER_ORDER)
     db = connect()
     chunk_size = max(args.concurrency * 4, 32)
 
@@ -83,7 +83,7 @@ def main() -> None:
                     for w in chunk
                 ]
 
-                for idx, result, err in client.call_many(prompts):
+                for idx, result, err in client.call_many(prompts, max_retries=2):
                     w = chunk[idx]
                     pbar.update(1)
                     if err is not None:

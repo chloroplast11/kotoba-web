@@ -13,13 +13,11 @@
 2. frequency (使用频率): "high" (日常高频), "medium" (中频), "low" (低频/专业词汇)
 3. example_sentences (例句): 2-3 个自然的例句。每个例句包含：
    - ja: 日语例句（**所有汉字必须用 <ruby> 标签标注假名**）
-   - ja_plain: 不带假名标注的日语原文
    - zh: 中文翻译
-   - en: 英文翻译
 4. synonyms (近义词): 2-3 个（如果有）
 5. antonyms (反义词): 1-2 个（如果有）
 6. collocations (常用搭配): 2-3 个常见搭配用法
-7. usage_notes (用法说明): 简洁的使用提示（用日语）
+7. usage_notes (用法说明): 简洁易懂的使用提示（用日语）
 
 **重要规则**：
 - 所有日语例句中的汉字都必须标注假名（格式：<ruby>漢字<rt>かんじ</rt></ruby>）
@@ -34,16 +32,13 @@
   "furigana": "{furigana}",
   "romaji": "{romaji}",
   "meaning_zh": "{meaning}",
-  "meaning_en": "English translation",
   "level": {level},
   "pos": "词性",
   "frequency": "high/medium/low",
   "example_sentences": [
     {{
       "ja": "<ruby>例文<rt>れいぶん</rt></ruby>の<ruby>日本語<rt>にほんご</rt></ruby>",
-      "ja_plain": "例文の日本語",
       "zh": "中文翻译",
-      "en": "English translation"
     }}
   ],
   "synonyms": ["近义词1", "近义词2"],

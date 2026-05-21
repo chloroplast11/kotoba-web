@@ -1,56 +1,70 @@
-你是一位专业的日语测试题目设计专家。请为一个单词生成 4-5 道常规测试题，覆盖 R / P / U 三个维度，并额外生成 1 道 listening_kanji 题（共 5-6 道）。
+你是一位专业的日语测试题目设计专家。为输入单词生成 5-6 道题：4-5 道常规题 + 1 道 listening_kanji。
 
 输入单词数据（JSON）：
 {enriched_word_json}
 
-字段说明：
-- word: 写法（汉字或假名）
-- furigana: 假名读音
-- pitch_accent: 声调（⓪①②③④ 或复合如 ⓪③）
-- pos: 词性（[副] / [名•自他動3] 等）
-- meaning_zh: 中文释义
-- example_sentences: 例句 list，每项含 jp / zh
-- synonyms: 同义/相关词（红宝书原文，可能为空）
-- homophones: 同音词（可能为空）
+字段说明：word（写法）/ furigana（读音）/ pitch_accent（声调）/ pos（词性）/ meaning_zh（中文释义）/ example_sentences / synonyms / homophones
 
-**三个维度定义**：
-- R (Recognition 认识)：看到/听到能理解。题型：选义、近义词选择
-- P (Production 产出)：从意思提取出词。题型：填空、词形变化
-- U (Usage 运用)：句中正确使用。题型：语境推断、用法判断
+## 三个维度与题型
 
-**题型清单**：
-1. meaning_choice (R)
-2. word_choice (R/P)
-3. synonym_choice (R)
-4. fill_blank (P)
-5. context_inference (U)
-6. wrong_usage (U)
-7. listening_kanji (R)（必出 1 道）
+- **R（认识）**：看到/听到能理解
+  - `meaning_choice` 选义 / `synonym_choice` 近义词 / `listening_kanji`
+- **P（产出）**：从意思提取出词
+  - `word_choice` 给读音或意思选写法 / `fill_blank` 选词填空
+- **U（运用）**：句中正确使用
+  - `context_inference` 语境推断 / `wrong_usage` 用法错误
 
-**核心规则**：
-1. 每词生成 4-5 道常规题 + 1 道 listening_kanji = 共 5-6 题
-2. 必须覆盖 R / P / U：R 维度题数（含 listening_kanji）≥ 2 / P≥1 题 / U≥1 题
-3. **`<ruby>` 注音规则**：
-   - **只给汉字加注音**。纯假名词（平假名 / 片假名）**严禁**包 `<ruby>`，因为它们本身就是注音。例：
-     - ❌ 错：`<ruby>やすやす<rt>やすやす</rt></ruby>` / `<ruby>サイン<rt>サイン</rt></ruby>`
-     - ✅ 对：直接写 `やすやす` / `サイン`
-   - 汉字尽量注音，但**漏注 < 错注**：漏一个汉字注音可接受，给假名加无意义注音不可接受
-   - 小学一年级水平的汉字（「人」「日」「月」「火」「山」「川」等）可豁免不注音
-   - `<ruby>` 标签结构必须完整闭合：`<ruby>汉字<rt>かな</rt></ruby>`，禁止嵌套或半开
-   - listening_kanji 的 4 个选项是唯一不加任何 ruby 的例外
-4. 干扰项要合理且不歧义；每题只有唯一正确答案
-5. correct_index 在 4 题里要分散，不要全是 0
+覆盖要求：R ≥ 2（含 listening_kanji）/ P ≥ 1 / U ≥ 1。`correct_index` 在 4 题里要分散。每题只有唯一正确答案，干扰项合理无歧义。
 
-**listening_kanji 题型专项要求**（强约束，违反即作废）：
-- **不要输出 `question` 字段**（前端会注入固定提示语）
-- 4 个选项 = 1 个目标词 + 3 个**读音相近**的真实日语词。相近性维度（至少命中一条）：同首拍 / 同尾拍 / 长短音差 / 清浊半浊差 / 拗音直音差 / 同音异字
-- 音节数与目标词差距 ≤ 1
-- 干扰项必须真实存在的常用日语词（优先 N3-N2），**不可生造**
-- 干扰项不可与目标词同义/近义
-- 选项 `text` **纯汉字/假名形，禁止 `<ruby>` 标签**
-- 解析中按常规规则 ruby，逐一说明每个干扰项的假名读音与发音差异
+## `<ruby>` 注音规则（核心，违反必返工）
 
-**输出格式（纯 JSON 数组）**：
+**只给汉字加注音，标签必须完整闭合**：
+
+```
+✅ <ruby>方程式<rt>ほうていしき</rt></ruby>を<ruby>解<rt>と</rt></ruby>く。
+```
+
+5 类错误，全部 **严禁**：
+
+| 错误类型 | ❌ 错 | ✅ 对 |
+|---|---|---|
+| 空 rt | `<ruby>方程式</ruby>` / `<ruby>方程式<rt></rt></ruby>` | `<ruby>方程式<rt>ほうていしき</rt></ruby>` |
+| 假名包 ruby | `<ruby>やすやす<rt>やすやす</rt></ruby>` | 直接写 `やすやす` |
+| 送り仮名 包入 | `<ruby>立てる<rt>たてる</rt></ruby>` | `<ruby>立<rt>た</rt></ruby>てる` |
+| 嵌套 ruby | `<ruby>正<rt>ただ</rt>しい<ruby>漢字<rt>かんじ</rt></ruby>…</ruby>` | `<ruby>正<rt>ただ</rt></ruby>しい<ruby>漢字<rt>かんじ</rt></ruby>` |
+| 属性式 rt | `<rt='かんじ'>` / `<ruby<ruby>` | 用标准语法 `<rt>かんじ</rt>` |
+
+宽容：「人」「日」「月」「火」「山」「川」等小学一年级汉字可不注音。**漏注 < 错注**——宁可漏，不可错。
+
+## 答案泄露禁令
+
+| 题型 | 选项是否允许 ruby |
+|------|------|
+| `listening_kanji` | **严禁**（听力题选项含注音 = 直接告知答案，绝对违规） |
+| `word_choice` | **看题干**：题干给假名读音求写法 → **严禁**；题干给中文意思求词 → 允许 |
+| `fill_blank` | 允许（句中根据语义选词，注音不暴露答案） |
+| `meaning_choice` / `synonym_choice` / `context_inference` / `wrong_usage` | 允许 |
+
+## listening_kanji 专项
+
+- **不要输出 `question` 字段**（前端注入固定提示语）
+- 4 个选项 = 1 目标词 + 3 真实存在的读音相近词（N3-N2 优先，不可生造，不可同义）
+- 相近性维度（至少命中一条）：同首拍 / 同尾拍 / 长短音差 / 清浊半浊差 / 拗音直音差
+- **禁止与目标词完全同音**（同音异字会让听力无法区分，破坏题目唯一性）
+- 音节数差距 ≤ 1
+- 选项 `text` 纯汉字/假名形，无 ruby
+- `explanation` 按常规 ruby 规则注音，逐一列出干扰项读音与差异
+
+## JSON 输出硬约束（违反必失败）
+
+1. 只输出 JSON 数组本身，**禁止**前导/尾随说明文字，**禁止** ```` ```json ```` 代码块
+2. 字符串值必须 **单行**：`question` / `explanation` / `explanation_zh` / `options[].text` 内一律不出现换行（`\n`）、制表（`\t`）、回车（`\r`）等控制字符，需要停顿用「。」「、」
+3. 所有字符串用 **双引号** `"..."`，键名也用双引号；禁止单引号 `'`、反引号 `` ` ``、Python 风格 `<rt='..'>`
+4. 字符串内的双引号必须转义为 `\"`；反斜杠转义为 `\\`
+5. 对象/数组每个元素之间用逗号分隔，**最后一项后不要**多余逗号（`,]` `,}}` 都不行）
+6. 不写注释（`//` 或 `/* */`）
+
+## 输出格式（纯 JSON 数组）
 
 ```json
 [
@@ -59,7 +73,7 @@
     "word_id": {{word_id}},
     "dimension": "R/P/U",
     "type": "题目类型",
-    "question": "<ruby>...</ruby>",
+    "question": "<ruby>...<rt>...</rt></ruby>",
     "options": [{{"text": "..."}}, {{"text": "..."}}, {{"text": "..."}}, {{"text": "..."}}],
     "correct_index": 0,
     "explanation": "...",

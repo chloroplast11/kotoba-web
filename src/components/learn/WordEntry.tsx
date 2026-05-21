@@ -1,7 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
 import type { ExampleSentence } from "@/types/domain";
-import RubyText from "@/components/ui/RubyText";
 import PlayButton from "@/components/ui/PlayButton";
 import { getCurrentTime } from "@/lib/time";
 import { getWordAudioUrl, getSentenceAudioUrl } from "@/lib/audio";
@@ -16,7 +15,7 @@ export interface WordData {
   pitchAccent: string | null;
   homophones: string | null;
   exampleSentences: ExampleSentence[];
-  synonyms: string[];
+  synonyms: string | null;
 }
 
 export function WordEntryBody({
@@ -65,10 +64,10 @@ export function WordEntryBody({
             {word.exampleSentences.map((ex, i) => (
               <div className="example" key={i}>
                 <div className="example-jp" style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-                  <span style={{ flex: 1 }}><RubyText html={ex.ja} /></span>
+                  <span style={{ flex: 1 }}>{ex.jp}</span>
                   <PlayButton
-                    src={() => getSentenceAudioUrl(ex.ja_plain)}
-                    fallbackText={ex.ja_plain}
+                    src={() => getSentenceAudioUrl(ex.jp)}
+                    fallbackText={ex.jp}
                     size="sm"
                     label="再生"
                     ariaLabel="例文を再生"
@@ -80,15 +79,11 @@ export function WordEntryBody({
           </>
         )}
 
-        {word.synonyms.length > 0 && (
-          <>
+        {word.synonyms && (
+          <section>
             <div className="subhead">近義語</div>
-            {word.synonyms.map((s, i) => (
-              <div className="synonym" key={i}>
-                <div className="synonym-word">{s}</div>
-              </div>
-            ))}
-          </>
+            <p className="mt-1 text-sm whitespace-pre-wrap">{word.synonyms}</p>
+          </section>
         )}
 
         {word.homophones && (

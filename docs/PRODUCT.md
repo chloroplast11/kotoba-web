@@ -425,7 +425,6 @@ npm run db:seed（入库）
 - Auth.js 接入
 - 多用户数据隔离
 - Vercel + Neon / Supabase 部署
-- **PWA 离线**
 
 ### Phase 7：多等级词库扩展（部署后）⭐⭐
 

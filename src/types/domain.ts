@@ -42,10 +42,8 @@ export interface WordStateEntry {
 }
 
 export interface ExampleSentence {
-  ja: string;
-  ja_plain: string;
+  jp: string;
   zh: string;
-  en: string;
 }
 
 export interface QuestionOption {

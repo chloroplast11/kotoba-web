@@ -156,7 +156,6 @@ UI 文案分两区：
 - [ ] Auth.js 接入
 - [ ] 多用户数据隔离
 - [ ] 部署到 Vercel + Neon/Supabase
-- [ ] PWA 离线
 
 ### Phase 7：多等级词库扩展（部署后）⭐⭐
 

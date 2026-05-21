@@ -28,8 +28,8 @@ export default async function LearnPage({
     level: word.level,
     pitchAccent: word.pitchAccent,
     homophones: word.homophones,
-    exampleSentences: JSON.parse(word.exampleSentences) as ExampleSentence[],
-    synonyms: JSON.parse(word.synonyms) as string[],
+    exampleSentences: (word.exampleSentences ? JSON.parse(word.exampleSentences) : []) as ExampleSentence[],
+    synonyms: word.synonyms || null,
   };
 
   return (

@@ -13,7 +13,9 @@
 #data
 n2_enriched.json
 n2_questions.json
-n2.json
+n2_questions.json*
+n2_words.json
+question_validation_report.json
 /N2
 
 

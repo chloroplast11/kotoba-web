@@ -27,7 +27,7 @@ export async function GET(
     pitchAccent: word.pitchAccent,
     homophones: word.homophones,
     audioFile: word.audioFile,
-    exampleSentences: JSON.parse(word.exampleSentences) as ExampleSentence[],
-    synonyms: JSON.parse(word.synonyms) as string[],
+    exampleSentences: (word.exampleSentences ? JSON.parse(word.exampleSentences) : []) as ExampleSentence[],
+    synonyms: word.synonyms || null,
   });
 }
